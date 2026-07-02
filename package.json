@@ -1,0 +1,15 @@
+{
+  "name": "astro-node-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Swiss Ephemeris based astrology API for mingli-app",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js",
+    "test:chart": "node src/test-chart.js"
+  },
+  "dependencies": {
+    "sweph": "^2.10.3-7"
+  }
+}
