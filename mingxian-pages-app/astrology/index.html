@@ -144,6 +144,27 @@
                 <span>时区</span>
                 <input id="astro-tz" type="text" placeholder="+08:00">
               </label>
+              <label class="field">
+                <span>宫制</span>
+                <select id="astro-house-system">
+                  <option value="P">Placidus</option>
+                  <option value="W">Whole Sign</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>北交点</span>
+                <select id="astro-node-type">
+                  <option value="true">True Node</option>
+                  <option value="mean">Mean Node</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>莉莉丝</span>
+                <select id="astro-lilith-type">
+                  <option value="mean">Mean Lilith</option>
+                  <option value="oscu">True Lilith</option>
+                </select>
+              </label>
               <div class="button-stack astro-form-actions">
                 <button class="action-button" id="astro-recalc" type="button">排盘</button>
                 <button class="action-button secondary" id="astro-clear-natal" type="button">清空本命资料</button>
@@ -308,6 +329,9 @@
       const latInput = document.getElementById("astro-lat");
       const lonInput = document.getElementById("astro-lon");
       const tzInput = document.getElementById("astro-tz");
+      const houseSystemInput = document.getElementById("astro-house-system");
+      const nodeTypeInput = document.getElementById("astro-node-type");
+      const lilithTypeInput = document.getElementById("astro-lilith-type");
       const cityStatus = document.getElementById("astro-city-status");
       const cityCandidates = document.getElementById("astro-city-candidates");
       const resolveCityButton = document.getElementById("astro-resolve-city");
@@ -680,7 +704,20 @@
         }
         const [year, month, day] = date.split("-").map(Number);
         const [hour, minute] = time.split(":").map(Number);
-        const payload = { year, month, day, hour, minute, second: 0, latitude, longitude, timezone };
+        const payload = {
+          year,
+          month,
+          day,
+          hour,
+          minute,
+          second: 0,
+          latitude,
+          longitude,
+          timezone,
+          houseSystem: String(houseSystemInput?.value || "P").trim() || "P",
+          nodeType: String(nodeTypeInput?.value || "true").trim() || "true",
+          lilithType: String(lilithTypeInput?.value || "mean").trim() || "mean",
+        };
         const response = await fetch(`${astroApiBase}/chart`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -2,7 +2,7 @@ import sweph from "sweph";
 
 const { constants } = sweph;
 
-const PLANETS = [
+const BASE_PLANETS = [
   ["sun", constants.SE_SUN],
   ["moon", constants.SE_MOON],
   ["mercury", constants.SE_MERCURY],
@@ -14,13 +14,37 @@ const PLANETS = [
   ["neptune", constants.SE_NEPTUNE],
   ["pluto", constants.SE_PLUTO],
   ["chiron", constants.SE_CHIRON],
-  ["northNode", constants.SE_TRUE_NODE],
-  ["lilith", constants.SE_MEAN_APOG],
   ["ceres", constants.SE_CERES],
   ["pallas", constants.SE_PALLAS],
   ["juno", constants.SE_JUNO],
   ["vesta", constants.SE_VESTA],
 ];
+
+function resolveHouseSystem(value) {
+  const raw = String(value || "P").trim().toUpperCase();
+  if (raw === "W") return "W";
+  return "P";
+}
+
+function resolveNodeBody(value) {
+  return String(value || "").trim().toLowerCase() === "mean"
+    ? constants.SE_MEAN_NODE
+    : constants.SE_TRUE_NODE;
+}
+
+function resolveLilithBody(value) {
+  return String(value || "").trim().toLowerCase() === "oscu"
+    ? constants.SE_OSCU_APOG
+    : constants.SE_MEAN_APOG;
+}
+
+function buildPlanetRequests(options = {}) {
+  return [
+    ...BASE_PLANETS,
+    ["northNode", resolveNodeBody(options.nodeType)],
+    ["lilith", resolveLilithBody(options.lilithType)],
+  ];
+}
 
 function normalizeAngle(angle) {
   let value = Number(angle) % 360;
@@ -103,6 +127,9 @@ export function buildChart(input) {
   const latitude = Number(input.latitude);
   const longitude = Number(input.longitude);
   const timezone = String(input.timezone || "").trim();
+  const houseSystem = resolveHouseSystem(input.houseSystem);
+  const nodeType = String(input.nodeType || "true").trim().toLowerCase() === "mean" ? "mean" : "true";
+  const lilithType = String(input.lilithType || "mean").trim().toLowerCase() === "oscu" ? "oscu" : "mean";
 
   if (!year || !month || !day) throw new Error("出生日期不完整。");
   if (!Number.isFinite(hour) || !Number.isFinite(minute)) throw new Error("出生时间不完整。");
@@ -127,7 +154,7 @@ export function buildChart(input) {
   }
 
   const [, jdUt] = jdResult.data;
-  const housesResult = sweph.houses_ex2(jdUt, 0, latitude, longitude, "P");
+  const housesResult = sweph.houses_ex2(jdUt, 0, latitude, longitude, houseSystem);
 
   if (!housesResult || !housesResult.data?.houses || !housesResult.data?.points) {
     throw new Error("宫位计算失败。");
@@ -136,7 +163,7 @@ export function buildChart(input) {
   const houses = housesResult.data.houses.map((value) => normalizeAngle(value));
   const points = housesResult.data.points.map((value) => normalizeAngle(value));
 
-  const planets = PLANETS.map(([key, id]) => {
+  const planets = buildPlanetRequests({ nodeType, lilithType }).map(([key, id]) => {
     const result = calcPlanet(jdUt, id);
     const planetLongitude = normalizeAngle(result.data[0]);
     return {
@@ -198,6 +225,9 @@ export function buildChart(input) {
       timezone,
       timezoneMinutes: Math.round(offsetHours * 60),
       timezoneLabel: formatOffsetMinutes(Math.round(offsetHours * 60)),
+      houseSystem,
+      nodeType,
+      lilithType,
     },
     julian: {
       ut: jdUt,

@@ -7,6 +7,9 @@
   var astroLat = document.querySelector("#astro-lat");
   var astroLon = document.querySelector("#astro-lon");
   var astroTz = document.querySelector("#astro-tz");
+  var astroHouseSystem = document.querySelector("#astro-house-system");
+  var astroNodeType = document.querySelector("#astro-node-type");
+  var astroLilithType = document.querySelector("#astro-lilith-type");
   var astroRecalc = document.querySelector("#astro-recalc");
   var astroClearNatal = document.querySelector("#astro-clear-natal");
   var astroResolveCity = document.querySelector("#astro-resolve-city");
@@ -309,6 +312,9 @@
       lat: astroLat?.value || "",
       lon: astroLon?.value || "",
       tz: astroTz?.value || "",
+      hsys: astroHouseSystem?.value || "P",
+      ntype: astroNodeType?.value || "true",
+      ltype: astroLilithType?.value || "mean",
       tcity: astroTransitCity?.value || "",
       tdate: astroTransitDate?.value || "",
       ttime: astroTransitTime?.value || "",
@@ -344,6 +350,9 @@
     assign(astroLat, "lat");
     assign(astroLon, "lon");
     assign(astroTz, "tz");
+    assign(astroHouseSystem, "hsys");
+    assign(astroNodeType, "ntype");
+    assign(astroLilithType, "ltype");
     assign(astroTransitCity, "tcity");
     assign(astroTransitDate, "tdate");
     assign(astroTransitTime, "ttime");
@@ -380,7 +389,10 @@
       second: parts.second || 0,
       latitude,
       longitude,
-      timezone
+      timezone,
+      houseSystem: String(astroHouseSystem?.value || "P").trim() || "P",
+      nodeType: String(astroNodeType?.value || "true").trim() || "true",
+      lilithType: String(astroLilithType?.value || "mean").trim() || "mean"
     };
   }
   async function requestChart(payload) {
@@ -493,7 +505,10 @@
         second: 0,
         latitude: lat,
         longitude: lon,
-        timezone: tz
+        timezone: tz,
+        houseSystem: String(astroHouseSystem?.value || "P").trim() || "P",
+        nodeType: String(astroNodeType?.value || "true").trim() || "true",
+        lilithType: String(astroLilithType?.value || "mean").trim() || "mean"
       });
       return buildNatalStateFromChart("natal", chart2, {
         name: String(astroName?.value || "").trim() || "\u672A\u547D\u540D",
@@ -553,7 +568,10 @@
       `\u5BF9\u8C61\uFF1A${natal?.name || "-"}`,
       `${natal?.mode === "live" ? "\u663E\u793A\u5730\u70B9" : "\u51FA\u751F\u57CE\u5E02"}\uFF1A${natal?.city || "-"}`,
       `${natal?.mode === "live" ? "\u76D8\u9762\u65F6\u95F4" : "\u51FA\u751F\u65F6\u95F4"}\uFF1A${natal ? formatDateHuman(natal.date, natal.tz) : "-"}`,
-      `\u5750\u6807\uFF1A${Number(natal?.lat || 0).toFixed(4)}, ${Number(natal?.lon || 0).toFixed(4)}`
+      `\u5750\u6807\uFF1A${Number(natal?.lat || 0).toFixed(4)}, ${Number(natal?.lon || 0).toFixed(4)}`,
+      `\u5BAB\u5236\uFF1A${natal?.rawChart?.input?.houseSystem === "W" ? "Whole Sign" : "Placidus"}`,
+      `\u5317\u4EA4\u70B9\uFF1A${natal?.rawChart?.input?.nodeType === "mean" ? "Mean Node" : "True Node"}`,
+      `\u8389\u8389\u4E1D\uFF1A${natal?.rawChart?.input?.lilithType === "oscu" ? "True Lilith" : "Mean Lilith"}`
     ].join("\n");
     const transitLine = [
       `\u67E5\u8BE2\u57CE\u5E02\uFF1A${astroTransitCity?.value || "-"}`,
@@ -567,7 +585,7 @@
       "\u884C\u8FD0\u53C2\u6570",
       transitLine,
       "",
-      `\u8BA1\u7B97\u6838\u5FC3\uFF1ASwiss Ephemeris / \u70ED\u5E26\u9EC4\u9053 / Placidus \u5BAB\u5236`
+      `\u8BA1\u7B97\u6838\u5FC3\uFF1ASwiss Ephemeris / \u70ED\u5E26\u9EC4\u9053 / ${natal?.rawChart?.input?.houseSystem === "W" ? "Whole Sign" : "Placidus"} \u5BAB\u5236 / ${natal?.rawChart?.input?.nodeType === "mean" ? "Mean Node" : "True Node"} / ${natal?.rawChart?.input?.lilithType === "oscu" ? "True Lilith" : "Mean Lilith"}`
     ].join("\n");
   }
   function renderSummaryCard(natal, transit) {
