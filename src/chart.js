@@ -13,6 +13,8 @@ const PLANETS = [
   ["uranus", constants.SE_URANUS],
   ["neptune", constants.SE_NEPTUNE],
   ["pluto", constants.SE_PLUTO],
+  ["chiron", constants.SE_CHIRON],
+  ["northNode", constants.SE_TRUE_NODE],
 ];
 
 function normalizeAngle(angle) {
@@ -142,6 +144,19 @@ export function buildChart(input) {
       house: findHouse(planetLongitude, houses),
     };
   });
+
+  const northNode = planets.find((item) => item.key === "northNode");
+  if (northNode) {
+    planets.push({
+      key: "southNode",
+      longitude: normalizeAngle(northNode.longitude + 180),
+      latitude: -Number(northNode.latitude || 0),
+      distance: Number(northNode.distance || 0),
+      speed: Number(northNode.speed || 0),
+      signIndex: signIndex(northNode.longitude + 180),
+      house: findHouse(northNode.longitude + 180, houses),
+    });
+  }
 
   return {
     input: {
