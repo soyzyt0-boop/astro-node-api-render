@@ -73,6 +73,12 @@
     chiron: { label: "\u51EF\u9F99", glyph: "\u26B7" },
     northNode: { label: "\u5317\u4EA4", glyph: "\u260A" },
     southNode: { label: "\u5357\u4EA4", glyph: "\u260B" },
+    lilith: { label: "\u8389\u8389\u4E1D", glyph: "Lil" },
+    ceres: { label: "\u8C37\u795E", glyph: "\u26B3" },
+    pallas: { label: "\u667A\u795E", glyph: "\u26B4" },
+    juno: { label: "\u5A5A\u795E", glyph: "\u26B5" },
+    vesta: { label: "\u7076\u795E", glyph: "\u26B6" },
+    fortune: { label: "\u798F\u70B9", glyph: "PF" },
     ascendant: { label: "\u4E0A\u5347", glyph: "Asc" },
     midheaven: { label: "\u5929\u9876", glyph: "MC" }
   };

@@ -15,6 +15,11 @@ const PLANETS = [
   ["pluto", constants.SE_PLUTO],
   ["chiron", constants.SE_CHIRON],
   ["northNode", constants.SE_TRUE_NODE],
+  ["lilith", constants.SE_MEAN_APOG],
+  ["ceres", constants.SE_CERES],
+  ["pallas", constants.SE_PALLAS],
+  ["juno", constants.SE_JUNO],
+  ["vesta", constants.SE_VESTA],
 ];
 
 function normalizeAngle(angle) {
@@ -155,6 +160,28 @@ export function buildChart(input) {
       speed: Number(northNode.speed || 0),
       signIndex: signIndex(northNode.longitude + 180),
       house: findHouse(northNode.longitude + 180, houses),
+    });
+  }
+
+  const sun = planets.find((item) => item.key === "sun");
+  const moon = planets.find((item) => item.key === "moon");
+  if (sun && moon) {
+    const ascLongitude = points[0];
+    const dscLongitude = normalizeAngle(ascLongitude + 180);
+    const isDayChart = ascLongitude < dscLongitude
+      ? sun.longitude >= ascLongitude && sun.longitude < dscLongitude
+      : sun.longitude >= ascLongitude || sun.longitude < dscLongitude;
+    const fortuneLongitude = isDayChart
+      ? normalizeAngle(ascLongitude + moon.longitude - sun.longitude)
+      : normalizeAngle(ascLongitude + sun.longitude - moon.longitude);
+    planets.push({
+      key: "fortune",
+      longitude: fortuneLongitude,
+      latitude: 0,
+      distance: 0,
+      speed: 0,
+      signIndex: signIndex(fortuneLongitude),
+      house: findHouse(fortuneLongitude, houses),
     });
   }
 
