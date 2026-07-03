@@ -38,6 +38,24 @@ function parseOffsetToHours(tz) {
   return sign * (hours + minutes / 60);
 }
 
+function toUtcDateParts(year, month, day, hour, minute, second, offsetHours) {
+  const converted = sweph.utc_time_zone(
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    offsetHours
+  );
+
+  if (!converted || !Number.isFinite(converted.year) || !Number.isFinite(converted.hour)) {
+    throw new Error("本地时间转 UTC 失败。");
+  }
+
+  return converted;
+}
+
 function signIndex(longitude) {
   return Math.floor(normalizeAngle(longitude) / 30) % 12;
 }
@@ -85,15 +103,15 @@ export function buildChart(input) {
   if (!timezone) throw new Error("时区不完整。");
 
   const offsetHours = parseOffsetToHours(timezone);
-  const utcHour = hour - offsetHours;
+  const utc = toUtcDateParts(year, month, day, hour, minute, second, offsetHours);
 
   const jdResult = sweph.utc_to_jd(
-    year,
-    month,
-    day,
-    utcHour,
-    minute,
-    second,
+    utc.year,
+    utc.month,
+    utc.day,
+    utc.hour,
+    utc.minute,
+    utc.second,
     constants.SE_GREG_CAL
   );
 
