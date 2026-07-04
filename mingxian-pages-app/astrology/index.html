@@ -147,8 +147,8 @@
               <label class="field">
                 <span>宫制</span>
                 <select id="astro-house-system">
+                  <option value="W" selected>Whole Sign</option>
                   <option value="P">Placidus</option>
-                  <option value="W">Whole Sign</option>
                 </select>
               </label>
               <label class="field">
@@ -165,13 +165,59 @@
                   <option value="oscu">True Lilith</option>
                 </select>
               </label>
+              <label class="field">
+                <span>点位显示</span>
+                <select id="astro-point-set">
+                  <option value="core">核心点位</option>
+                  <option value="advanced">扩展点位</option>
+                  <option value="all">全部点位</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>相位筛选</span>
+                <select id="astro-aspect-mode">
+                  <option value="major">主要相位</option>
+                  <option value="all">全部已设相位</option>
+                  <option value="hard">只看硬相位</option>
+                  <option value="soft">只看软相位</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>容许度系数</span>
+                <select id="astro-orb-scale">
+                  <option value="1">标准</option>
+                  <option value="0.75">偏紧</option>
+                  <option value="1.25">偏宽</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>轮盘图层</span>
+                <select id="astro-wheel-layer">
+                  <option value="both">本命 + 行运</option>
+                  <option value="natal">只看本命</option>
+                  <option value="transit">只看行运</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>相位线</span>
+                <select id="astro-aspect-lines">
+                  <option value="on">显示</option>
+                  <option value="off">隐藏</option>
+                </select>
+              </label>
               <div class="button-stack astro-form-actions">
                 <button class="action-button" id="astro-recalc" type="button">排盘</button>
                 <button class="action-button secondary" id="astro-clear-natal" type="button">清空本命资料</button>
               </div>
             </div>
             <p class="micro-note" id="astro-city-status">要成功排盘，至少需要补全：出生日期、出生时间、纬度、经度、时区。若只填城市名，还要先点“校准城市”。</p>
+            <div class="chip-row" id="astro-presets">
+              <button class="chip" type="button" data-astro-preset="simple">简盘</button>
+              <button class="chip" type="button" data-astro-preset="pro">专业盘</button>
+              <button class="chip" type="button" data-astro-preset="asteroids">小行星盘</button>
+            </div>
             <div class="astro-candidate-list" id="astro-city-candidates"></div>
+            <div class="astro-candidate-list" id="astro-point-toggles"></div>
           </div>
         </div>
 
@@ -216,6 +262,25 @@
 
       <div class="chart-wrap astro-wheel-wrap">
         <svg id="astro-wheel" viewBox="0 0 720 720" role="img" aria-label="本命与行运占星轮盘"></svg>
+      </div>
+      <div class="astro-wheel-diagnostics" id="astro-wheel-diagnostics">Wheel diag: pending</div>
+      <div class="button-row astro-button-row" style="margin-top: 12px;">
+        <button class="action-button secondary" id="astro-export-image" type="button">导出排盘图片</button>
+      </div>
+
+      <div class="astro-grid">
+        <div class="result-card astro-card">
+          <div class="result-block compact">
+            <p class="block-label">轮盘图例</p>
+            <div class="astro-list" id="astro-wheel-legend"></div>
+          </div>
+        </div>
+        <div class="result-card astro-card">
+          <div class="result-block compact">
+            <p class="block-label">点位说明</p>
+            <div class="astro-summary-card" id="astro-wheel-focus">点轮盘里的任一点位，查看详细说明。</div>
+          </div>
+        </div>
       </div>
 
       <div class="astro-grid">
@@ -714,7 +779,7 @@
           latitude,
           longitude,
           timezone,
-          houseSystem: String(houseSystemInput?.value || "P").trim() || "P",
+          houseSystem: String(houseSystemInput?.value || "W").trim() || "W",
           nodeType: String(nodeTypeInput?.value || "true").trim() || "true",
           lilithType: String(lilithTypeInput?.value || "mean").trim() || "mean",
         };

@@ -10,6 +10,13 @@
   var astroHouseSystem = document.querySelector("#astro-house-system");
   var astroNodeType = document.querySelector("#astro-node-type");
   var astroLilithType = document.querySelector("#astro-lilith-type");
+  var astroPointSet = document.querySelector("#astro-point-set");
+  var astroAspectMode = document.querySelector("#astro-aspect-mode");
+  var astroOrbScale = document.querySelector("#astro-orb-scale");
+  var astroWheelLayer = document.querySelector("#astro-wheel-layer");
+  var astroAspectLines = document.querySelector("#astro-aspect-lines");
+  var astroPresets = document.querySelector("#astro-presets");
+  var astroPointToggles = document.querySelector("#astro-point-toggles");
   var astroRecalc = document.querySelector("#astro-recalc");
   var astroClearNatal = document.querySelector("#astro-clear-natal");
   var astroResolveCity = document.querySelector("#astro-resolve-city");
@@ -26,6 +33,10 @@
   var astroNow = document.querySelector("#astro-now");
   var astroTransitApply = document.querySelector("#astro-transit-apply");
   var astroWheel = document.querySelector("#astro-wheel");
+  var astroWheelWrap = document.querySelector(".astro-wheel-wrap");
+  var astroExportImage = document.querySelector("#astro-export-image");
+  var astroWheelLegend = document.querySelector("#astro-wheel-legend");
+  var astroWheelFocus = document.querySelector("#astro-wheel-focus");
   var astroNatalSummary = document.querySelector("#astro-natal-summary");
   var astroTransitSummary = document.querySelector("#astro-transit-summary");
   var astroNatalList = document.querySelector("#astro-natal-list");
@@ -49,6 +60,7 @@
   var astroNatalSummaryLabel = document.querySelector("#astro-natal-summary-label");
   var astroNatalListLabel = document.querySelector("#astro-natal-list-label");
   var astroParamsLabel = document.querySelector("#astro-params-label");
+  var astroWheelDiagnostics = document.querySelector("#astro-wheel-diagnostics");
   var ASTRO_VALIDATION_SAMPLES = [
     { label: "Beijing 1986", diff: 0 },
     { label: "Madrid 1993", diff: 0 },
@@ -57,11 +69,14 @@
   ];
   var ASTRO_STORAGE_KEY = "mingli-astro-history-v2";
   var ASTRO_API_BASE_KEY = "mingli-astro-api-base";
+  var ASTRO_UI_PREFS_KEY = "mingli-astro-ui-prefs-v1";
   var DEFAULT_LIVE_LAT = 41.3874;
   var DEFAULT_LIVE_LON = 2.1686;
   var DEFAULT_LIVE_CITY = "Barcelona";
   var SIGNS = ["\u767D\u7F8A", "\u91D1\u725B", "\u53CC\u5B50", "\u5DE8\u87F9", "\u72EE\u5B50", "\u5904\u5973", "\u5929\u79E4", "\u5929\u874E", "\u5C04\u624B", "\u6469\u7FAF", "\u6C34\u74F6", "\u53CC\u9C7C"];
-  var SIGN_GLYPHS = ["\u2648", "\u2649", "\u264A", "\u264B", "\u264C", "\u264D", "\u264E", "\u264F", "\u2650", "\u2651", "\u2652", "\u2653"];
+  var SIGN_GLYPHS = ["Ar", "Ta", "Ge", "Cn", "Le", "Vi", "Li", "Sc", "Sg", "Cp", "Aq", "Pi"];
+  var SIGN_SYMBOLS = ["\u2648", "\u2649", "\u264A", "\u264B", "\u264C", "\u264D", "\u264E", "\u264F", "\u2650", "\u2651", "\u2652", "\u2653"];
+  var SIGN_MARKS = Array.from({ length: 12 }, (_, index) => ({ index }));
   var PLANET_META = {
     sun: { label: "\u592A\u9633", glyph: "\u2609" },
     moon: { label: "\u6708\u4EAE", glyph: "\u263D" },
@@ -82,24 +97,82 @@
     juno: { label: "\u5A5A\u795E", glyph: "\u26B5" },
     vesta: { label: "\u7076\u795E", glyph: "\u26B6" },
     fortune: { label: "\u798F\u70B9", glyph: "PF" },
+    vertex: { label: "Vertex", glyph: "Vx" },
+    antiVertex: { label: "Anti-Vx", glyph: "AVx" },
+    eastPoint: { label: "East Point", glyph: "EP" },
     ascendant: { label: "\u4E0A\u5347", glyph: "Asc" },
-    midheaven: { label: "\u5929\u9876", glyph: "MC" }
+    descendant: { label: "\u4E0B\u964D", glyph: "Dsc" },
+    midheaven: { label: "\u5929\u9876", glyph: "MC" },
+    imumCoeli: { label: "\u5929\u5E95", glyph: "IC" }
   };
+  var CORE_POINT_KEYS = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "chiron", "northNode", "southNode", "ascendant", "midheaven"];
+  var ADVANCED_POINT_KEYS = ["chiron", "northNode", "southNode", "lilith", "fortune", "vertex", "antiVertex", "eastPoint", "ceres", "pallas", "juno", "vesta"];
   var ASPECT_LABELS = {
-    conjunction: { label: "\u5408", color: "#9c7b68", angle: 0, orb: 5 },
-    sextile: { label: "\u516D\u5408", color: "#7d8a72", angle: 60, orb: 3.5 },
-    square: { label: "\u5211", color: "#a26961", angle: 90, orb: 4.5 },
-    trine: { label: "\u62F1", color: "#7a7f9a", angle: 120, orb: 4.5 },
-    opposition: { label: "\u51B2", color: "#8c6a53", angle: 180, orb: 5 }
+    conjunction: { label: "\u5408", color: "#8ea0b8", angle: 0, orb: 5 },
+    semisextile: { label: "\u534A\u516D\u5408", color: "#98d8c4", angle: 30, orb: 2 },
+    semisquare: { label: "\u534A\u5211", color: "#ff8f8f", angle: 45, orb: 2 },
+    sextile: { label: "\u516D\u5408", color: "#39d6a3", angle: 60, orb: 3.5 },
+    square: { label: "\u5211", color: "#ff5d5d", angle: 90, orb: 4.5 },
+    trine: { label: "\u62F1", color: "#4b6bff", angle: 120, orb: 4.5 },
+    sesquiquadrate: { label: "\u500D\u534A\u5211", color: "#ff8f8f", angle: 135, orb: 2 },
+    quincunx: { label: "\u6885\u82B1", color: "#59d7bb", angle: 150, orb: 2.5 },
+    opposition: { label: "\u51B2", color: "#ff4d4d", angle: 180, orb: 5 }
   };
+  var MAJOR_ASPECT_KEYS = ["conjunction", "sextile", "square", "trine", "opposition"];
   var astroState = {
     mode: "natal",
     natal: null,
     transit: null,
     showTransit: false,
     cityCandidates: [],
-    transitCityCandidates: []
+    transitCityCandidates: [],
+    visiblePointKeys: [],
+    focusedPoint: null,
+    focusedAspect: null
   };
+  function loadUiPrefs() {
+    try {
+      return JSON.parse(localStorage.getItem(ASTRO_UI_PREFS_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  }
+  function saveUiPrefs() {
+    const prefs = {
+      visiblePointKeys: astroState.visiblePointKeys,
+      wheelLayer: astroWheelLayer?.value || "both",
+      aspectLines: astroAspectLines?.value || "on",
+      pointSet: astroPointSet?.value || "core",
+      aspectMode: astroAspectMode?.value || "major",
+      orbScale: astroOrbScale?.value || "1"
+    };
+    localStorage.setItem(ASTRO_UI_PREFS_KEY, JSON.stringify(prefs));
+  }
+  function applyPreset(name) {
+    const preset = String(name || "").trim();
+    if (preset === "simple") {
+      if (astroPointSet) astroPointSet.value = "core";
+      if (astroAspectMode) astroAspectMode.value = "major";
+      if (astroOrbScale) astroOrbScale.value = "1";
+      if (astroWheelLayer) astroWheelLayer.value = "both";
+      if (astroAspectLines) astroAspectLines.value = "on";
+    } else if (preset === "pro") {
+      if (astroPointSet) astroPointSet.value = "advanced";
+      if (astroAspectMode) astroAspectMode.value = "major";
+      if (astroOrbScale) astroOrbScale.value = "1";
+      if (astroWheelLayer) astroWheelLayer.value = "both";
+      if (astroAspectLines) astroAspectLines.value = "on";
+    } else if (preset === "asteroids") {
+      if (astroPointSet) astroPointSet.value = "all";
+      if (astroAspectMode) astroAspectMode.value = "major";
+      if (astroOrbScale) astroOrbScale.value = "0.75";
+      if (astroWheelLayer) astroWheelLayer.value = "both";
+      if (astroAspectLines) astroAspectLines.value = "off";
+    }
+    astroState.visiblePointKeys = [];
+    saveUiPrefs();
+    recalcAstro();
+  }
   var natalSuggestTimer = null;
   var transitSuggestTimer = null;
   function getAstroApiBase() {
@@ -141,6 +214,59 @@
   function angleDistance(a, b) {
     const diff = Math.abs(normalizeAngle(a) - normalizeAngle(b));
     return diff > 180 ? 360 - diff : diff;
+  }
+  function modernPlanetColor(key) {
+    const palette = {
+      sun: "#ff5a52",
+      moon: "#2b7cff",
+      mercury: "#41d4a8",
+      venus: "#d88b3e",
+      mars: "#ff5a52",
+      jupiter: "#ff6a5f",
+      saturn: "#c49454",
+      uranus: "#3dd7b1",
+      neptune: "#2f8cff",
+      pluto: "#0f7eea",
+      northNode: "#4cc9f0",
+      southNode: "#8ecae6",
+      lilith: "#5b4d41",
+      chiron: "#8a6b57"
+    };
+    return palette[key] || "#58616d";
+  }
+  function signUiColor(index) {
+    const palette = [
+      "#ff655b",
+      "#d48a39",
+      "#32c98e",
+      "#2392ff",
+      "#ff5f57",
+      "#d99345",
+      "#42c7ad",
+      "#0e87f0",
+      "#d38b40",
+      "#c58b4a",
+      "#35c6a5",
+      "#2c86ff"
+    ];
+    return palette[index % palette.length];
+  }
+  function houseUiColor(house) {
+    const palette = {
+      1: "#ef6a62",
+      2: "#ca8b48",
+      3: "#38b98b",
+      4: "#3b86ea",
+      5: "#ef6a62",
+      6: "#ca8b48",
+      7: "#38b98b",
+      8: "#3b86ea",
+      9: "#ef6a62",
+      10: "#ca8b48",
+      11: "#38b98b",
+      12: "#3b86ea"
+    };
+    return palette[house] || "#8ea0bf";
   }
   function longitudeToSign(angle) {
     const normalized = normalizeAngle(angle);
@@ -312,7 +438,7 @@
       lat: astroLat?.value || "",
       lon: astroLon?.value || "",
       tz: astroTz?.value || "",
-      hsys: astroHouseSystem?.value || "P",
+      hsys: astroHouseSystem?.value || "W",
       ntype: astroNodeType?.value || "true",
       ltype: astroLilithType?.value || "mean",
       tcity: astroTransitCity?.value || "",
@@ -390,7 +516,7 @@
       latitude,
       longitude,
       timezone,
-      houseSystem: String(astroHouseSystem?.value || "P").trim() || "P",
+      houseSystem: String(astroHouseSystem?.value || "W").trim() || "W",
       nodeType: String(astroNodeType?.value || "true").trim() || "true",
       lilithType: String(astroLilithType?.value || "mean").trim() || "mean"
     };
@@ -424,6 +550,120 @@
       retrograde: Number(planet.speed || 0) < 0
     };
   }
+  function selectedPointSet() {
+    return String(astroPointSet?.value || "core").trim() || "core";
+  }
+  function selectedAspectMode() {
+    return String(astroAspectMode?.value || "major").trim() || "major";
+  }
+  function selectedOrbScale() {
+    const value = Number(astroOrbScale?.value || 1);
+    return Number.isFinite(value) && value > 0 ? value : 1;
+  }
+  function selectedWheelLayer() {
+    return String(astroWheelLayer?.value || "both").trim() || "both";
+  }
+  function showAspectLines() {
+    return String(astroAspectLines?.value || "on").trim() !== "off";
+  }
+  function ensureVisiblePointKeys(points = []) {
+    if (!astroState.visiblePointKeys.length) {
+      astroState.visiblePointKeys = points.map((item) => item.key);
+    }
+    if (points.some((item) => item.key === "sun") && !astroState.visiblePointKeys.includes("sun")) {
+      astroState.visiblePointKeys = ["sun", ...astroState.visiblePointKeys];
+    }
+  }
+  function renderPointToggles(points = []) {
+    if (!astroPointToggles) return;
+    ensureVisiblePointKeys(points);
+    astroPointToggles.innerHTML = points.map((item) => {
+      const active = astroState.visiblePointKeys.includes(item.key);
+      return `<button class="chip${active ? " active" : ""}" type="button" data-point-key="${item.key}">${item.glyph} ${item.label}</button>`;
+    }).join("");
+  }
+  function renderWheelLegend() {
+    if (!astroWheelLegend) return;
+    astroWheelLegend.innerHTML = [
+      `<div class="astro-item"><span class="astro-item-label">内圈</span><span class="astro-item-value">本命点位</span></div>`,
+      `<div class="astro-item"><span class="astro-item-label">外圈</span><span class="astro-item-value">行运点位</span></div>`,
+      `<div class="astro-item"><span class="astro-item-label">实线</span><span class="astro-item-value">本命内部相位</span></div>`,
+      `<div class="astro-item"><span class="astro-item-label">虚线</span><span class="astro-item-value">行运对本命相位</span></div>`
+    ].join("");
+  }
+  function renderFocusedPoint() {
+    if (!astroWheelFocus) return;
+    const point = astroState.focusedPoint;
+    if (!point) {
+      astroWheelFocus.textContent = "\u70B9\u8F6E\u76D8\u91CC\u7684\u4EFB\u4E00\u70B9\u4F4D\uFF0C\u67E5\u770B\u8BE6\u7EC6\u8BF4\u660E\u3002";
+      return;
+    }
+    astroWheelFocus.textContent = [
+      `${point.glyph} ${point.label}`,
+      `\u843D\u70B9\uFF1A${formatLongitude(point.longitude)}`,
+      point.house ? `\u5BAB\u4F4D\uFF1A${point.house}\u5BAB` : "\u5BAB\u4F4D\uFF1A-",
+      `\u987A\u9006\uFF1A${point.retrograde ? "\u9006\u884C" : "\u987A\u884C/\u865A\u70B9"}`,
+      `\u7ECF\u5EA6\uFF1A${Number(point.longitude).toFixed(2)}\xB0`
+    ].join("\n");
+  }
+  function isFocusedAspect(aspect) {
+    if (astroState.focusedAspect) {
+      return astroState.focusedAspect.a === aspect.a.key && astroState.focusedAspect.b === aspect.b.key && astroState.focusedAspect.key === aspect.key;
+    }
+    const point = astroState.focusedPoint;
+    if (!point) return false;
+    return aspect.a.key === point.key || aspect.b.key === point.key;
+  }
+  function exportWheelImage() {
+    if (!astroWheel) return;
+    const serializer = new XMLSerializer();
+    const svgText = serializer.serializeToString(astroWheel);
+    const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "mingxian-astrology-chart.svg";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+  function bindWheelInteraction() {
+    if (!astroWheel || astroWheel.dataset.bound === "1") return;
+    astroWheel.dataset.bound = "1";
+    astroWheel.addEventListener("click", (event) => {
+      const group = event.target.closest("[data-wheel-point]");
+      if (!group) return;
+      const key = String(group.getAttribute("data-wheel-point") || "");
+      const scope = String(group.getAttribute("data-wheel-scope") || "natal");
+      const source = scope === "transit" ? astroState.transit?.planets || [] : astroState.natal?.planets || [];
+      astroState.focusedPoint = source.find((item) => item.key === key) || null;
+      astroState.focusedAspect = null;
+      renderFocusedPoint();
+      renderWheel(astroState.natal, astroState.transit);
+    });
+  }
+  function filterPoints(points) {
+    const mode = selectedPointSet();
+    let filtered = points;
+    if (mode === "core") {
+      filtered = points.filter((item) => CORE_POINT_KEYS.includes(item.key));
+    } else if (mode === "advanced") {
+      filtered = points.filter((item) => CORE_POINT_KEYS.includes(item.key) || ADVANCED_POINT_KEYS.includes(item.key));
+    }
+    ensureVisiblePointKeys(filtered);
+    const visible = new Set(astroState.visiblePointKeys);
+    visible.add("sun");
+    return filtered.filter((item) => visible.has(item.key));
+  }
+  function filterAspectsByMode(aspects) {
+    const mode = selectedAspectMode();
+    if (mode === "all") return aspects;
+    if (mode === "major") return aspects.filter((item) => MAJOR_ASPECT_KEYS.includes(item.key));
+    if (mode === "hard") return aspects.filter((item) => ["conjunction", "square", "opposition"].includes(item.key));
+    if (mode === "soft") return aspects.filter((item) => ["trine", "sextile"].includes(item.key));
+    return aspects;
+  }
   function buildNatalStateFromChart(mode, chart, context) {
     const date = buildUtcDate(
       `${chart.input.year}-${String(chart.input.month).padStart(2, "0")}-${String(chart.input.day).padStart(2, "0")}`,
@@ -436,6 +676,41 @@
       end: normalizeAngle(chart.houses[(index + 1) % chart.houses.length])
     }));
     const planets = chart.planets.map(normalizePlanet);
+    planets.push(
+      {
+        key: "vertex",
+        label: PLANET_META.vertex.label,
+        glyph: PLANET_META.vertex.glyph,
+        longitude: normalizeAngle(chart.axes.vertex),
+        latitude: 0,
+        speed: 0,
+        signInfo: longitudeToSign(normalizeAngle(chart.axes.vertex)),
+        house: 0,
+        retrograde: false
+      },
+      {
+        key: "antiVertex",
+        label: PLANET_META.antiVertex.label,
+        glyph: PLANET_META.antiVertex.glyph,
+        longitude: normalizeAngle(chart.axes.vertex + 180),
+        latitude: 0,
+        speed: 0,
+        signInfo: longitudeToSign(normalizeAngle(chart.axes.vertex + 180)),
+        house: 0,
+        retrograde: false
+      },
+      {
+        key: "eastPoint",
+        label: PLANET_META.eastPoint.label,
+        glyph: PLANET_META.eastPoint.glyph,
+        longitude: normalizeAngle(chart.axes.equAsc),
+        latitude: 0,
+        speed: 0,
+        signInfo: longitudeToSign(normalizeAngle(chart.axes.equAsc)),
+        house: 0,
+        retrograde: false
+      }
+    );
     return {
       mode,
       name: context.name,
@@ -457,6 +732,7 @@
   }
   function calculateAspects(pointsA, pointsB, sameSet = false) {
     const defs = Object.entries(ASPECT_LABELS).map(([key, config]) => ({ key, ...config }));
+    const orbScale = selectedOrbScale();
     const aspects = [];
     for (let i = 0; i < pointsA.length; i += 1) {
       const a = pointsA[i];
@@ -467,7 +743,7 @@
         const delta = angleDistance(a.longitude, b.longitude);
         for (const def of defs) {
           const orb = Math.abs(delta - def.angle);
-          if (orb <= def.orb) {
+          if (orb <= def.orb * orbScale) {
             aspects.push({
               key: def.key,
               label: def.label,
@@ -483,6 +759,55 @@
       }
     }
     return aspects.sort((left, right) => left.orb - right.orb);
+  }
+  function buildAngleAspectPoints(natal) {
+    if (!natal?.angles) return [];
+    return [
+      {
+        key: "ascendant",
+        label: PLANET_META.ascendant.label,
+        glyph: PLANET_META.ascendant.glyph,
+        longitude: normalizeAngle(natal.angles.asc),
+        latitude: 0,
+        speed: 0,
+        signInfo: longitudeToSign(normalizeAngle(natal.angles.asc)),
+        house: 1,
+        retrograde: false
+      },
+      {
+        key: "descendant",
+        label: PLANET_META.descendant.label,
+        glyph: PLANET_META.descendant.glyph,
+        longitude: normalizeAngle(natal.angles.dsc),
+        latitude: 0,
+        speed: 0,
+        signInfo: longitudeToSign(normalizeAngle(natal.angles.dsc)),
+        house: 7,
+        retrograde: false
+      },
+      {
+        key: "midheaven",
+        label: PLANET_META.midheaven.label,
+        glyph: PLANET_META.midheaven.glyph,
+        longitude: normalizeAngle(natal.angles.mc),
+        latitude: 0,
+        speed: 0,
+        signInfo: longitudeToSign(normalizeAngle(natal.angles.mc)),
+        house: 10,
+        retrograde: false
+      },
+      {
+        key: "imumCoeli",
+        label: PLANET_META.imumCoeli.label,
+        glyph: PLANET_META.imumCoeli.glyph,
+        longitude: normalizeAngle(natal.angles.ic),
+        latitude: 0,
+        speed: 0,
+        signInfo: longitudeToSign(normalizeAngle(natal.angles.ic)),
+        house: 4,
+        retrograde: false
+      }
+    ];
   }
   async function buildNatalState() {
     const useNatalMode = getAstroMode() === "natal";
@@ -506,7 +831,7 @@
         latitude: lat,
         longitude: lon,
         timezone: tz,
-        houseSystem: String(astroHouseSystem?.value || "P").trim() || "P",
+        houseSystem: String(astroHouseSystem?.value || "W").trim() || "W",
         nodeType: String(astroNodeType?.value || "true").trim() || "true",
         lilithType: String(astroLilithType?.value || "mean").trim() || "mean"
       });
@@ -536,7 +861,11 @@
     const parts = buildLocalDateParts(shiftedDate, tz);
     const chart = await requestChart(buildChartPayloadFromParts(parts, natal.lat, natal.lon, tz));
     const planets = chart.planets.map(normalizePlanet);
-    const transitAspects = calculateAspects(planets, natal.planets).slice(0, 16);
+    const transitAspectTargets = [
+      ...filterPoints(natal.planets),
+      ...buildAngleAspectPoints(natal)
+    ];
+    const transitAspects = filterAspectsByMode(calculateAspects(filterPoints(planets), transitAspectTargets)).slice(0, 24);
     return {
       date: shiftedDate,
       tz,
@@ -617,16 +946,31 @@
       `\u5929\u5E95\uFF1A${formatLongitude(natal.angles.ic)}`
     ].join("\n");
   }
+  function renderWheelDiagnostics(lines) {
+    if (!astroWheelDiagnostics) return;
+    astroWheelDiagnostics.textContent = Array.isArray(lines) ? lines.join("\n") : String(lines || "");
+  }
   function clearAstroOutputs(message = "\u5F85\u8BA1\u7B97\u3002") {
     if (astroNatalSummary) astroNatalSummary.textContent = message;
     if (astroTransitSummary) astroTransitSummary.textContent = "\u5F85\u8BA1\u7B97\u3002";
     if (astroTransitJudgement) astroTransitJudgement.textContent = "\u5F85\u8BA1\u7B97\u3002";
     if (astroSummaryCard) astroSummaryCard.textContent = "";
     if (astroDebugCard) astroDebugCard.textContent = "";
-    if (astroWheel) astroWheel.innerHTML = "";
+    if (astroWheelWrap) {
+      astroWheelWrap.innerHTML = `<svg id="astro-wheel" viewBox="0 0 720 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="本命与行运占星轮盘"><rect x="0" y="0" width="720" height="720" fill="rgba(251,247,240,0.92)"/><text x="360" y="332" text-anchor="middle" font-size="24" fill="#5b4636">当前没有可显示的轮盘</text><text x="360" y="372" text-anchor="middle" font-size="15" fill="#7c6856">${message}</text></svg>`;
+      astroWheel = document.querySelector("#astro-wheel");
+      bindWheelInteraction();
+    } else if (astroWheel) {
+      astroWheel.innerHTML = "";
+    }
     renderList(astroNatalList, [], () => "");
     renderList(astroTransitList, [], () => "");
     renderList(astroAspectList, [], () => "");
+    renderWheelDiagnostics([
+      "wheel: cleared",
+      `hasWrap: ${astroWheelWrap ? "yes" : "no"}`,
+      `hasSvg: ${astroWheel ? "yes" : "no"}`
+    ]);
   }
   function renderModeLabels(natal) {
     const isLive = natal?.mode === "live";
@@ -664,11 +1008,13 @@
   function renderWheel(natal, transit) {
     if (!astroWheel || !natal) return;
     const size = 720;
+    const svgAttrs = `id="astro-wheel" viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="本命与行运占星轮盘" width="${size}" height="${size}"`;
     const cx = size / 2;
     const cy = size / 2;
     const outer = 286;
-    const ring = 224;
-    const inner = 148;
+    const signInner = 238;
+    const houseInner = 210;
+    const centerField = 178;
     function longitudeToSvgAngle(longitude) {
       const relative = normalizeAngle(longitude - natal.angles.asc);
       return (180 + relative) * Math.PI / 180;
@@ -679,22 +1025,35 @@
     function polarY(angle, radius) {
       return cy - Math.sin(angle) * radius;
     }
+    function zodiacBadge(x, y, index) {
+      const stroke = signUiColor(index);
+      const symbol = SIGN_SYMBOLS[index] || "";
+      return `<text x="${x}" y="${y + 0.7}" text-anchor="middle" dominant-baseline="middle" font-size="25" font-weight="500" font-family="'DejaVu Sans','Noto Sans Symbols 2','Segoe UI Symbol','Arial Unicode MS',sans-serif" fill="${stroke}" fill-opacity="0.96">${symbol}</text>`;
+    }
+    function renderPlanetGlyph(planet, x, y, fontSize, color) {
+      if (planet.key === "sun") {
+        return `<text x="${x}" y="${y + 0.8}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="700" fill="${color}" stroke="rgba(255,255,255,0.96)" stroke-width="3.4" paint-order="stroke fill" font-family="'DejaVu Sans','Noto Sans Symbols 2','Segoe UI Symbol','Arial Unicode MS',sans-serif">☉</text>`;
+      }
+      return `<text x="${x}" y="${y + 0.6}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" fill="${color}">${planet.glyph}</text>`;
+    }
     function houseMidpoint(start, end) {
       const span = normalizeAngle(end - start);
       return normalizeAngle(start + span / 2);
     }
-    function distributeGlyphs(points, baseRadius, stepRadius) {
+    function distributeGlyphs(points, glyphRadii, anchorRadius) {
       const sorted = points.map((point, index) => ({ ...point, originalIndex: index })).sort((left, right) => left.longitude - right.longitude);
       const placements = new Array(points.length);
       let cluster = [];
       function flushCluster() {
         if (!cluster.length) return;
         cluster.forEach((item, index) => {
-          const layer = index % 4;
-          const shift = (index - (cluster.length - 1) / 2) * 6;
+          const layer = index % glyphRadii.length;
+          const shift = (index - (cluster.length - 1) / 2) * 7.4;
           placements[item.originalIndex] = {
             angle: longitudeToSvgAngle(normalizeAngle(item.longitude + shift)),
-            radius: baseRadius - layer * stepRadius
+            radius: glyphRadii[layer],
+            anchorAngle: longitudeToSvgAngle(item.longitude),
+            anchorRadius
           };
         });
         cluster = [];
@@ -705,7 +1064,7 @@
           return;
         }
         const prev = sorted[index - 1];
-        if (angleDistance(item.longitude, prev.longitude) < 7.5) {
+        if (angleDistance(item.longitude, prev.longitude) < 8.5) {
           cluster.push(item);
         } else {
           flushCluster();
@@ -715,7 +1074,7 @@
       flushCluster();
       return placements;
     }
-    function aspectLine(pointA, pointB, color, radius) {
+    function aspectLine(pointA, pointB, color, radius, highlighted = false) {
       const angleA = longitudeToSvgAngle(pointA.longitude);
       const angleB = longitudeToSvgAngle(pointB.longitude);
       return `
@@ -725,8 +1084,8 @@
         x2="${polarX(angleB, radius)}"
         y2="${polarY(angleB, radius)}"
         stroke="${color}"
-        stroke-width="1.2"
-        stroke-opacity="0.78"
+        stroke-width="${highlighted ? 1.85 : 0.92}"
+        stroke-opacity="${highlighted ? 0.9 : 0.46}"
       />
     `;
     }
@@ -734,42 +1093,90 @@
       const startLongitude = index * 30;
       const angle = longitudeToSvgAngle(startLongitude);
       const labelAngle = longitudeToSvgAngle(startLongitude + 15);
+      const lx = polarX(labelAngle, (outer + signInner) / 2);
+      const ly = polarY(labelAngle, (outer + signInner) / 2);
       return `
-      <line x1="${polarX(angle, ring)}" y1="${polarY(angle, ring)}" x2="${polarX(angle, outer)}" y2="${polarY(angle, outer)}" stroke="rgba(21,21,21,0.11)" stroke-width="1"/>
-      <text x="${polarX(labelAngle, outer - 26)}" y="${polarY(labelAngle, outer - 26)}" text-anchor="middle" dominant-baseline="middle" font-size="20" fill="#7a7268">${SIGN_GLYPHS[index]}</text>
+      <line x1="${polarX(angle, signInner)}" y1="${polarY(angle, signInner)}" x2="${polarX(angle, outer)}" y2="${polarY(angle, outer)}" stroke="rgba(120,124,132,0.18)" stroke-width="0.95"/>
+      ${zodiacBadge(lx, ly, index)}
+    `;
+    }).join("");
+    const minorTicks = Array.from({ length: 72 }, (_, index) => {
+      const longitude = index * 5;
+      const angle = longitudeToSvgAngle(longitude);
+      const isMajor = index % 6 === 0;
+      const r1 = outer - (isMajor ? 10 : 5);
+      const r2 = outer - 1;
+      return `<line x1="${polarX(angle, r1)}" y1="${polarY(angle, r1)}" x2="${polarX(angle, r2)}" y2="${polarY(angle, r2)}" stroke="rgba(130,136,146,${isMajor ? "0.22" : "0.08"})" stroke-width="${isMajor ? "0.95" : "0.62"}"/>`;
+    }).join("");
+    const degreeLabels = Array.from({ length: 36 }, (_, index) => {
+      const longitude = index * 10;
+      const angle = longitudeToSvgAngle(longitude);
+      const label = String(longitude % 30).padStart(2, "0");
+      return `
+      <text x="${polarX(angle, outer - 19)}" y="${polarY(angle, outer - 19)}" text-anchor="middle" dominant-baseline="middle" font-size="6.6" letter-spacing="0.02em" fill="rgba(124,130,138,0.46)">${label}</text>
     `;
     }).join("");
     const houseMarks = natal.houses.map((house) => {
       const angle = longitudeToSvgAngle(house.start);
       const labelAngle = longitudeToSvgAngle(houseMidpoint(house.start, house.end));
+      const houseNumberRadius = (houseInner + centerField) / 2;
       return `
-      <line x1="${polarX(angle, inner)}" y1="${polarY(angle, inner)}" x2="${polarX(angle, ring)}" y2="${polarY(angle, ring)}" stroke="rgba(21,21,21,0.08)" stroke-width="1"/>
-      <text x="${polarX(labelAngle, inner + 28)}" y="${polarY(labelAngle, inner + 28)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#958775">${house.house}</text>
+      <line x1="${polarX(angle, centerField)}" y1="${polarY(angle, centerField)}" x2="${polarX(angle, signInner)}" y2="${polarY(angle, signInner)}" stroke="rgba(150,154,162,0.24)" stroke-width="0.9"/>
+      <line x1="${polarX(angle, houseInner - 6)}" y1="${polarY(angle, houseInner - 6)}" x2="${polarX(angle, houseInner + 6)}" y2="${polarY(angle, houseInner + 6)}" stroke="rgba(138,142,150,0.18)" stroke-width="0.95" stroke-linecap="round"/>
+      <text x="${polarX(labelAngle, houseNumberRadius)}" y="${polarY(labelAngle, houseNumberRadius)}" text-anchor="middle" dominant-baseline="middle" font-size="9.4" font-weight="600" letter-spacing="0.01em" fill="${houseUiColor(house.house)}" fill-opacity="0.94">${house.house}</text>
     `;
     }).join("");
-    const natalPlacements = distributeGlyphs(natal.planets, 196, 16);
-    const natalAspects = calculateAspects(natal.planets, natal.planets, true).slice(0, 24);
-    const natalAspectLines = natalAspects.map((aspect) => aspectLine(aspect.a, aspect.b, aspect.color, inner - 10)).join("");
-    const natalGlyphs = natal.planets.map((planet, index) => {
+    const natalVisiblePlanets = filterPoints(natal.planets);
+    const layerMode = selectedWheelLayer();
+    const planetTrackRadius = (signInner + houseInner) / 2;
+    const natalPlacements = distributeGlyphs(natalVisiblePlanets, [160, 146, 132], planetTrackRadius);
+    const natalAspects = filterAspectsByMode(calculateAspects(natalVisiblePlanets, natalVisiblePlanets, true)).slice(0, 24);
+    const natalAspectLines = showAspectLines() && layerMode !== "transit" ? natalAspects.map((aspect) => aspectLine(aspect.a, aspect.b, aspect.color, centerField - 10, isFocusedAspect(aspect))).join("") : "";
+    const natalGlyphs = layerMode === "transit" ? "" : natalVisiblePlanets.map((planet, index) => {
       const placement = natalPlacements[index];
       const x = polarX(placement.angle, placement.radius);
       const y = polarY(placement.angle, placement.radius);
+      const anchorX = polarX(placement.anchorAngle, placement.anchorRadius);
+      const anchorY = polarY(placement.anchorAngle, placement.anchorRadius);
       return `
-      <g>
-        <circle cx="${x}" cy="${y}" r="15" fill="rgba(253,250,245,0.96)" stroke="rgba(122,94,64,0.14)"/>
-        <text x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#5e4835">${planet.glyph}</text>
+      <g data-wheel-point="${planet.key}" data-wheel-scope="natal">
+        <circle cx="${anchorX}" cy="${anchorY}" r="2.3" fill="${modernPlanetColor(planet.key)}" fill-opacity="0.62"/>
+        ${renderPlanetGlyph(planet, x, y, 21, modernPlanetColor(planet.key))}
+        <circle class="chart-hit-target" cx="${x}" cy="${y}" r="19" fill="transparent"/>
       </g>
     `;
     }).join("");
-    const transitPlacements = transit ? distributeGlyphs(transit.planets, 258, 16) : [];
-    const transitGlyphs = transit ? transit.planets.map((planet, index) => {
+    const transitVisiblePlanets = transit ? filterPoints(transit.planets) : [];
+    const transitPlacements = transit ? distributeGlyphs(transitVisiblePlanets, [118, 106], planetTrackRadius) : [];
+    const transitToNatalAspects = transit ? filterAspectsByMode(calculateAspects(transitVisiblePlanets, natalVisiblePlanets)).slice(0, 18) : [];
+    const transitAspectLines = showAspectLines() && transit && layerMode === "both" ? transitToNatalAspects.map((aspect) => {
+      const angleA = longitudeToSvgAngle(aspect.a.longitude);
+      const angleB = longitudeToSvgAngle(aspect.b.longitude);
+      const highlighted = isFocusedAspect(aspect);
+      return `
+      <line
+        x1="${polarX(angleA, 258)}"
+        y1="${polarY(angleA, 258)}"
+        x2="${polarX(angleB, 170)}"
+        y2="${polarY(angleB, 170)}"
+        stroke="${aspect.color}"
+        stroke-width="${highlighted ? 1.8 : 0.88}"
+        stroke-opacity="${highlighted ? 0.82 : 0.3}"
+        stroke-dasharray="3 4"
+      />
+    `;
+    }).join("") : "";
+    const transitGlyphs = transit && layerMode !== "natal" ? transitVisiblePlanets.map((planet, index) => {
       const placement = transitPlacements[index];
       const x = polarX(placement.angle, placement.radius);
       const y = polarY(placement.angle, placement.radius);
+      const anchorX = polarX(placement.anchorAngle, placement.anchorRadius);
+      const anchorY = polarY(placement.anchorAngle, placement.anchorRadius);
       return `
-      <g>
-        <circle cx="${x}" cy="${y}" r="13" fill="rgba(104,82,62,0.88)"/>
-        <text x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#fbf6ef">${planet.glyph}</text>
+      <g data-wheel-point="${planet.key}" data-wheel-scope="transit">
+        <circle cx="${anchorX}" cy="${anchorY}" r="2.1" fill="#5e8fda" fill-opacity="0.54"/>
+        ${renderPlanetGlyph(planet, x, y, 18, "#5e8fda")}
+        <circle class="chart-hit-target" cx="${x}" cy="${y}" r="18" fill="transparent"/>
       </g>
     `;
     }).join("") : "";
@@ -777,26 +1184,63 @@
     const dscAngle = longitudeToSvgAngle(natal.angles.dsc);
     const mcAngle = longitudeToSvgAngle(natal.angles.mc);
     const icAngle = longitudeToSvgAngle(natal.angles.ic);
-    astroWheel.innerHTML = `
+    const centerCity = String(natal.city || "").slice(0, 22);
+    const showAxisLines = true;
+    const axisOuter = outer + 8;
+    const axisInner = centerField;
+    const cardinalTicks = [
+      { angle: ascAngle, short: "Asc", color: "#6f747c", width: 2.25, dash: "", dot: 4.2 },
+      { angle: dscAngle, short: "Dsc", color: "#6f747c", width: 1.55, dash: "", dot: 3.4 },
+      { angle: mcAngle, short: "MC", color: "#6f747c", width: 2.25, dash: "", dot: 4.2 },
+      { angle: icAngle, short: "IC", color: "#6f747c", width: 1.55, dash: "", dot: 3.4 }
+    ];
+    const cardinalGuides = showAxisLines ? cardinalTicks.map((item) => `
+      <line x1="${polarX(item.angle, axisInner)}" y1="${polarY(item.angle, axisInner)}" x2="${polarX(item.angle, axisOuter)}" y2="${polarY(item.angle, axisOuter)}" stroke="${item.color}" stroke-width="${item.width}" stroke-dasharray="${item.dash}" stroke-linecap="round" stroke-opacity="0.82"/>
+      <path d="M ${polarX(item.angle, axisOuter + 8)} ${polarY(item.angle, axisOuter + 8)} L ${polarX(item.angle - 0.03, axisOuter + 2)} ${polarY(item.angle - 0.03, axisOuter + 2)} L ${polarX(item.angle + 0.03, axisOuter + 2)} ${polarY(item.angle + 0.03, axisOuter + 2)} Z" fill="${item.color}" fill-opacity="0.88"/>
+      <text x="${polarX(item.angle, axisOuter + 24)}" y="${polarY(item.angle, axisOuter + 24)}" text-anchor="middle" dominant-baseline="middle" font-size="8.8" letter-spacing="0.04em" fill="${item.color}">${item.short}</text>
+    `).join("") : "";
+    const axisCross = showAxisLines ? `
+      <line x1="${polarX(ascAngle, axisOuter)}" y1="${polarY(ascAngle, axisOuter)}" x2="${polarX(dscAngle, axisOuter)}" y2="${polarY(dscAngle, axisOuter)}" stroke="#6f747c" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="${polarX(mcAngle, axisOuter)}" y1="${polarY(mcAngle, axisOuter)}" x2="${polarX(icAngle, axisOuter)}" y2="${polarY(icAngle, axisOuter)}" stroke="#6f747c" stroke-width="1.6" stroke-linecap="round"/>
+    ` : "";
+    const wheelMarkup = `
     <rect x="0" y="0" width="${size}" height="${size}" fill="transparent"/>
-    <circle cx="${cx}" cy="${cy}" r="${outer}" fill="rgba(252,248,241,0.92)" stroke="rgba(122,94,64,0.10)"/>
-    <circle cx="${cx}" cy="${cy}" r="${ring}" fill="none" stroke="rgba(122,94,64,0.08)"/>
-    <circle cx="${cx}" cy="${cy}" r="${inner}" fill="none" stroke="rgba(122,94,64,0.08)"/>
+    <circle cx="${cx}" cy="${cy}" r="${outer}" fill="rgba(243,245,248,0.98)" stroke="rgba(202,208,216,0.68)"/>
+    <circle cx="${cx}" cy="${cy}" r="${signInner}" fill="rgba(253,254,255,0.99)" stroke="rgba(213,218,226,0.82)"/>
+    <circle cx="${cx}" cy="${cy}" r="${houseInner}" fill="rgba(254,254,255,0.99)" stroke="rgba(205,211,219,0.76)"/>
+    <circle cx="${cx}" cy="${cy}" r="${centerField}" fill="rgba(250,252,254,0.99)" stroke="rgba(214,220,228,0.6)"/>
+    ${axisCross}
+    ${minorTicks}
+    ${degreeLabels}
     ${signMarks}
     ${houseMarks}
+    ${cardinalGuides}
     ${natalAspectLines}
-    <line x1="${cx}" y1="${cy}" x2="${polarX(ascAngle, outer)}" y2="${polarY(ascAngle, outer)}" stroke="#8c6a53" stroke-width="1.5"/>
-    <line x1="${cx}" y1="${cy}" x2="${polarX(dscAngle, outer)}" y2="${polarY(dscAngle, outer)}" stroke="#8c6a53" stroke-width="1.1" stroke-dasharray="5 4"/>
-    <line x1="${cx}" y1="${cy}" x2="${polarX(mcAngle, outer)}" y2="${polarY(mcAngle, outer)}" stroke="#706050" stroke-width="1.5"/>
-    <line x1="${cx}" y1="${cy}" x2="${polarX(icAngle, outer)}" y2="${polarY(icAngle, outer)}" stroke="#706050" stroke-width="1.1" stroke-dasharray="5 4"/>
-    <text x="${polarX(ascAngle, outer + 18)}" y="${polarY(ascAngle, outer + 18)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#8c6a53">Asc</text>
-    <text x="${polarX(dscAngle, outer + 18)}" y="${polarY(dscAngle, outer + 18)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#8c6a53">Dsc</text>
-    <text x="${polarX(mcAngle, outer + 18)}" y="${polarY(mcAngle, outer + 18)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#706050">MC</text>
-    <text x="${polarX(icAngle, outer + 18)}" y="${polarY(icAngle, outer + 18)}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#706050">IC</text>
+    ${transitAspectLines}
     ${natalGlyphs}
     ${transitGlyphs}
-    <text x="36" y="42" font-size="15" fill="#7a6a59">${natal.mode === "live" ? "\u5185\u5708\u5B9E\u65F6 / \u5916\u5708\u884C\u8FD0" : "\u5185\u5708\u672C\u547D / \u5916\u5708\u884C\u8FD0"}</text>
   `;
+    if (astroWheelWrap) {
+      astroWheelWrap.innerHTML = `<svg ${svgAttrs}>${wheelMarkup}</svg>`;
+      astroWheel = document.querySelector("#astro-wheel");
+      bindWheelInteraction();
+    } else {
+      astroWheel.innerHTML = wheelMarkup;
+    }
+    const bboxWidth = astroWheel?.clientWidth || 0;
+    const bboxHeight = astroWheel?.clientHeight || 0;
+    renderWheelDiagnostics([
+      "wheel: rendered",
+      `city: ${centerCity || "-"}`,
+      `natalPoints: ${natalVisiblePlanets.length}`,
+      `transitPoints: ${transitVisiblePlanets.length}`,
+      `markupLength: ${wheelMarkup.length}`,
+      `svgWidth: ${bboxWidth}`,
+      `svgHeight: ${bboxHeight}`,
+      `childNodes: ${astroWheel?.childNodes?.length || 0}`
+    ]);
+    renderWheelLegend();
+    renderFocusedPoint();
   }
   function buildNatalSummary(natal) {
     const sun = natal.planets.find((item) => item.key === "sun");
@@ -949,8 +1393,11 @@
       renderList(astroRuleList, [
         "Swiss Ephemeris",
         "\u70ED\u5E26\u9EC4\u9053",
-        "Placidus \u5BAB\u5236",
-        "\u8F93\u5165\u65F6\u533A\u76F4\u63A5\u53C2\u4E0E\u8BA1\u7B97"
+        natal.rawChart?.input?.houseSystem === "W" ? "Whole Sign \u5BAB\u5236" : "Placidus \u5BAB\u5236",
+        natal.rawChart?.input?.nodeType === "mean" ? "Mean Node" : "True Node",
+        natal.rawChart?.input?.lilithType === "oscu" ? "True Lilith" : "Mean Lilith",
+        selectedPointSet() === "all" ? "\u663E\u793A\u5168\u90E8\u70B9\u4F4D" : selectedPointSet() === "advanced" ? "\u663E\u793A\u6269\u5C55\u70B9\u4F4D" : "\u663E\u793A\u6838\u5FC3\u70B9\u4F4D",
+        `\u5BB9\u8BB8\u5EA6\u7CFB\u6570 ${selectedOrbScale().toFixed(2)}`
       ], (item) => `<div class="astro-rule-item">${item}</div>`);
       if (astroValidationNote) {
         astroValidationNote.textContent = `\u5F53\u524D\u63A5\u53E3\uFF1A${getAstroApiBase()}\u3002\u5982\u679C\u8FD9\u91CC\u8FDE\u4E0D\u4E0A\uFF0C\u5360\u661F\u9875\u5C31\u4E0D\u4F1A\u518D\u5077\u5077\u9000\u56DE\u65E7\u5F15\u64CE\u3002`;
@@ -961,20 +1408,21 @@
         <span class="astro-item-value">\u5DEE ${item.diff.toFixed(4)}\xB0</span>
       </div>
     `);
-      renderList(astroNatalList, natal.planets, (planet) => `
+      renderPointToggles(natal.planets);
+      renderList(astroNatalList, filterPoints(natal.planets), (planet) => `
       <div class="astro-item">
         <span class="astro-item-label">${planet.glyph} ${planet.label} \xB7 ${planet.house || "?"}\u5BAB${planet.retrograde ? " \xB7 \u9006\u884C" : ""}</span>
         <span class="astro-item-value">${formatLongitude(planet.longitude)}</span>
       </div>
     `);
-      renderList(astroTransitList, astroState.transit?.planets || [], (planet) => `
+      renderList(astroTransitList, filterPoints(astroState.transit?.planets || []), (planet) => `
       <div class="astro-item">
         <span class="astro-item-label">${planet.glyph} ${planet.label}${planet.retrograde ? " \xB7 \u9006\u884C" : ""}</span>
         <span class="astro-item-value">${formatLongitude(planet.longitude)}</span>
       </div>
     `);
-      renderList(astroAspectList, astroState.transit?.aspects || [], (aspect) => `
-      <div class="astro-item">
+      renderList(astroAspectList, filterAspectsByMode(astroState.transit?.aspects || []), (aspect) => `
+      <div class="astro-item${isFocusedAspect(aspect) ? " active" : ""}" data-aspect-a="${aspect.a.key}" data-aspect-b="${aspect.b.key}" data-aspect-key="${aspect.key}">
         <span class="astro-item-label">${aspect.a.label}${aspect.label}${aspect.b.label}</span>
         <span class="astro-item-value">\u5BB9\u8BB8 ${aspect.orb.toFixed(1)}\xB0</span>
       </div>
@@ -987,6 +1435,21 @@
     } catch (error) {
       if (token !== recalcToken) return;
       clearAstroOutputs("\u65B0\u5360\u661F\u5F15\u64CE\u6682\u65F6\u672A\u8FDE\u901A\u3002");
+      if (astroDebugCard) {
+        astroDebugCard.textContent = error instanceof Error ? `${error.message}\n\n${error.stack || ""}` : "\u6392\u76D8\u5931\u8D25\u3002";
+      }
+      renderWheelDiagnostics([
+        "wheel: error",
+        `message: ${error instanceof Error ? error.message : "\u6392\u76D8\u5931\u8D25\u3002"}`,
+        `stack: ${error instanceof Error && error.stack ? error.stack.split("\n").slice(0, 3).join(" | ") : "-"}`,
+        `mode: ${getAstroMode()}`,
+        `hasDate: ${astroDate?.value ? "yes" : "no"}`,
+        `hasTime: ${astroTime?.value ? "yes" : "no"}`,
+        `hasLat: ${astroLat?.value ? "yes" : "no"}`,
+        `hasLon: ${astroLon?.value ? "yes" : "no"}`,
+        `hasTz: ${astroTz?.value ? "yes" : "no"}`,
+        `showTransit: ${astroState.showTransit ? "yes" : "no"}`
+      ]);
       if (astroValidationNote) {
         astroValidationNote.textContent = error instanceof Error ? error.message : "\u6392\u76D8\u5931\u8D25\u3002";
       }
@@ -1023,7 +1486,8 @@
     astroRecalc.addEventListener("click", async () => {
       if (hasNatalInputs()) {
         setAstroMode("natal");
-        astroState.showTransit = true;
+        astroState.showTransit = false;
+        if (astroWheelLayer) astroWheelLayer.value = "natal";
         const needsResolve = astroCity?.value && astroDate?.value && (!astroLat?.value || !astroLon?.value || !astroTz?.value);
         if (needsResolve) {
           await resolveNatalCity();
@@ -1090,6 +1554,46 @@
       applyResolvedTransitCity(astroState.transitCityCandidates[Number(button.getAttribute("data-transit-index"))]);
     });
   }
+  if (astroPointToggles) {
+    astroPointToggles.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-point-key]");
+      if (!button) return;
+      const key = String(button.getAttribute("data-point-key") || "");
+      if (!key) return;
+      if (astroState.visiblePointKeys.includes(key)) {
+        astroState.visiblePointKeys = astroState.visiblePointKeys.filter((item) => item !== key);
+      } else {
+        astroState.visiblePointKeys = [...astroState.visiblePointKeys, key];
+      }
+      saveUiPrefs();
+      recalcAstro();
+    });
+  }
+  bindWheelInteraction();
+  if (astroAspectList) {
+    astroAspectList.addEventListener("click", (event) => {
+      const row = event.target.closest("[data-aspect-a]");
+      if (!row) return;
+      astroState.focusedPoint = null;
+      astroState.focusedAspect = {
+        a: String(row.getAttribute("data-aspect-a") || ""),
+        b: String(row.getAttribute("data-aspect-b") || ""),
+        key: String(row.getAttribute("data-aspect-key") || "")
+      };
+      renderFocusedPoint();
+      renderWheel(astroState.natal, astroState.transit);
+    });
+  }
+  if (astroExportImage) {
+    astroExportImage.addEventListener("click", exportWheelImage);
+  }
+  if (astroPresets) {
+    astroPresets.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-astro-preset]");
+      if (!button) return;
+      applyPreset(button.getAttribute("data-astro-preset"));
+    });
+  }
   if (astroNow) {
     astroNow.addEventListener("click", () => {
       fillTransitNow(true);
@@ -1131,13 +1635,28 @@
       }
     });
   }
-  [astroDate, astroTime, astroLat, astroLon, astroTz, astroTransitDate, astroTransitTime, astroTransitTz].forEach((input) => {
+  [astroDate, astroTime, astroLat, astroLon, astroTz, astroHouseSystem, astroNodeType, astroLilithType, astroPointSet, astroAspectMode, astroOrbScale, astroWheelLayer, astroAspectLines, astroTransitDate, astroTransitTime, astroTransitTz].forEach((input) => {
     if (!input) return;
-    input.addEventListener("change", recalcAstro);
+    input.addEventListener("change", () => {
+      if ([astroDate, astroTime, astroLat, astroLon, astroTz].includes(input) && hasNatalInputs()) {
+        setAstroMode("natal");
+      }
+      saveUiPrefs();
+      recalcAstro();
+    });
   });
+  const uiPrefs = loadUiPrefs();
+  if (Array.isArray(uiPrefs.visiblePointKeys)) {
+    astroState.visiblePointKeys = uiPrefs.visiblePointKeys;
+  }
+  if (astroWheelLayer && uiPrefs.wheelLayer) astroWheelLayer.value = uiPrefs.wheelLayer;
+  if (astroAspectLines && uiPrefs.aspectLines) astroAspectLines.value = uiPrefs.aspectLines;
+  if (astroPointSet && uiPrefs.pointSet) astroPointSet.value = uiPrefs.pointSet;
+  if (astroAspectMode && uiPrefs.aspectMode) astroAspectMode.value = uiPrefs.aspectMode;
+  if (astroOrbScale && uiPrefs.orbScale) astroOrbScale.value = uiPrefs.orbScale;
   hydrateFromUrl();
   if (!new URLSearchParams(window.location.search).has("amode")) {
-    setAstroMode("natal");
+    setAstroMode(hasNatalInputs() ? "natal" : "live");
   }
   fillTransitNow();
   updateShiftReadout();

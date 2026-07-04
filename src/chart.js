@@ -1,6 +1,13 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import sweph from "sweph";
 
 const { constants } = sweph;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const EPHE_PATH = path.resolve(__dirname, "../ephe");
+
+sweph.set_ephe_path(EPHE_PATH);
 
 const BASE_PLANETS = [
   ["sun", constants.SE_SUN],
@@ -113,6 +120,9 @@ function calcPlanet(jdUt, planetId) {
   );
   if (!result || !Array.isArray(result.data)) {
     throw new Error(`行星计算失败: ${planetId}`);
+  }
+  if (Number(result.flag) < 0) {
+    throw new Error(result.error || `行星计算失败: ${planetId}`);
   }
   return result;
 }
