@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>命线 · 四柱</title>
+  <meta name="theme-color" content="#f6f6f3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="命线">
+  <link rel="manifest" href="../manifest.webmanifest?v=20260706p">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../icon.svg">
+  <link rel="stylesheet" href="../style.css?v=20260706p">
+  <script src="../site-config.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div class="hero-head">
+        <p class="eyebrow">Private Axis Notes</p>
+        <div class="hero-mark">MING XIAN</div>
+      </div>
+      <nav class="subsite-nav" aria-label="子页面导航">
+        <a class="subsite-link" href="/">入口</a>
+        <a class="subsite-link is-active" href="/bazi/">四柱</a>
+        <a class="subsite-link" href="/astrology/">占星</a>
+      </nav>
+      <h1>四柱</h1>
+    </header>
+    <section class="panel quick-birth-panel" data-view-group="bazi">
+      <details class="result-card inline-details compact-fold quick-birth-history-card" id="quick-birth-history-panel">
+        <summary aria-label="展开用户资料库">用户资料</summary>
+        <div class="result-block compact">
+          <div class="quick-history-row" id="quick-birth-history">
+            <span class="quick-history-empty">还没有案主</span>
+          </div>
+        </div>
+      </details>
+      <div class="panel-head">
+        <h2>四柱速查</h2>
+      </div>
+      <div class="result-card quick-guide-card">
+        <div class="result-block compact">
+          <p class="block-label">怎么看</p>
+          <div class="quick-reading-guide">
+            <p><strong>先看四柱：</strong>先认日主、月令、寒暖燥湿，知道这个人的底盘气候与结构。</p>
+            <p><strong>再看盘势：</strong>身强身弱不是好坏，而是这个人靠什么发力、怕什么失衡。</p>
+            <p><strong>再看大运：</strong>大运决定十年大环境，先看顺风段还是逆风段，再看能不能接住机会。</p>
+            <p><strong>最后看流年：</strong>流年是当年触发，不是全部命。流年要放在原局和大运里一起判断。</p>
+            <p><strong>四柱和占星的区别：</strong>四柱更重人生节奏、结构强弱与阶段起伏；占星更重人格结构、关系动力与心理机制。</p>
+            <p><strong>使用方式：</strong>先用这里自己认底盘，再决定哪些年份、关系或事业问题值得做深度分析。</p>
+          </div>
+        </div>
+      </div>
+      <div class="quick-birth-grid quick-birth-grid-line">
+        <label class="field quick-name-field">
+          <span>姓名</span>
+          <input id="quick-name" type="text" placeholder="输入姓名">
+        </label>
+        <label class="field quick-date-field quick-gender-field">
+          <span>性别</span>
+          <select id="quick-birth-gender">
+            <option value="female">女</option>
+            <option value="male">男</option>
+          </select>
+        </label>
+        <label class="field quick-date-field quick-date-merged-field">
+          <span>出生日期</span>
+          <input id="quick-birth-date" type="date" min="1900-01-01" max="2106-12-31">
+        </label>
+        <div class="field quick-time-fieldset quick-time-line">
+          <span>出生时间</span>
+          <input id="quick-birth-time" type="time" placeholder="可不填">
+          <label class="mini-choice mini-choice-ghost quick-time-unknown-toggle">
+            <input id="quick-time-unknown" type="checkbox" value="unknown">
+            <span>不详</span>
+          </label>
+        </div>
+        <label class="field quick-city-field">
+          <span>出生城市</span>
+          <input id="quick-birth-city" type="text" autocomplete="off" placeholder="北京 / Madrid / Lima">
+          <div class="quick-city-picks" id="quick-birth-city-picks" hidden></div>
+          <p class="quick-city-hint" id="quick-birth-city-hint"></p>
+        </label>
+        <div class="button-row quick-birth-actions quick-birth-actions-line">
+          <button class="action-button" id="quick-birth-generate" type="button">开始排四柱</button>
+        </div>
+      </div>
+      <div class="chart-wrap quick-birth-chart-wrap">
+        <svg id="quick-birth-chart" viewBox="0 0 720 300" role="img" aria-label="通用生日八字作用曲线图"></svg>
+      </div>
+      <div class="result-card quick-birth-card">
+        <div class="result-block compact">
+          <p class="block-label">通用对象</p>
+          <p id="quick-birth-title">待看</p>
+          <div class="quick-birth-meta-grid">
+            <div class="quick-birth-meta-item">
+              <p class="block-label">四柱</p>
+              <p id="quick-birth-archetype">先输入生日后显示。</p>
+              <p class="micro-note">这是出生底色，不是全部人生。</p>
+            </div>
+            <div class="quick-birth-meta-item">
+              <p class="block-label">命主气质</p>
+              <p id="quick-birth-depth">先输入生日后显示。</p>
+            </div>
+            <div class="quick-birth-meta-item">
+              <p class="block-label">盘势</p>
+              <p id="quick-birth-pattern">先输入生日后显示。</p>
+            </div>
+            <div class="quick-birth-meta-item quick-birth-meta-item-wide">
+              <p class="block-label">命格倾向</p>
+              <p id="quick-birth-level">先输入生日后显示。</p>
+            </div>
+          </div>
+        </div>
+        <div class="result-block quick-birth-summary-block">
+          <p class="block-label">简断</p>
+          <p id="quick-birth-summary">输入生日后显示八字作用线。无时辰时，只看大势，不看细盘，也不把单条曲线当绝对人生结论。</p>
+        </div>
+        <details class="inline-details compact-fold quick-birth-meta-fold">
+          <summary>补充</summary>
+          <div class="result-block compact">
+            <p class="block-label">说明</p>
+            <p id="quick-birth-note">这里只呈现原局、大运、流年的相对作用强弱与结构变化，不直接代替整个人生命运判断。</p>
+          </div>
+          <div class="result-block">
+            <p class="block-label">该多做</p>
+            <p id="quick-birth-verdict">先输入生日后显示。</p>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">别过头</p>
+            <p id="quick-birth-soul-task">先输入生日后显示。</p>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">大运起点</p>
+            <p id="quick-birth-purpose">先输入生日后显示。</p>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">顺手方向</p>
+            <div class="quick-keyword-row" id="quick-birth-surface-tags">
+              <span class="quick-keyword-tag">待看</span>
+            </div>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">盘面提示</p>
+            <div class="quick-keyword-row" id="quick-birth-core-tags">
+              <span class="quick-keyword-tag">待看</span>
+            </div>
+          </div>
+        </details>
+      </div>
+      <details class="result-card inline-details compact-fold quick-birth-stage-card">
+        <summary>结构</summary>
+        <div class="result-block compact">
+          <div class="quick-stage-list" id="quick-birth-core-profile">
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">出生底盘</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">这个人</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">怎么走更顺</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">人生节奏</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+          </div>
+        </div>
+      </details>
+      <details class="result-card inline-details compact-fold quick-birth-stage-card">
+        <summary>十年运</summary>
+        <div class="result-block compact">
+          <div class="quick-stage-list" id="quick-birth-dayun-stages">
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">待定</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+          </div>
+        </div>
+      </details>
+      <details class="result-card inline-details compact-fold quick-birth-stage-card">
+        <summary>四段</summary>
+        <div class="result-block compact">
+          <div class="quick-stage-list" id="quick-birth-stages">
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">0-20</p>
+              <p class="quick-stage-text">先输入生日后显示阶段大意。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">20-40</p>
+              <p class="quick-stage-text">无时辰也可先看大关系。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">40-60</p>
+              <p class="quick-stage-text">这里只看阶段，不看每年细批。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">60-80</p>
+              <p class="quick-stage-text">适合朋友、父母、亲缘对照看。</p>
+            </article>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel secondary-panel" data-view-group="bazi">
+      <div class="panel-head">
+        <h2>四柱问答</h2>
+        <p class="panel-note">围绕财路、关系、年份和阶段，直接起问。</p>
+      </div>
+      <div class="ask-entry">
+        <div class="template-wrap ask-favorites-wrap">
+          <p class="block-label">常问</p>
+          <div class="chip-row" id="question-favorites"></div>
+        </div>
+        <details class="inline-details ask-templates">
+          <summary>模板</summary>
+          <div class="template-wrap">
+            <div class="chip-row" id="question-templates"></div>
+          </div>
+        </details>
+        <div class="query-grid ask-grid ask-entry-grid">
+          <label class="field visually-hidden">
+            <span>问类</span>
+            <select id="question-type">
+              <option value="overall">总命</option>
+              <option value="money">财路</option>
+              <option value="career">业途</option>
+              <option value="relationship">情缘</option>
+              <option value="property">宅运</option>
+              <option value="influence">名运</option>
+              <option value="health">体运</option>
+              <option value="spiritual">灵魂线</option>
+              <option value="growth">身命</option>
+              <option value="art">艺命</option>
+            </select>
+          </label>
+          <label class="field question-box">
+            <span>问句</span>
+            <textarea id="question-input" rows="3" placeholder="比如：2028到2031我该不该换地方？这一段钱从哪里来？"></textarea>
+          </label>
+        </div>
+        <p class="mini-meaning ask-meaning" id="question-aspect-meaning">总命：看整条命的主轴。</p>
+        <div class="button-row ask-button-row">
+          <button class="action-button" id="ask-button" type="button">起</button>
+        </div>
+        <details class="inline-details compact-fold ask-tools-fold">
+          <summary>更多</summary>
+          <div class="button-row ask-button-row compact-tools-row">
+            <button class="action-button secondary" id="export-reading" type="button">导</button>
+          </div>
+        </details>
+      </div>
+      <div class="result-card ask-result-card" id="ask-result-card">
+        <div class="mode-bar">
+          <select id="answer-mode" class="hidden-answer-mode" aria-hidden="true">
+            <option value="calm" selected>简</option>
+            <option value="insight">展</option>
+          </select>
+        </div>
+        <div class="result-block">
+          <p class="block-label">批</p>
+          <p id="question-answer">待起</p>
+        </div>
+        <details class="inline-details compact-fold ask-answer-fold">
+          <summary>细项</summary>
+          <div class="answer-grid">
+            <div class="result-block compact featured-block" id="block-phase-wrap">
+              <p class="block-label">总断</p>
+              <p id="answer-phase">待</p>
+            </div>
+            <div class="result-block compact featured-block" id="key-years-wrap">
+              <p class="block-label">关键年</p>
+              <p id="answer-key-years">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="block-wrap">
+              <p class="block-label">结</p>
+              <p id="answer-block">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="support-wrap">
+              <p class="block-label">来</p>
+              <p id="answer-support">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="break-wrap">
+              <p class="block-label">破</p>
+              <p id="answer-break">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="habit-wrap">
+              <p class="block-label">业</p>
+              <p id="answer-habit">待</p>
+            </div>
+            <div class="result-block compact" id="reminder-wrap">
+              <p class="block-label">断</p>
+              <p id="answer-reminder">待</p>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <details class="result-card inline-details compact-fold ai-chat-card" id="ai-chat-card">
+        <summary>AI</summary>
+        <div class="panel-head ai-chat-head">
+          <p>随便打字问。</p>
+        </div>
+        <div class="ai-chat-thread" id="ai-chat-thread">
+          <div class="ai-chat-empty" id="ai-chat-empty">待问</div>
+        </div>
+        <div class="query-grid ask-grid ai-chat-grid">
+          <label class="field question-box">
+            <span>问句</span>
+            <textarea id="ai-chat-input" rows="3" placeholder="比如：我接下来两年最该守什么？钱会怎么来？我该不该换地方？"></textarea>
+          </label>
+        </div>
+        <div class="button-row ask-button-row">
+          <button class="action-button" id="ai-chat-send" type="button">问</button>
+          <button class="action-button secondary" id="ai-chat-clear" type="button">清</button>
+        </div>
+      </details>
+    </section>
+
+    <details class="panel settings-panel overview-panel" data-view-group="bazi">
+      <summary class="settings-summary">
+        <span>设置</span>
+      </summary>
+      <div class="settings-body">
+        <section class="panel inner-panel">
+          <p class="block-label">总断</p>
+          <p class="closing" id="final-verdict"></p>
+        </section>
+      </div>
+    </details>
+
+    
+  </main>
+  <script src="../data.js?v=20260706p"></script>
+  <script src="../app.js?v=20260706p"></script>
+  <script>
+    (() => {
+      window.__mingxianQuickBirthFallbackUi = true;
+      const historyPanel = document.getElementById("quick-birth-history-panel");
+      const historySummary = historyPanel?.querySelector("summary");
+      const storeApi = "/api/store";
+      const storageKey = "mingli-app-state-v1";
+      const historyKey = "mingli-quick-birth-history";
+      const deletedKey = "mingli-quick-birth-deleted";
+      const deletedScope = "bazi_quick_deleted";
+      const historyHost = document.getElementById("quick-birth-history");
+      const submitButton = document.getElementById("quick-birth-generate");
+      if (!historyHost) return;
+
+      const bindTap = (element, handler) => {
+        if (!element || element.dataset.tapBound === "true") return;
+        element.addEventListener("click", handler);
+        element.addEventListener("touchend", (event) => {
+          event.preventDefault();
+          handler(event);
+        }, { passive: false });
+        element.dataset.tapBound = "true";
+      };
+
+      bindTap(historySummary, (event) => {
+        event.preventDefault();
+        if (!historyPanel) return;
+        historyPanel.open = !historyPanel.open;
+      });
+
+      bindTap(submitButton, (event) => {
+        event.preventDefault();
+        if (typeof window.applyQuickBirthProfile === "function") {
+          window.applyQuickBirthProfile();
+        }
+      });
+
+      const recordKey = (record) => {
+        const name = String(record?.name || "此人").trim().toLowerCase();
+        const year = Number(record?.year || String(record?.birthDate || "").split("-")[0] || 0);
+        const month = Number(record?.month || String(record?.birthDate || "").split("-")[1] || 0);
+        const day = Number(record?.day || String(record?.birthDate || "").split("-")[2] || 0);
+        const gender = String(record?.gender || "").trim().toLowerCase();
+        return [name, year, month, day, gender].join("|");
+      };
+
+      const completeness = (record) => {
+        let score = 0;
+        if (record?.locationDisplay || record?.city) score += 4;
+        if (record?.time || record?.birthTime) score += 2;
+        if (record?.timezone || record?.timezoneName) score += 1;
+        if (typeof record?.latitude === "number") score += 1;
+        if (typeof record?.longitude === "number") score += 1;
+        if (record?.archetype || record?.baziArchetype) score += 1;
+        if (record?.structure || record?.baziStructure) score += 1;
+        if (record?.texture || record?.baziTexture) score += 1;
+        return score;
+      };
+
+      const getDeletedKeys = () => {
+        try {
+          const current = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
+          return Array.isArray(current[deletedKey]) ? current[deletedKey] : [];
+        } catch {
+          return [];
+        }
+      };
+
+      const normalize = (records) => {
+        const map = new Map();
+        records.forEach((record, index) => {
+          const normalized = {
+            name: String(record?.name || "此人").trim(),
+            city: String(record?.city || "").trim(),
+            locationDisplay: String(record?.locationDisplay || record?.city || "").trim(),
+            timezone: String(record?.timezone || record?.timezoneName || "").trim(),
+            latitude: typeof record?.latitude === "number" ? record.latitude : undefined,
+            longitude: typeof record?.longitude === "number" ? record.longitude : undefined,
+            year: Number(record?.year || String(record?.birthDate || "").split("-")[0] || 0),
+            month: Number(record?.month || String(record?.birthDate || "").split("-")[1] || 0),
+            day: Number(record?.day || String(record?.birthDate || "").split("-")[2] || 0),
+            gender: record?.gender === "male" || record?.gender === "男" ? "male" : record?.gender === "female" || record?.gender === "女" ? "female" : "",
+            timeKnown: Boolean(record?.timeKnown || record?.birthTime),
+            time: String(record?.time || record?.birthTime || ""),
+            archetype: String(record?.archetype || record?.baziArchetype || ""),
+            structure: String(record?.structure || record?.baziStructure || ""),
+            texture: String(record?.texture || record?.baziTexture || ""),
+            _index: index,
+          };
+          const key = recordKey(normalized);
+          const existing = map.get(key);
+          if (!existing || completeness(normalized) > completeness(existing) || normalized._index > existing._index) {
+            map.set(key, normalized);
+          }
+        });
+        return Array.from(map.values()).sort((a, b) => b._index - a._index);
+      };
+
+      const removeRecord = async (records, index) => {
+        if (!records[index]) return;
+        const removed = records[index];
+        const next = records.slice();
+        next.splice(index, 1);
+        try {
+          const current = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
+          const nextDeleted = Array.isArray(current[deletedKey]) ? current[deletedKey] : [];
+          nextDeleted.push(recordKey(removed));
+          current[deletedKey] = Array.from(new Set(nextDeleted)).slice(-400);
+          window.localStorage.setItem(storageKey, JSON.stringify(current));
+        } catch {}
+        saveLocalHistory(next);
+        if (typeof window.renderQuickBirthHistory === "function") window.renderQuickBirthHistory();
+        try {
+          const [historyRes, sharedRes, deletedRes] = await Promise.all([
+            fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+            fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+            fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+          ]);
+          const history = Array.isArray(historyRes?.value) ? historyRes.value : [];
+          const shared = Array.isArray(sharedRes?.value) ? sharedRes.value : [];
+          const deletedCloud = Array.isArray(deletedRes?.value) ? deletedRes.value : [];
+          const deletedRecordKey = recordKey(removed);
+          await fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value: history.filter((item) => recordKey(item) !== deletedRecordKey) }),
+          }).catch(() => {});
+          await fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value: shared.filter((item) => recordKey(item) !== deletedRecordKey) }),
+          }).catch(() => {});
+          await fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value: Array.from(new Set([...deletedCloud, deletedRecordKey])).slice(-400) }),
+          }).catch(() => {});
+        } catch {}
+      };
+
+      const saveLocalHistory = (records) => {
+        try {
+          const current = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
+          current[historyKey] = records;
+          window.localStorage.setItem(storageKey, JSON.stringify(current));
+        } catch {}
+      };
+
+      const fetchAndHydrate = () => Promise.all([
+        fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+        fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+        fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+      ]).then(([historyRes, sharedRes, deletedRes]) => {
+        const history = Array.isArray(historyRes?.value) ? historyRes.value : [];
+        const shared = Array.isArray(sharedRes?.value) ? sharedRes.value.filter((item) => item?.birthDate) : [];
+        const cloudDeleted = Array.isArray(deletedRes?.value) ? deletedRes.value.map((item) => String(item || "").trim()).filter(Boolean) : [];
+        const localDeleted = getDeletedKeys();
+        const allDeleted = Array.from(new Set([...localDeleted, ...cloudDeleted])).slice(-400);
+        try {
+          const current = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
+          current[deletedKey] = allDeleted;
+          window.localStorage.setItem(storageKey, JSON.stringify(current));
+        } catch {}
+        const deleted = new Set(allDeleted);
+        const merged = normalize([...shared, ...history]).filter((item) => !deleted.has(recordKey(item))).slice(0, 24);
+        if (merged.length) {
+          saveLocalHistory(merged);
+          if (typeof window.renderQuickBirthHistory === "function") window.renderQuickBirthHistory();
+        }
+      }).catch(() => {});
+
+      fetchAndHydrate();
+      window.setTimeout(fetchAndHydrate, 600);
+      window.setTimeout(fetchAndHydrate, 1600);
+      window.setTimeout(fetchAndHydrate, 3200);
+
+      bindTap(historyHost, (event) => {
+        const openTarget = event.target.closest("[data-quick-history-open], [data-fallback-open]");
+        if (!openTarget) return;
+        const index = Number(openTarget.getAttribute("data-quick-history-open") || openTarget.getAttribute("data-fallback-open"));
+        if (!Number.isFinite(index)) return;
+        if (historyPanel) historyPanel.open = false;
+        if (typeof window.applyQuickBirthHistoryRecord === "function") {
+          window.applyQuickBirthHistoryRecord(index);
+        }
+      });
+    })();
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.getRegistrations()
+          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+          .catch(() => {})
+          .then(() => ("caches" in window ? caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))) : Promise.resolve()))
+          .catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

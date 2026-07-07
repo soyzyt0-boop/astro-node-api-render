@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>命线</title>
+    <meta name="theme-color" content="#f6f6f3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="命线">
+    <link rel="manifest" href="./manifest.webmanifest?v=20260621b">
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icon.svg">
+    <link rel="stylesheet" href="./style.css?v=20260621b">
+      <script src="./site-config.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="install-banner" id="install-banner" hidden>
+        <div class="install-copy">
+          <p class="install-title">安装到主屏幕</p>
+          <p class="install-text" id="install-text">添加到主屏幕后，会更像独立 App 一样使用。</p>
+        </div>
+        <div class="install-actions">
+          <button class="action-button install-button" id="install-button" type="button">添加</button>
+          <button class="action-button secondary install-dismiss" id="install-dismiss" type="button">关闭</button>
+        </div>
+      </div>
+      <header class="hero">
+        <div class="hero-head">
+          <p class="eyebrow">Private Axis Notes</p>
+          <div class="hero-mark">MING XIAN</div>
+        </div>
+        <h1>命线</h1>
+        <p class="hero-copy">四柱看人生结构与阶段起伏，占星看人格结构与关系动力。两套系统并行，入口分开，判断互补。</p>
+      </header>
+
+      <section class="panel home-panel">
+        <div class="panel-head">
+          <h2>算法入口</h2>
+        </div>
+        <div class="home-grid">
+          <a class="home-card" href="/bazi/">
+            <p class="home-kicker">Bazi</p>
+            <h3>四柱</h3>
+            <p>看命局底盘、大运节奏、年份起伏。</p>
+          </a>
+          <a class="home-card" href="/astrology/">
+            <p class="home-kicker">Astrology</p>
+            <h3>占星</h3>
+            <p>看人格结构、关系动力、行运触发。</p>
+          </a>
+          <a class="home-card home-card-studio" href="/studio/">
+            <p class="home-kicker">Studio</p>
+            <h3>赵羽彤工作室</h3>
+            <p>后续把作品、命理报告、定制珠串与工作室结构接进来。</p>
+          </a>
+        </div>
+      </section>
+    </main>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.getRegistrations()
+            .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+            .catch(() => {});
+          if ("caches" in window) {
+            caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).catch(() => {});
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

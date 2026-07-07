@@ -1,0 +1,3169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>命线 · 占星</title>
+  <meta name="theme-color" content="#f6f6f3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="命线">
+  <link rel="manifest" href="../manifest.webmanifest?v=20260705w">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../icon.svg">
+  <link rel="stylesheet" href="../style.css?v=20260705w">
+  <script src="../site-config.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div class="hero-head">
+        <p class="eyebrow">Private Axis Notes</p>
+        <div class="hero-mark">MING XIAN</div>
+      </div>
+      <nav class="subsite-nav" aria-label="子页面导航">
+        <a class="subsite-link" href="/">入口</a>
+        <a class="subsite-link" href="/bazi/">四柱</a>
+        <a class="subsite-link is-active" href="/astrology/">占星</a>
+      </nav>
+      <h1>占星</h1>
+    </header>
+
+<section class="panel astro-panel">
+      <div class="panel-head">
+        <div class="astro-headline">
+          <h2>占星排盘</h2>
+        </div>
+      </div>
+
+      <div class="astro-layout">
+        <div class="result-card astro-card astro-library-card">
+          <div class="result-block compact">
+            <div class="astro-summary-head">
+              <p class="block-label">资料库</p>
+              <div class="button-row astro-button-row astro-library-tools" style="margin-top: 0;">
+                <button class="astro-add-button" id="astro-form-toggle" type="button" aria-expanded="false" aria-controls="astro-form-panel">+</button>
+              </div>
+            </div>
+            <div class="astro-form-panel is-collapsed" id="astro-form-panel">
+              <div class="astro-summary-head astro-form-panel-head">
+                <p class="block-label">资料录入</p>
+              </div>
+              <div class="astro-intake-grid">
+                <label class="field">
+                  <span>姓名</span>
+                  <input id="astro-name" type="text" placeholder="输入客户姓名">
+                </label>
+                <label class="field">
+                  <span>性别</span>
+                  <select id="astro-gender">
+                    <option value="">未填</option>
+                    <option value="女">♀</option>
+                    <option value="男">♂</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>出生日期</span>
+                  <input id="astro-date" type="date">
+                </label>
+                <label class="field">
+                  <span>出生时间</span>
+                  <input id="astro-time" type="time">
+                </label>
+                <label class="field astro-city-field">
+                  <span>出生城市</span>
+                  <input id="astro-city" type="text" placeholder="搜索并选择城市" autocomplete="off">
+                </label>
+                <div class="astro-intake-action">
+                  <button class="action-button" id="astro-recalc" type="button">排盘</button>
+                </div>
+              </div>
+              <p class="micro-note" id="astro-city-status"></p>
+              <div class="astro-candidate-list" id="astro-city-candidates"></div>
+            </div>
+
+            <div class="astro-profile-list" id="astro-profile-list">
+              <div class="astro-empty">还没有。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="astro-control-stack">
+        <div class="result-card astro-card astro-view-card">
+          <div class="result-block compact">
+            <div class="astro-summary-head astro-mode-head">
+              <p class="block-label">星盘种类</p>
+            </div>
+            <div class="astro-chart-nav">
+              <div class="astro-chart-switch" id="astro-chart-switch" role="tablist" aria-label="星盘种类">
+                <button class="astro-chart-tab active" type="button" data-chart-view="celestial">天象</button>
+                <button class="astro-chart-tab" type="button" data-chart-view="natal">本命</button>
+                <button class="astro-chart-tab" type="button" data-chart-view="transit">行运</button>
+                <button class="astro-chart-tab astro-chart-tab-passive" type="button" data-chart-view="synastry">合盘</button>
+                <button class="astro-chart-tab astro-chart-tab-passive" type="button" data-chart-view="advanced" data-advanced-family-direct="returns">返照</button>
+                <button class="astro-chart-tab astro-chart-tab-passive" type="button" data-chart-view="advanced" data-advanced-family-direct="directions">推运</button>
+                <button class="astro-chart-tab astro-chart-tab-passive" type="button" data-chart-view="advanced" data-advanced-family-direct="periods">运期</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="astro-chart-stage-toolbar" id="astro-chart-stage-toolbar">
+        <div class="astro-chart-tertiary astro-tier-tertiary" id="astro-wheel-tier-switch" role="tablist" aria-label="点位层级" hidden>
+          <div class="astro-subnav-group">
+            <button class="astro-subnav-tab active" type="button" data-chart-tier="basic">基础</button>
+            <button class="astro-subnav-tab" type="button" data-chart-tier="expanded">扩展</button>
+          </div>
+        </div>
+        <div class="astro-chart-tertiary astro-advanced-leaf-toolbar" id="astro-wheel-advanced-returns" role="tablist" aria-label="返照类型" hidden>
+          <div class="astro-subnav-group astro-subnav-group-passive">
+            <button class="astro-subnav-tab astro-subnav-tab-passive active" type="button" data-advanced-leaf="solar-return">日返</button>
+            <button class="astro-subnav-tab astro-subnav-tab-passive" type="button" data-advanced-leaf="lunar-return">月返</button>
+          </div>
+        </div>
+        <div class="astro-chart-tertiary astro-advanced-leaf-toolbar" id="astro-wheel-advanced-directions" role="tablist" aria-label="推运类型" hidden>
+          <div class="astro-subnav-group astro-subnav-group-passive">
+            <button class="astro-subnav-tab astro-subnav-tab-passive active" type="button" data-advanced-leaf="secondary">次限</button>
+            <button class="astro-subnav-tab astro-subnav-tab-passive" type="button" data-advanced-leaf="tertiary">三限</button>
+            <button class="astro-subnav-tab astro-subnav-tab-passive" type="button" data-advanced-leaf="solar-arc">日弧</button>
+          </div>
+        </div>
+        <div class="astro-chart-tertiary astro-advanced-leaf-toolbar" id="astro-wheel-advanced-periods" role="tablist" aria-label="运期类型" hidden>
+          <div class="astro-subnav-group astro-subnav-group-passive">
+            <button class="astro-subnav-tab astro-subnav-tab-passive active" type="button" data-advanced-leaf="firdaria">法达</button>
+            <button class="astro-subnav-tab astro-subnav-tab-passive" type="button" data-advanced-leaf="profections">小限</button>
+          </div>
+        </div>
+        <div class="astro-chart-tertiary astro-house-tertiary" id="astro-house-switch" role="tablist" aria-label="宫制选择">
+          <div class="astro-subnav-group">
+            <button class="astro-subnav-tab active" type="button" data-house-system="P">Placidus</button>
+              <button class="astro-subnav-tab" type="button" data-house-system="W">Whole Sign</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="astro-synastry-stage" id="astro-synastry-stage" hidden>
+        <div class="astro-synastry-pickers">
+          <div class="result-card astro-card astro-synastry-picker-card">
+            <div class="result-block compact">
+              <p class="block-label">左盘</p>
+              <button class="astro-picker-trigger" id="astro-left-picker-trigger" type="button" aria-expanded="false">选择主盘</button>
+              <div class="astro-picker-menu" id="astro-left-picker-menu" hidden></div>
+            </div>
+          </div>
+          <div class="result-card astro-card astro-synastry-picker-card">
+            <div class="result-block compact">
+              <p class="block-label">右盘</p>
+              <button class="astro-picker-trigger" id="astro-right-picker-trigger" type="button" aria-expanded="false">选择对盘</button>
+              <div class="astro-picker-menu" id="astro-right-picker-menu" hidden></div>
+            </div>
+          </div>
+        </div>
+        <div class="astro-synastry-topbar">
+          <div class="astro-subnav-group astro-subnav-group-passive" role="tablist" aria-label="合盘分组">
+            <button class="astro-subnav-tab astro-subnav-tab-passive active" type="button" data-synastry-family="compare">比较盘</button>
+            <button class="astro-subnav-tab astro-subnav-tab-passive" type="button" data-synastry-family="composite">组合盘</button>
+          </div>
+        </div>
+        <div class="astro-synastry-wheels">
+          <div class="chart-wrap astro-wheel-wrap astro-wheel-wrap-synastry">
+            <svg id="astro-left-wheel" viewBox="0 0 720 720" role="img" aria-label="左盘"></svg>
+          </div>
+          <div class="chart-wrap astro-wheel-wrap astro-wheel-wrap-synastry">
+            <svg id="astro-right-wheel" viewBox="0 0 720 720" role="img" aria-label="右盘"></svg>
+          </div>
+        </div>
+      </section>
+
+      <div class="chart-wrap astro-wheel-wrap" id="astro-main-wheel-wrap">
+        <svg id="astro-wheel" viewBox="0 0 720 720" role="img" aria-label="本命与行运占星轮盘"></svg>
+      </div>
+      <div class="astro-wheel-toolbar" id="astro-wheel-toolbar">
+        <button class="astro-wheel-float-button" id="astro-detail-toggle" type="button">参数</button>
+      </div>
+
+      <section class="astro-detail-panel" id="astro-detail-panel" hidden>
+        <div class="astro-detail-stack" id="astro-detail-stack">
+          <section class="astro-detail-section astro-aux-section">
+            <div class="astro-detail-section-head">
+              <p class="block-label">参数</p>
+            </div>
+            <div class="astro-aux-grid">
+              <div class="result-card astro-card astro-surface-card astro-table-card astro-aux-card astro-aux-card-meta">
+                <div class="result-block compact">
+                  <p class="astro-aux-title">排盘依据</p>
+                  <div class="astro-reading-guide">
+                    <p><strong>先看顺序：</strong>先看上升、太阳、月亮与宫位重心，再看相位结构，最后看行运或推运触发。</p>
+                    <p><strong>本命盘：</strong>看你本来的性格结构、关系模式、事业风格与长期课题。</p>
+                    <p><strong>行运盘：</strong>看现在什么被触发，重点看行运行星是否碰到本命太阳、月亮、上升、天顶与主轴行星。</p>
+                    <p><strong>合盘：</strong>先看两人主轴是否互相接通，再看月亮、金星、火星和土星，判断吸引、压力与长期性。</p>
+                    <p><strong>返照 / 推运 / 运期：</strong>返照看年度主题，推运看内在成熟变化，运期看大阶段主轴。它们不是替代本命，而是补充时间层。</p>
+                    <p><strong>读盘原则：</strong>先看结构，不先下结论。参数区是给你自己摸清盘面逻辑，也会让你知道哪些地方值得进一步下深度报告。</p>
+                  </div>
+                  <div class="astro-table-wrap" id="astro-meta-summary"></div>
+                </div>
+              </div>
+
+              <div class="result-card astro-card astro-surface-card astro-table-card astro-aux-card">
+                <div class="result-block compact">
+                  <p class="astro-aux-title">行星信息</p>
+                  <div class="astro-table-wrap" id="astro-planets-table"></div>
+                </div>
+              </div>
+
+              <div class="result-card astro-card astro-surface-card astro-table-card astro-aux-card">
+                <div class="result-block compact">
+                  <p class="astro-aux-title">小行星信息</p>
+                  <div class="astro-table-wrap" id="astro-extra-table"></div>
+                </div>
+              </div>
+
+              <div class="result-card astro-card astro-surface-card astro-table-card astro-aux-card">
+                <div class="result-block compact">
+                  <p class="astro-aux-title">宫主星</p>
+                  <div class="astro-table-wrap" id="astro-rulers-table"></div>
+                </div>
+              </div>
+
+              <div class="result-card astro-card astro-surface-card astro-table-card astro-aux-card astro-aux-card-matrix">
+                <div class="result-block compact">
+                  <p class="astro-aux-title">相位表</p>
+                  <div class="astro-aspect-board">
+                    <div class="astro-aspect-matrix-wrap" id="astro-aspect-matrix"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <div class="result-card astro-card astro-transit-card" id="astro-transit-card">
+        <div class="result-block compact">
+          <div class="astro-summary-head">
+            <p class="block-label">行运时间</p>
+          </div>
+          <div class="astro-transit-grid">
+            <label class="field">
+              <span>行运日期</span>
+              <input id="astro-transit-date" type="date">
+            </label>
+            <label class="field field-range astro-transit-range">
+              <span id="astro-transit-shift-readout">推移天数 · 0 天</span>
+              <input id="astro-transit-shift" type="range" min="-1440" max="1440" step="1" value="0">
+            </label>
+          </div>
+          <p class="micro-note" id="astro-transit-city-status"></p>
+        </div>
+      </div>
+
+      <div class="astro-system-hidden" aria-hidden="true">
+        <div class="astro-mode-switch" id="astro-mode-switch" role="tablist" aria-label="占星模式">
+          <button class="astro-mode-tab" id="astro-mode-natal" type="button" data-astro-mode="natal">本命盘</button>
+        </div>
+        <div class="astro-form-grid">
+          <label class="field">
+            <span>纬度</span>
+            <input id="astro-lat" type="number" step="0.0001" placeholder="可自动填入">
+          </label>
+          <label class="field">
+            <span>经度</span>
+            <input id="astro-lon" type="number" step="0.0001" placeholder="可自动填入">
+          </label>
+          <label class="field">
+            <span>时区</span>
+            <input id="astro-tz" type="text" placeholder="+08:00">
+          </label>
+          <label class="field">
+            <span>宫制</span>
+            <select id="astro-house-system">
+              <option value="W">Whole Sign</option>
+              <option value="P" selected>Placidus</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>北交点</span>
+            <select id="astro-node-type">
+              <option value="true">True Node</option>
+              <option value="mean">Mean Node</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>莉莉丝</span>
+            <select id="astro-lilith-type">
+              <option value="mean">Mean Lilith</option>
+              <option value="oscu">True Lilith</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>点位显示</span>
+            <select id="astro-point-set">
+              <option value="core">核心点位</option>
+              <option value="advanced">扩展点位</option>
+              <option value="all">全部点位</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>相位筛选</span>
+            <select id="astro-aspect-mode">
+              <option value="major">主要相位</option>
+              <option value="all">全部已设相位</option>
+              <option value="hard">只看硬相位</option>
+              <option value="soft">只看软相位</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>容许度系数</span>
+            <select id="astro-orb-scale">
+              <option value="1">标准</option>
+              <option value="0.75">偏紧</option>
+              <option value="1.25">偏宽</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>轮盘图层</span>
+            <select id="astro-wheel-layer">
+              <option value="both">本命 + 行运</option>
+              <option value="natal">只看本命</option>
+              <option value="transit">只看行运</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>相位线</span>
+            <select id="astro-aspect-lines">
+              <option value="on">显示</option>
+              <option value="off">隐藏</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>查询时区</span>
+            <input id="astro-transit-tz" type="text" value="+02:00">
+          </label>
+        </div>
+        <button class="action-button secondary" id="astro-resolve-city" type="button">校准城市</button>
+        <div class="chip-row" id="astro-presets">
+          <button class="chip" type="button" data-astro-preset="simple">简盘</button>
+          <button class="chip" type="button" data-astro-preset="pro">专业盘</button>
+          <button class="chip" type="button" data-astro-preset="asteroids">小行星盘</button>
+        </div>
+        <div class="astro-candidate-list" id="astro-point-toggles"></div>
+        <p id="astro-params-label">本命参数</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="../astro.bundle.js?v=20260705w"></script>
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const astroApiBase = (params.get("astroApi") || window.YTZ_SITE_CONFIG?.api?.astrochart || "/api/astrochart").replace(/\/$/, "");
+      const storeApi = "/api/store";
+      const geocodeApi = window.YTZ_SITE_CONFIG?.api?.geocode || "/api/geocode";
+      const SHARED_SCOPE = "shared_profiles";
+      const recalcButton = document.getElementById("astro-recalc");
+      const detailLabel = document.getElementById("astro-detail-label");
+      const genderInput = document.getElementById("astro-gender");
+      const profileList = document.getElementById("astro-profile-list");
+      const detailToggleButton = document.getElementById("astro-detail-toggle");
+      const detailPanel = document.getElementById("astro-detail-panel");
+      const detailStack = document.getElementById("astro-detail-stack");
+      const detailSectionLabel = document.querySelector("#astro-detail-panel .astro-detail-section-head .block-label");
+      const metaSummaryTitle = document.querySelector("#astro-meta-summary")?.parentElement?.querySelector(".astro-aux-title");
+      const synastryStage = document.getElementById("astro-synastry-stage");
+      const mainWheelWrap = document.getElementById("astro-main-wheel-wrap");
+      const wheelToolbar = document.getElementById("astro-wheel-toolbar");
+      const leftPickerTrigger = document.getElementById("astro-left-picker-trigger");
+      const rightPickerTrigger = document.getElementById("astro-right-picker-trigger");
+      const leftPickerMenu = document.getElementById("astro-left-picker-menu");
+      const rightPickerMenu = document.getElementById("astro-right-picker-menu");
+      const chartSwitch = document.getElementById("astro-chart-switch");
+      const chartSubnav = document.getElementById("astro-chart-subnav");
+      const houseSwitch = document.getElementById("astro-house-switch");
+      const wheelTierSwitch = document.getElementById("astro-wheel-tier-switch");
+      const wheelAdvancedReturns = document.getElementById("astro-wheel-advanced-returns");
+      const wheelAdvancedDirections = document.getElementById("astro-wheel-advanced-directions");
+      const wheelAdvancedPeriods = document.getElementById("astro-wheel-advanced-periods");
+      const modeTier = document.getElementById("astro-mode-tier");
+      const chartTertiary = document.getElementById("astro-chart-tertiary");
+      const formToggleButton = document.getElementById("astro-form-toggle");
+      const formPanel = document.getElementById("astro-form-panel");
+      const transitCard = document.getElementById("astro-transit-card");
+      const planetsTable = document.getElementById("astro-planets-table");
+      const extraTable = document.getElementById("astro-extra-table");
+      const aspectMatrix = document.getElementById("astro-aspect-matrix");
+      const houseRulers = document.getElementById("astro-rulers-table");
+      const metaSummary = document.getElementById("astro-meta-summary");
+      const cityInput = document.getElementById("astro-city");
+      const dateInput = document.getElementById("astro-date");
+      const timeInput = document.getElementById("astro-time");
+      const latInput = document.getElementById("astro-lat");
+      const lonInput = document.getElementById("astro-lon");
+      const tzInput = document.getElementById("astro-tz");
+      const houseSystemInput = document.getElementById("astro-house-system");
+      const nodeTypeInput = document.getElementById("astro-node-type");
+      const lilithTypeInput = document.getElementById("astro-lilith-type");
+      const cityStatus = document.getElementById("astro-city-status");
+      const cityCandidates = document.getElementById("astro-city-candidates");
+      const resolveCityButton = document.getElementById("astro-resolve-city");
+      const transitDateInput = document.getElementById("astro-transit-date");
+      const transitTzInput = document.getElementById("astro-transit-tz");
+      const transitStatus = document.getElementById("astro-transit-city-status");
+      const RECORDS_KEY = "mingxian_astrology_records_v1";
+      const state = {
+        records: [],
+        cityResolveToken: 0,
+        transitResolveToken: 0,
+        detailExpanded: false,
+        activeRecordKey: null,
+        detailReady: false,
+        formExpanded: false,
+        cityLocked: false,
+        citySuggestTimer: null,
+        transitDraft: {
+          date: "",
+          shift: "0",
+        },
+        activeTier: "basic",
+        synastryFamily: "compare",
+        advancedFamily: "returns",
+        advancedLeaf: "solar-return",
+        synastryPartnerKey: null,
+        synastryPartnerRecord: null,
+        synastryPrimaryKey: null,
+        synastryPrimaryRecord: null,
+        synastryPickerOpen: null,
+        cityMeta: null,
+        advancedMetaItems: null,
+      };
+
+      function setDetailLabel(text = "参数") {
+        if (detailLabel) detailLabel.textContent = text;
+        if (detailToggleButton) detailToggleButton.textContent = text;
+      }
+
+      function setRecalcPending(pending, label = "排盘") {
+        if (!recalcButton) return;
+        recalcButton.disabled = pending;
+        recalcButton.textContent = pending ? label : "排盘";
+      }
+
+      function setFormExpanded(expanded) {
+        state.formExpanded = expanded;
+        if (formPanel) formPanel.classList.toggle("is-collapsed", !expanded);
+        if (formToggleButton) {
+          formToggleButton.setAttribute("aria-expanded", expanded ? "true" : "false");
+          formToggleButton.textContent = expanded ? "−" : "+";
+        }
+      }
+
+      setDetailLabel("参数");
+
+      function readValue(id) {
+        const el = document.getElementById(id);
+        return el ? String(el.value || "").trim() : "";
+      }
+
+      function syncTransitDraftFromInputs() {
+        state.transitDraft = {
+          date: String(transitDateInput?.value || "").trim(),
+          shift: String(document.getElementById("astro-transit-shift")?.value || "0"),
+        };
+      }
+
+      function applyTransitDraftToInputs() {
+        if (transitDateInput && state.transitDraft.date && !String(transitDateInput.value || "").trim()) {
+          transitDateInput.value = state.transitDraft.date;
+        }
+        const shiftInput = document.getElementById("astro-transit-shift");
+        if (shiftInput && state.transitDraft.shift !== "") {
+          shiftInput.value = state.transitDraft.shift;
+        }
+      }
+
+      function localLoad(key, fallback) {
+        try {
+          return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+        } catch {
+          return fallback;
+        }
+      }
+
+      function localSave(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      async function readJsonSafely(response, fallbackMessage) {
+        const raw = await response.text();
+        if (!raw) {
+          throw new Error(fallbackMessage);
+        }
+        try {
+          return JSON.parse(raw);
+        } catch {
+          throw new Error(raw.slice(0, 160) || fallbackMessage);
+        }
+      }
+
+      async function fetchStore(scope) {
+        const response = await fetch(`${storeApi}?scope=${encodeURIComponent(scope)}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await readJsonSafely(response, "云端读取失败。");
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "云端读取失败。");
+        }
+        return data.value;
+      }
+
+      async function pushStore(scope, value) {
+        const response = await fetch(`${storeApi}?scope=${encodeURIComponent(scope)}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value }),
+        });
+        const data = await readJsonSafely(response, "云端保存失败。");
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "云端保存失败。");
+        }
+        return data.value;
+      }
+
+      async function deleteStore(scope) {
+        const response = await fetch(`${storeApi}?scope=${encodeURIComponent(scope)}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await readJsonSafely(response, "云端删除失败。");
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "云端删除失败。");
+        }
+      }
+
+      async function loadSharedProfiles() {
+        try {
+          const value = await fetchStore(SHARED_SCOPE);
+          return Array.isArray(value) ? value : [];
+        } catch {
+          return [];
+        }
+      }
+
+      async function saveSharedProfiles(profiles) {
+        try {
+          await pushStore(SHARED_SCOPE, profiles);
+        } catch {}
+      }
+
+      async function upsertSharedProfile(profile) {
+        const profiles = await loadSharedProfiles();
+        const key = String(profile.name || "").trim().toLowerCase();
+        if (!key) return;
+        const next = profiles.filter((item) => String(item.name || "").trim().toLowerCase() !== key);
+        next.unshift({
+          ...profile,
+          updatedAt: Date.now(),
+        });
+        await saveSharedProfiles(next.slice(0, 200));
+      }
+
+      async function hydrateSharedProfileByName(name) {
+        const key = String(name || "").trim().toLowerCase();
+        if (!key) return;
+        const profiles = await loadSharedProfiles();
+        const profile = profiles.find((item) => String(item.name || "").trim().toLowerCase() === key);
+        if (!profile) return;
+        if (cityInput && !cityInput.value && profile.locationDisplay) cityInput.value = profile.locationDisplay;
+        if (dateInput && !dateInput.value && profile.birthDate) dateInput.value = profile.birthDate;
+        if (timeInput && !timeInput.value && profile.birthTime) timeInput.value = profile.birthTime;
+        if (latInput && !latInput.value && Number.isFinite(Number(profile.latitude))) latInput.value = String(profile.latitude);
+        if (lonInput && !lonInput.value && Number.isFinite(Number(profile.longitude))) lonInput.value = String(profile.longitude);
+        if (tzInput && !tzInput.value && profile.timezoneOffset) tzInput.value = profile.timezoneOffset;
+        if (genderInput && !genderInput.value && profile.gender) genderInput.value = profile.gender;
+        if (cityStatus && profile.locationDisplay) cityStatus.textContent = `已带出共享档案：${profile.locationDisplay}`;
+      }
+
+      async function loadRecords() {
+        try {
+          const value = await fetchStore("astrology_records");
+          state.records = Array.isArray(value) ? value : [];
+          localSave(RECORDS_KEY, state.records);
+        } catch {
+          state.records = localLoad(RECORDS_KEY, []);
+        }
+        renderRecords();
+      }
+
+      async function persistRecords(records) {
+        state.records = records;
+        localSave(RECORDS_KEY, records);
+        try {
+          state.records = await pushStore("astrology_records", records);
+        } catch (error) {
+          setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "保存失败 · 参数");
+        }
+      }
+
+      function renderRecords() {
+        if (!profileList) return;
+        if (!state.records.length) {
+          profileList.innerHTML = '<div class="astro-empty">还没有。</div>';
+          renderSynastryPickerMenus();
+          return;
+        }
+        const ordered = [...state.records].sort((a, b) => {
+          if (a.createdAt === state.activeRecordKey) return -1;
+          if (b.createdAt === state.activeRecordKey) return 1;
+          return Number(b.updatedAt || b.createdAt || 0) - Number(a.updatedAt || a.createdAt || 0);
+        });
+        profileList.innerHTML = ordered.map((record) => `
+          <div class="astro-profile-item${state.activeRecordKey === record.createdAt ? " is-active" : ""}" data-select-profile="${record.createdAt}">
+            <div class="astro-summary-head">
+              <p class="block-label">${record.name || "未命名"}${state.activeRecordKey === record.createdAt ? ' <span class="astro-active-dot">当前</span>' : ""}</p>
+              <div class="button-row" style="margin-top: 0;">
+                <button class="action-button ghost" type="button" data-open-profile="${record.createdAt}">编辑</button>
+                <button class="action-button secondary" type="button" data-remove-record="${record.createdAt}">删除</button>
+              </div>
+            </div>
+            <p class="astro-profile-meta">${record.gender || "未填性别"} · ${record.date || "-"} ${record.time || ""} · ${record.city || "城市未填"}</p>
+          </div>
+        `).join("");
+        renderSynastryPickerMenus();
+      }
+
+      function syncSynastryPickerUi() {
+        if (leftPickerTrigger) {
+          const active = state.records.find((item) => item.createdAt === state.synastryPrimaryKey);
+          leftPickerTrigger.textContent = active?.name || "选择主盘";
+          leftPickerTrigger.setAttribute("aria-expanded", state.synastryPickerOpen === "left" ? "true" : "false");
+        }
+        if (rightPickerTrigger) {
+          const active = state.records.find((item) => item.createdAt === state.synastryPartnerKey);
+          rightPickerTrigger.textContent = active?.name || "选择对盘";
+          rightPickerTrigger.setAttribute("aria-expanded", state.synastryPickerOpen === "right" ? "true" : "false");
+        }
+        if (leftPickerMenu) leftPickerMenu.hidden = state.synastryPickerOpen !== "left";
+        if (rightPickerMenu) rightPickerMenu.hidden = state.synastryPickerOpen !== "right";
+      }
+
+      function syncSynastryWheelVisibility() {
+        const leftWrap = document.querySelector("#astro-left-wheel")?.parentElement;
+        const rightWrap = document.querySelector("#astro-right-wheel")?.parentElement;
+        const wheels = document.querySelector(".astro-synastry-wheels");
+        if (leftWrap) leftWrap.classList.toggle("is-empty", !state.synastryPrimaryKey);
+        if (rightWrap) rightWrap.classList.toggle("is-empty", !state.synastryPartnerKey);
+        if (leftWrap) leftWrap.classList.toggle("is-hidden-mode", state.synastryFamily === "composite");
+        if (rightWrap) rightWrap.classList.remove("is-hidden-mode");
+        if (rightWrap) rightWrap.classList.toggle("is-composite-focus", state.synastryFamily === "composite");
+        if (wheels) wheels.classList.toggle("is-composite", state.synastryFamily === "composite");
+      }
+
+      function renderSynastryPickerMenus() {
+        const items = [...state.records].sort((a, b) => Number(b.updatedAt || b.createdAt || 0) - Number(a.updatedAt || a.createdAt || 0));
+        const buildMenu = (side) => {
+          if (!items.length) return '<div class="astro-empty">还没有。</div>';
+          return items.map((record) => {
+            const selected = side === "left" ? state.synastryPrimaryKey === record.createdAt : state.synastryPartnerKey === record.createdAt;
+            return `<button class="astro-picker-option${selected ? " is-active" : ""}" type="button" data-synastry-pick="${side}" data-record-key="${record.createdAt}">${record.name || "未命名"}<span>${record.date || "-"} ${record.city || ""}</span></button>`;
+          }).join("");
+        };
+        if (leftPickerMenu) leftPickerMenu.innerHTML = buildMenu("left");
+        if (rightPickerMenu) rightPickerMenu.innerHTML = buildMenu("right");
+        syncSynastryPickerUi();
+        syncSynastryWheelVisibility();
+      }
+
+      function setSynastryPickerOpen(side = null) {
+        state.synastryPickerOpen = state.synastryPickerOpen === side ? null : side;
+        syncSynastryPickerUi();
+      }
+
+      async function syncCompareChart() {
+        if (!state.synastryPrimaryKey || !state.synastryPartnerKey) {
+          window.__mingxianAstroSetCompareChart?.(null);
+          window.__mingxianRenderSingleWheel?.(null, {}, "left");
+          window.__mingxianRenderSingleWheel?.(null, {}, "right");
+          return false;
+        }
+        const primary = state.records.find((item) => item.createdAt === state.synastryPrimaryKey);
+        const partner = state.records.find((item) => item.createdAt === state.synastryPartnerKey);
+        if (!primary || !partner) {
+          state.synastryPartnerRecord = null;
+          window.__mingxianAstroSetCompareChart?.(null);
+          window.__mingxianRenderSingleWheel?.(null, {}, "left");
+          window.__mingxianRenderSingleWheel?.(null, {}, "right");
+          return false;
+        }
+        const primaryChart = await requestChartForRecord(primary);
+        const partnerChart = await requestChartForRecord(partner);
+        state.synastryPartnerRecord = partner;
+        window.__mingxianRenderSingleWheel?.(primaryChart, {
+          name: primary.name || "未命名",
+          city: primary.city || "未填城市",
+        }, "left");
+        window.__mingxianRenderSingleWheel?.(partnerChart, {
+          name: partner.name || "未命名",
+          city: partner.city || "未填城市",
+        }, "right");
+        window.__mingxianAstroSetCompareChart?.(partnerChart, {
+          name: partner.name || "未命名",
+          city: partner.city || "未填城市",
+        });
+        return true;
+      }
+
+      async function activateChartView(view, options = {}) {
+        const { recalc = true } = options;
+        syncTransitDraftFromInputs();
+        document.querySelectorAll("[data-chart-view]").forEach((button) => {
+          const buttonView = button.getAttribute("data-chart-view");
+          const directFamily = button.getAttribute("data-advanced-family-direct");
+          const isActive = directFamily
+            ? view === "advanced" && directFamily === state.advancedFamily
+            : buttonView === view;
+          button.classList.toggle("active", isActive);
+        });
+        if (chartSubnav) chartSubnav.hidden = true;
+        if (wheelTierSwitch) {
+          const showWheelTier = view === "natal" || view === "transit";
+          wheelTierSwitch.hidden = !showWheelTier;
+          wheelTierSwitch.style.display = showWheelTier ? "" : "none";
+        }
+        if (wheelAdvancedReturns) {
+          const showReturnsLeaf = view === "advanced" && state.advancedFamily === "returns";
+          wheelAdvancedReturns.hidden = !showReturnsLeaf;
+          wheelAdvancedReturns.style.display = showReturnsLeaf ? "" : "none";
+        }
+        if (wheelAdvancedDirections) {
+          const showDirectionsLeaf = view === "advanced" && state.advancedFamily === "directions";
+          wheelAdvancedDirections.hidden = !showDirectionsLeaf;
+          wheelAdvancedDirections.style.display = showDirectionsLeaf ? "" : "none";
+        }
+        if (wheelAdvancedPeriods) {
+          const showPeriodsLeaf = view === "advanced" && state.advancedFamily === "periods";
+          wheelAdvancedPeriods.hidden = !showPeriodsLeaf;
+          wheelAdvancedPeriods.style.display = showPeriodsLeaf ? "" : "none";
+        }
+        if (chartTertiary) chartTertiary.hidden = true;
+        syncSynastryFamilyUi();
+        syncAdvancedFamilyUi();
+        syncAdvancedLeafUi();
+        syncDetailTitles();
+        if (transitCard) {
+          transitCard.hidden = view !== "transit";
+        }
+        if (synastryStage) synastryStage.hidden = view !== "synastry";
+        if (mainWheelWrap) mainWheelWrap.hidden = view === "synastry";
+        if (wheelToolbar) wheelToolbar.hidden = view === "synastry";
+        syncSynastryWheelVisibility();
+        if (view === "synastry") {
+          if (state.synastryFamily === "composite") {
+            window.__mingxianAstroSetCompare?.(false);
+            if (!state.synastryPrimaryKey && !state.synastryPartnerKey) {
+              window.__mingxianRenderSingleWheel?.(null, {}, "left");
+              window.__mingxianRenderSingleWheel?.(null, {}, "right");
+              setDetailLabel("请选择左盘与右盘 · 参数");
+              return;
+            }
+            if (!state.synastryPrimaryKey || !state.synastryPartnerKey) {
+              if (state.synastryPrimaryKey) {
+                const primary = state.records.find((item) => item.createdAt === state.synastryPrimaryKey);
+                if (primary) {
+                  try {
+                    const primaryChart = await requestChartForRecord(primary);
+                    window.__mingxianRenderSingleWheel?.(primaryChart, {
+                      name: primary.name || "未命名",
+                      city: primary.city || "未填城市",
+                    }, "left");
+                  } catch {}
+                }
+              } else {
+                window.__mingxianRenderSingleWheel?.(null, {}, "left");
+              }
+              if (state.synastryPartnerKey) {
+                const partner = state.records.find((item) => item.createdAt === state.synastryPartnerKey);
+                if (partner) {
+                  try {
+                    const partnerChart = await requestChartForRecord(partner);
+                    window.__mingxianRenderSingleWheel?.(partnerChart, {
+                      name: partner.name || "未命名",
+                      city: partner.city || "未填城市",
+                    }, "right");
+                  } catch {}
+                }
+              } else {
+                window.__mingxianRenderSingleWheel?.(null, {}, "right");
+              }
+              setDetailLabel("组合盘需要左右两盘 · 参数");
+              return;
+            }
+            try {
+              const primary = state.records.find((item) => item.createdAt === state.synastryPrimaryKey);
+              const partner = state.records.find((item) => item.createdAt === state.synastryPartnerKey);
+              const primaryChart = await requestChartForRecord(primary);
+              const partnerChart = await requestChartForRecord(partner);
+              const compositeWheel = window.__mingxianBuildCompositeWheel?.(primaryChart, partnerChart, {
+                name: `${primary?.name || "左盘"} × ${partner?.name || "右盘"}`,
+                leftName: primary?.name || "左盘",
+                rightName: partner?.name || "右盘",
+                leftCity: primary?.city || "",
+                rightCity: partner?.city || "",
+              });
+              window.__mingxianRenderSingleWheel?.(primaryChart, {
+                name: primary?.name || "未命名",
+                city: primary?.city || "未填城市",
+              }, "left");
+              window.__mingxianRenderSingleWheel?.(compositeWheel, {
+                name: `${primary?.name || "左盘"} × ${partner?.name || "右盘"}`,
+                city: "组合盘",
+              }, "right");
+              setDetailLabel("组合盘 · 参数");
+            } catch (error) {
+              setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "组合盘失败 · 参数");
+            }
+            return;
+          }
+          window.__mingxianAstroSetCompare?.(true);
+          if (!state.synastryPrimaryKey && !state.synastryPartnerKey) {
+            setDetailLabel("请选择左盘与右盘 · 参数");
+            window.__mingxianAstroSetCompareChart?.(null);
+            window.__mingxianRenderSingleWheel?.(null, {}, "left");
+            window.__mingxianRenderSingleWheel?.(null, {}, "right");
+            return;
+          }
+          if (state.synastryPrimaryKey && !state.synastryPartnerKey) {
+            const primary = state.records.find((item) => item.createdAt === state.synastryPrimaryKey);
+            if (primary) {
+              try {
+                const primaryChart = await requestChartForRecord(primary);
+                window.__mingxianRenderSingleWheel?.(primaryChart, {
+                  name: primary.name || "未命名",
+                  city: primary.city || "未填城市",
+                }, "left");
+              } catch {}
+            }
+            window.__mingxianRenderSingleWheel?.(null, {}, "right");
+            window.__mingxianAstroSetCompareChart?.(null);
+            setDetailLabel("请选择右盘 · 参数");
+            return;
+          }
+          if (!state.synastryPrimaryKey && state.synastryPartnerKey) {
+            const partner = state.records.find((item) => item.createdAt === state.synastryPartnerKey);
+            if (partner) {
+              try {
+                const partnerChart = await requestChartForRecord(partner);
+                window.__mingxianRenderSingleWheel?.(partnerChart, {
+                  name: partner.name || "未命名",
+                  city: partner.city || "未填城市",
+                }, "right");
+              } catch {}
+            }
+            window.__mingxianRenderSingleWheel?.(null, {}, "left");
+            window.__mingxianAstroSetCompareChart?.(null);
+            setDetailLabel("请选择左盘 · 参数");
+            return;
+          }
+          try {
+            await syncCompareChart();
+            setDetailLabel("比较盘 · 参数");
+          } catch (error) {
+            setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "比较盘失败 · 参数");
+          }
+          return;
+        }
+        window.__mingxianAstroSetCompare?.(false);
+        if (view === "advanced") {
+          try {
+            await renderAdvancedChart();
+          } catch (error) {
+            setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "进阶盘失败 · 参数");
+          }
+          return;
+        }
+        if (!recalc) return;
+        if (view === "celestial") {
+          window.__mingxianAstroSetMode?.("live", false);
+        } else if (view === "natal") {
+          window.__mingxianAstroSetMode?.("natal", false);
+        } else {
+          applyTransitDraftToInputs();
+          window.__mingxianAstroSetMode?.("natal", true);
+        }
+      }
+
+      function syncChartTierUi() {
+        document.querySelectorAll("[data-chart-tier]").forEach((button) => {
+          button.classList.toggle("active", button.getAttribute("data-chart-tier") === state.activeTier);
+        });
+      }
+
+      function syncSynastryFamilyUi() {
+        document.querySelectorAll("[data-synastry-family]").forEach((button) => {
+          button.classList.toggle("active", button.getAttribute("data-synastry-family") === state.synastryFamily);
+        });
+      }
+
+      function syncAdvancedFamilyUi() {
+        document.querySelectorAll("[data-advanced-family]").forEach((button) => {
+          button.classList.toggle("active", button.getAttribute("data-advanced-family") === state.advancedFamily);
+        });
+      }
+
+      function syncAdvancedLeafUi() {
+        document.querySelectorAll("[data-advanced-leaf]").forEach((button) => {
+          button.classList.toggle("active", button.getAttribute("data-advanced-leaf") === state.advancedLeaf);
+        });
+      }
+
+      function advancedLeafLabel() {
+        const map = {
+          "solar-return": "日返",
+          "lunar-return": "月返",
+          "secondary": "次限",
+          "tertiary": "三限",
+          "solar-arc": "日弧",
+          "firdaria": "法达",
+          "profections": "小限",
+        };
+        return map[state.advancedLeaf] || "进阶";
+      }
+
+      function applyChartTier(tier, options = {}) {
+        const { recalc = true } = options;
+        state.activeTier = tier === "expanded" ? "expanded" : "basic";
+        syncChartTierUi();
+        const pointSetInput = document.getElementById("astro-point-set");
+        if (pointSetInput) {
+          pointSetInput.value = state.activeTier === "expanded" ? "all" : "core";
+          pointSetInput.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        if (!recalc) return;
+        const activeView = document.querySelector("[data-chart-view].active")?.getAttribute("data-chart-view") || "celestial";
+        if (activeView === "natal" || activeView === "transit") {
+          activateChartView(activeView);
+        }
+      }
+
+      function applySynastryFamily(family) {
+        state.synastryFamily = family === "composite" ? "composite" : "compare";
+        syncSynastryFamilyUi();
+        syncSynastryWheelVisibility();
+        if ((document.querySelector("[data-chart-view].active")?.getAttribute("data-chart-view") || "") === "synastry") {
+          activateChartView("synastry", { recalc: false });
+        }
+      }
+
+      function applyAdvancedFamily(family) {
+        state.advancedFamily = ["returns", "directions", "periods"].includes(family) ? family : "returns";
+        if (state.advancedFamily === "returns" && !["solar-return", "lunar-return"].includes(state.advancedLeaf)) {
+          state.advancedLeaf = "solar-return";
+        }
+        if (state.advancedFamily === "directions" && !["secondary", "tertiary", "solar-arc"].includes(state.advancedLeaf)) {
+          state.advancedLeaf = "secondary";
+        }
+        if (state.advancedFamily === "periods" && !["firdaria", "profections"].includes(state.advancedLeaf)) {
+          state.advancedLeaf = "firdaria";
+        }
+        syncAdvancedFamilyUi();
+        syncAdvancedLeafUi();
+        if ((document.querySelector("[data-chart-view].active")?.getAttribute("data-chart-view") || "") === "advanced") {
+          activateChartView("advanced");
+        }
+      }
+
+      function applyAdvancedLeaf(leaf) {
+        state.advancedLeaf = leaf || "solar-return";
+        syncAdvancedLeafUi();
+        if ((document.querySelector("[data-chart-view].active")?.getAttribute("data-chart-view") || "") === "advanced") {
+          activateChartView("advanced");
+        }
+      }
+
+      function currentActiveView() {
+        return document.querySelector("[data-chart-view].active")?.getAttribute("data-chart-view") || "celestial";
+      }
+
+      function currentMetaTitle() {
+        const activeView = currentActiveView();
+        if (activeView !== "advanced") return { section: "参数", card: "排盘依据" };
+        if (state.advancedFamily === "returns") return { section: "返照参数", card: "回归信息" };
+        if (state.advancedFamily === "directions") return { section: "推运参数", card: "推运信息" };
+        if (state.advancedFamily === "periods") return { section: "运期参数", card: "运期信息" };
+        return { section: "参数", card: "排盘依据" };
+      }
+
+      function currentDetailTheme() {
+        const activeView = currentActiveView();
+        if (activeView !== "advanced") return "default";
+        if (state.advancedFamily === "returns") return "returns";
+        if (state.advancedFamily === "directions") return "directions";
+        if (state.advancedFamily === "periods") return "periods";
+        return "default";
+      }
+
+      function syncDetailTitles() {
+        const titles = currentMetaTitle();
+        if (detailSectionLabel) detailSectionLabel.textContent = titles.section;
+        if (metaSummaryTitle) metaSummaryTitle.textContent = titles.card;
+        if (detailPanel) detailPanel.setAttribute("data-detail-theme", currentDetailTheme());
+      }
+
+      async function applySynastryPartner(record) {
+        if (!record || record.createdAt === state.synastryPrimaryKey) {
+          state.synastryPartnerKey = null;
+          state.synastryPartnerRecord = null;
+          setSynastryPickerOpen(null);
+          renderSynastryPickerMenus();
+          renderRecords();
+          if (currentActiveView() === "synastry") activateChartView("synastry", { recalc: false });
+          return;
+        }
+        state.synastryPartnerKey = record.createdAt;
+        state.synastryPartnerRecord = record;
+        setSynastryPickerOpen(null);
+        renderSynastryPickerMenus();
+        renderRecords();
+        if (currentActiveView() === "synastry") {
+          await activateChartView("synastry");
+        }
+      }
+
+      async function applySynastryPrimary(record) {
+        if (!record) return;
+        try {
+          if (record.createdAt === state.synastryPartnerKey) {
+            state.synastryPrimaryKey = null;
+            state.synastryPrimaryRecord = null;
+            window.__mingxianRenderSingleWheel?.(null, {}, "left");
+          } else {
+            state.synastryPrimaryKey = record.createdAt;
+            state.synastryPrimaryRecord = record;
+          }
+          setSynastryPickerOpen(null);
+          renderSynastryPickerMenus();
+          if (currentActiveView() === "synastry") {
+            await activateChartView("synastry");
+          }
+        } catch (error) {
+          setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "设置主盘失败 · 参数");
+        }
+      }
+
+      function setDetailExpanded(expanded) {
+        state.detailExpanded = expanded;
+        if (detailPanel) detailPanel.hidden = !expanded;
+        if (detailToggleButton) {
+          detailToggleButton.setAttribute("aria-expanded", expanded ? "true" : "false");
+        }
+      }
+      window.__mingxianToggleDetail = function() {
+        setDetailExpanded(!state.detailExpanded);
+      };
+
+      function toOffsetString(totalMinutes) {
+        if (!Number.isFinite(totalMinutes)) return "";
+        const sign = totalMinutes >= 0 ? "+" : "-";
+        const abs = Math.abs(totalMinutes);
+        const hours = String(Math.floor(abs / 60)).padStart(2, "0");
+        const minutes = String(abs % 60).padStart(2, "0");
+        return `${sign}${hours}:${minutes}`;
+      }
+
+      function timezoneOffsetMinutesAt(timezone, year, month, day, hour = 12, minute = 0) {
+        try {
+          const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+          const formatter = new Intl.DateTimeFormat("en-CA", {
+            timeZone: timezone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hourCycle: "h23",
+          });
+          const parts = formatter.formatToParts(utcDate);
+          const pick = (type) => Number(parts.find((item) => item.type === type)?.value || 0);
+          const zonedTimestamp = Date.UTC(
+            pick("year"),
+            pick("month") - 1,
+            pick("day"),
+            pick("hour"),
+            pick("minute"),
+            pick("second")
+          );
+          return Math.round((zonedTimestamp - utcDate.getTime()) / 60000);
+        } catch {
+          return undefined;
+        }
+      }
+
+      function resolveDstMeta(timezoneName, offsetMinutes, dateValue) {
+        if (!timezoneName || !dateValue) return null;
+        const [year, month, day] = dateValue.split("-").map(Number);
+        if (!year || !month || !day) return null;
+        const janOffset = timezoneOffsetMinutesAt(timezoneName, year, 1, 1);
+        const julOffset = timezoneOffsetMinutesAt(timezoneName, year, 7, 1);
+        if (!Number.isFinite(janOffset) || !Number.isFinite(julOffset)) {
+          return null;
+        }
+        const seasonalDiff = janOffset !== julOffset;
+        const dstOffset = seasonalDiff ? Math.max(janOffset, julOffset) : janOffset;
+        const standardOffset = seasonalDiff ? Math.min(janOffset, julOffset) : janOffset;
+        return {
+          timezoneName,
+          utcOffsetMinutes: offsetMinutes,
+          observesDst: seasonalDiff,
+          isDst: seasonalDiff ? Number(offsetMinutes) === dstOffset : false,
+          standardOffsetMinutes: standardOffset,
+        };
+      }
+
+      function applyResolvedCity(target, result) {
+        if (target === "natal") {
+          if (cityInput) cityInput.value = result.display || result.city || "";
+          if (latInput) latInput.value = String(result.latitude ?? "");
+          if (lonInput) lonInput.value = String(result.longitude ?? "");
+          if (tzInput && result.utcOffsetMinutes !== undefined) tzInput.value = toOffsetString(result.utcOffsetMinutes);
+          if (cityStatus) cityStatus.textContent = `已校准：${result.display || result.city} · ${toOffsetString(result.utcOffsetMinutes) || result.timezone || ""}`;
+          state.cityMeta = resolveDstMeta(String(result.timezone || "").trim(), Number(result.utcOffsetMinutes), String(dateInput?.value || "").trim());
+          state.cityLocked = true;
+          syncTransitDefaultsFromNatal();
+        } else {
+          if (transitTzInput && result.utcOffsetMinutes !== undefined) transitTzInput.value = toOffsetString(result.utcOffsetMinutes);
+          if (transitStatus) transitStatus.textContent = `已校准：${result.display || result.city} · ${toOffsetString(result.utcOffsetMinutes) || result.timezone || ""}`;
+        }
+      }
+
+      function syncTransitDefaultsFromNatal() {
+        const natalTz = String(tzInput?.value || "").trim();
+        if (transitTzInput && !String(transitTzInput.value || "").trim() && natalTz) {
+          transitTzInput.value = natalTz;
+        }
+      }
+
+      function currentRecordIndex() {
+        return state.records.findIndex((item) => item.createdAt === state.activeRecordKey);
+      }
+
+      function hasArchiveMinimumFields() {
+        const city = readValue("astro-city");
+        const date = readValue("astro-date");
+        const time = readValue("astro-time");
+        return !!(city && date && time);
+      }
+
+      function clearIntakeForm(options = {}) {
+        const { keepActive = false } = options;
+        if (document.getElementById("astro-name")) document.getElementById("astro-name").value = "";
+        if (genderInput) genderInput.value = "";
+        if (cityInput) cityInput.value = "";
+        if (dateInput) dateInput.value = "";
+        if (timeInput) timeInput.value = "";
+        if (tzInput) tzInput.value = "";
+        if (latInput) latInput.value = "";
+        if (lonInput) lonInput.value = "";
+        if (cityStatus) cityStatus.textContent = "";
+        if (cityCandidates) cityCandidates.innerHTML = "";
+        state.cityLocked = false;
+        if (!keepActive) state.activeRecordKey = null;
+        renderRecords();
+      }
+
+      function archiveCurrentProfile() {
+        const name = readValue("astro-name");
+        const city = readValue("astro-city");
+        const date = readValue("astro-date");
+        const time = readValue("astro-time");
+        if (!hasArchiveMinimumFields()) return;
+        const baseKey = `${name}__${date}__${time}` || `${city}__${date}`;
+        const existingIndex = state.records.findIndex((item) => item.key === baseKey);
+        const activeIndex = currentRecordIndex();
+        const targetIndex = existingIndex >= 0 ? existingIndex : activeIndex;
+        const nextRecord = {
+          key: baseKey,
+          name,
+          gender: readValue("astro-gender"),
+          city,
+          date,
+          time,
+          timezone: readValue("astro-tz"),
+          timezoneName: state.cityMeta?.timezoneName || "",
+          isDst: typeof state.cityMeta?.isDst === "boolean" ? state.cityMeta.isDst : null,
+          latitude: readValue("astro-lat"),
+          longitude: readValue("astro-lon"),
+          createdAt: targetIndex >= 0 ? state.records[targetIndex].createdAt : Date.now(),
+          updatedAt: Date.now(),
+        };
+        const next = [...state.records];
+        if (targetIndex >= 0) {
+          next[targetIndex] = nextRecord;
+        } else {
+          next.unshift(nextRecord);
+        }
+        state.activeRecordKey = nextRecord.createdAt;
+        persistRecords(next.slice(0, 200));
+        upsertSharedProfile({
+          name,
+          gender: nextRecord.gender,
+          source: "astrology",
+          locationDisplay: city,
+          birthDate: date,
+          birthTime: time,
+          timezoneOffset: nextRecord.timezone,
+          latitude: Number(nextRecord.latitude),
+          longitude: Number(nextRecord.longitude),
+        });
+        renderRecords();
+      }
+
+      function fillProfile(record) {
+        if (!record) return;
+        if (document.getElementById("astro-name")) document.getElementById("astro-name").value = record.name || "";
+        if (genderInput) genderInput.value = record.gender || "";
+        if (cityInput) cityInput.value = record.city || "";
+        if (dateInput) dateInput.value = record.date || "";
+        if (timeInput) timeInput.value = record.time || "";
+        if (tzInput) tzInput.value = record.timezone || "";
+        state.cityMeta = {
+          timezoneName: record.timezoneName || "",
+          isDst: typeof record.isDst === "boolean" ? record.isDst : null,
+        };
+        if (latInput) latInput.value = record.latitude || "";
+        if (lonInput) lonInput.value = record.longitude || "";
+        state.cityLocked = !!(record.city && record.latitude && record.longitude && record.timezone);
+        syncTransitDefaultsFromNatal();
+      }
+
+      function formatSignDegree(angle) {
+        const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
+        const glyphs = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+        const normalized = ((Number(angle) % 360) + 360) % 360;
+        const signIndex = Math.floor(normalized / 30);
+        const degreeFloat = normalized - signIndex * 30;
+        const degree = Math.floor(degreeFloat);
+        const minute = Math.floor((degreeFloat - degree) * 60);
+        return `${signs[signIndex]} ${glyphs[signIndex]} ${degree}°${String(minute).padStart(2, "0")}'`;
+      }
+
+      function formatSignDegreeCompact(angle) {
+        const glyphs = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+        const normalized = ((Number(angle) % 360) + 360) % 360;
+        const signIndex = Math.floor(normalized / 30);
+        const degreeFloat = normalized - signIndex * 30;
+        const degree = Math.floor(degreeFloat);
+        const minute = Math.floor((degreeFloat - degree) * 60);
+        return `${glyphs[signIndex]} ${degree}°${String(minute).padStart(2, "0")}'`;
+      }
+
+      const PLANET_DISPLAY_META = {
+        sun: { label: "太阳", glyph: "☉" },
+        moon: { label: "月亮", glyph: "☽" },
+        mercury: { label: "水星", glyph: "☿" },
+        venus: { label: "金星", glyph: "♀" },
+        mars: { label: "火星", glyph: "♂" },
+        jupiter: { label: "木星", glyph: "♃" },
+        saturn: { label: "土星", glyph: "♄" },
+        uranus: { label: "天王", glyph: "♅" },
+        neptune: { label: "海王", glyph: "♆" },
+        pluto: { label: "冥王", glyph: "♇" },
+        chiron: { label: "凯龙", glyph: "⚷" },
+        ceres: { label: "谷神", glyph: "⚳" },
+        pallas: { label: "智神", glyph: "⚴" },
+        juno: { label: "婚神", glyph: "⚵" },
+        vesta: { label: "灶神", glyph: "⚶" },
+        northNode: { label: "北交", glyph: "☊" },
+        southNode: { label: "南交", glyph: "☋" },
+        lilith: { label: "莉莉丝", glyph: "⚸" },
+        fortune: { label: "福点", glyph: "⊗" },
+        vertex: { label: "宿命点", glyph: "Vx" },
+        eastPoint: { label: "东方点", glyph: "Ep" },
+        ascendant: { label: "上升", glyph: "Asc" },
+        descendant: { label: "下降", glyph: "Dsc" },
+        midheaven: { label: "天顶", glyph: "MC" },
+        imumCoeli: { label: "天底", glyph: "IC" }
+      };
+
+      function normalizeDisplayPlanet(planet) {
+        const meta = PLANET_DISPLAY_META[planet?.key] || {};
+        return {
+          ...planet,
+          label: planet?.label || meta.label || planet?.key || "-",
+          glyph: planet?.glyph || meta.glyph || "",
+          longitude: Number(planet?.longitude || 0),
+          house: Number(planet?.house || 0),
+          speed: Number(planet?.speed || 0),
+          retrograde: typeof planet?.retrograde === "boolean" ? planet.retrograde : Number(planet?.speed || 0) < 0,
+        };
+      }
+
+      function tableHtml(headers, rows) {
+        return `
+          <table class="astro-data-table">
+            <thead>
+              <tr>${headers.map((head) => `<th>${head}</th>`).join("")}</tr>
+            </thead>
+            <tbody>
+              ${rows.join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function metaSummaryHtml(items) {
+        return `
+          <div class="astro-meta-list">
+            ${items.map((item) => {
+              if (item.type === "html") {
+                return `<div class="astro-meta-block">${item.value}</div>`;
+              }
+              return `<div class="astro-meta-row"><span class="astro-meta-key">${item.label}</span><span class="astro-meta-value">${item.value}</span></div>`;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      function advancedMetaSummaryHtml(theme, baseItems, extraItems) {
+        const rowsMarkup = baseItems.map((item) => `
+          <div class="astro-meta-row">
+            <span class="astro-meta-key">${item.label}</span>
+            <span class="astro-meta-value">${item.value}</span>
+          </div>
+        `).join("");
+        const blocksMarkup = extraItems.map((item) => {
+          if (item.type === "html") {
+            return `<div class="astro-meta-block astro-meta-block-themed">${item.value}</div>`;
+          }
+          return `
+            <div class="astro-meta-row astro-meta-row-emphasis">
+              <span class="astro-meta-key">${item.label}</span>
+              <span class="astro-meta-value">${item.value}</span>
+            </div>
+          `;
+        }).join("");
+        const themeTitle = theme === "returns"
+          ? "返照结构"
+          : theme === "directions"
+            ? "推运框架"
+            : theme === "periods"
+              ? "运期结构"
+              : "参数框架";
+        const extraTitle = theme === "returns"
+          ? "返照解读"
+          : theme === "directions"
+            ? "推运说明"
+            : theme === "periods"
+              ? "运期解读"
+              : "补充信息";
+        return `
+          <div class="astro-meta-themed astro-meta-themed-${theme}">
+            <section class="astro-meta-cluster astro-meta-cluster-base">
+              <p class="astro-meta-cluster-title">${themeTitle}</p>
+              <div class="astro-meta-list">${rowsMarkup}</div>
+            </section>
+            <section class="astro-meta-cluster astro-meta-cluster-extra">
+              <p class="astro-meta-cluster-title">${extraTitle}</p>
+              <div class="astro-meta-list astro-meta-list-rich">${blocksMarkup || `<div class="astro-meta-row"><span class="astro-meta-key">状态</span><span class="astro-meta-value">暂无补充</span></div>`}</div>
+            </section>
+          </div>
+        `;
+      }
+
+      function advancedMetaBlockType(item) {
+        if (!item || item.type !== "html") return "row";
+        const value = String(item.value || "");
+        if (value.includes("astro-snapshot-card")) return "snapshot";
+        if (value.includes("astro-meta-table")) return "timeline";
+        if (value.includes("astro-meta-note")) return "note";
+        return "html";
+      }
+
+      function orderedAdvancedMetaItems(kind, items) {
+        const snapshot = [];
+        const timeline = [];
+        const note = [];
+        const rows = [];
+        const otherHtml = [];
+        items.forEach((item) => {
+          const type = advancedMetaBlockType(item);
+          if (type === "snapshot") snapshot.push(item);
+          else if (type === "timeline") timeline.push(item);
+          else if (type === "note") note.push(item);
+          else if (type === "row") rows.push(item);
+          else otherHtml.push(item);
+        });
+        if (kind === "solar-return" || kind === "lunar-return") {
+          return [...rows, ...snapshot, ...note, ...timeline, ...otherHtml];
+        }
+        if (kind === "secondary" || kind === "tertiary" || kind === "solar-arc") {
+          return [...rows, ...snapshot, ...note, ...timeline, ...otherHtml];
+        }
+        if (kind === "profections") {
+          return [...rows, ...snapshot, ...note, ...timeline, ...otherHtml];
+        }
+        if (kind === "firdaria") {
+          return [...rows, ...snapshot, ...note, ...timeline, ...otherHtml];
+        }
+        return [...rows, ...snapshot, ...timeline, ...note, ...otherHtml];
+      }
+
+      function advancedTimelineTableHtml(headers, rows) {
+        return `
+          <div class="astro-meta-table-wrap">
+            <table class="astro-data-table astro-meta-table">
+              <thead>
+                <tr>${headers.map((head) => `<th>${head}</th>`).join("")}</tr>
+              </thead>
+              <tbody>
+                ${rows.join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function advancedInsightHtml(title, lines) {
+        const renderLine = (line) => {
+          const text = String(line || "");
+          if (!text.startsWith("现实标签：")) return `<p class="astro-meta-note-line">${text}</p>`;
+          const raw = text.replace("现实标签：", "").trim();
+          const tags = raw.split("/").map((item) => item.trim()).filter(Boolean);
+          return `
+            <div class="astro-meta-note-line astro-meta-note-line-tags">
+              <span class="astro-meta-tag-label">现实标签</span>
+              <span class="astro-meta-tags">${tags.map((tag, index) => `<span class="astro-meta-tag${index === 0 ? " is-primary" : " is-secondary"}">${tag}</span>`).join("")}</span>
+            </div>
+          `;
+        };
+        return `
+          <div class="astro-meta-note">
+            <p class="astro-meta-note-title">${title}</p>
+            ${lines.map((line) => renderLine(line)).join("")}
+          </div>
+        `;
+      }
+
+      function advancedSnapshotHtml(title, items) {
+        const cells = items.map((item) => `
+          <div class="astro-snapshot-cell">
+            <span class="astro-snapshot-key">${item.label}</span>
+            <span class="astro-snapshot-value">${item.value}</span>
+          </div>
+        `).join("");
+        return `
+          <section class="astro-snapshot-card">
+            <p class="astro-snapshot-title">${title}</p>
+            <div class="astro-snapshot-grid">${cells}</div>
+          </section>
+        `;
+      }
+
+      function advancedChecklistHtml(title, items) {
+        return `
+          <section class="astro-snapshot-card astro-checklist-card">
+            <p class="astro-snapshot-title">${title}</p>
+            <div class="astro-checklist">
+              ${items.map((item) => `
+                <div class="astro-checklist-row">
+                  <span class="astro-checklist-key">${item.label}</span>
+                  <span class="astro-checklist-value">${item.value}</span>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        `;
+      }
+
+      function angleGap(a, b) {
+        const delta = Math.abs(((Number(a) - Number(b)) % 360 + 360) % 360);
+        return Math.min(delta, 360 - delta);
+      }
+
+      function strongestMajorAspectText(planets) {
+        const focusKeys = new Set(["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
+        const points = planets.filter((planet) => focusKeys.has(planet.key));
+        const aspectDefs = [
+          { angle: 0, label: "合相", orb: 6 },
+          { angle: 60, label: "六合", orb: 4 },
+          { angle: 90, label: "刑相", orb: 5 },
+          { angle: 120, label: "拱相", orb: 5 },
+          { angle: 180, label: "对冲", orb: 6 },
+        ];
+        const houseThemes = {
+          1: "自我呈现与行动方式",
+          2: "价值、收入与资源分配",
+          3: "沟通、学习与周边环境",
+          4: "家庭、根基与内在安全感",
+          5: "表达、创作、恋爱与子女",
+          6: "工作节奏、健康与日常执行",
+          7: "关系、合作与对方立场",
+          8: "共享资源、风险与深层转化",
+          9: "远景、信念、迁移与进修",
+          10: "事业方向、名望与社会定位",
+          11: "社群、人脉、目标与愿景",
+          12: "潜意识、退隐、疗愈与消耗",
+        };
+        let best = null;
+        for (let i = 0; i < points.length; i += 1) {
+          for (let j = i + 1; j < points.length; j += 1) {
+            const left = points[i];
+            const right = points[j];
+            const gap = angleGap(left.longitude, right.longitude);
+            for (const def of aspectDefs) {
+              const orb = Math.abs(gap - def.angle);
+              if (orb <= def.orb) {
+                if (!best || orb < best.orb) {
+                  best = { left, right, label: def.label, orb };
+                }
+                break;
+              }
+            }
+          }
+        }
+        if (!best) return "当前主要相位未集中到特别紧密的一组，建议回看角轴与主星落宫。";
+        const leftTheme = houseThemes[Number(best.left.house)] || `${best.left.house || "-"}宫议题`;
+        const rightTheme = houseThemes[Number(best.right.house)] || `${best.right.house || "-"}宫议题`;
+        return `${best.left.label}${best.left.house || "-"}宫 与 ${best.right.label}${best.right.house || "-"}宫形成${best.label}（容许约 ${best.orb.toFixed(1)}°），重点把 ${leftTheme} 与 ${rightTheme} 放在一起阅读。`;
+      }
+
+      function houseThemeText(house) {
+        const map = {
+          1: "自我呈现、身体状态与行动方式",
+          2: "收入、资源、价值感与物质安排",
+          3: "沟通、学习、合同、短途与周边关系",
+          4: "家庭、居住、内在安全感与根基议题",
+          5: "表达、创作、恋爱、子女与个人光芒",
+          6: "工作流程、健康管理、责任与日常执行",
+          7: "伴侣、合作、关系对照与外界回应",
+          8: "共享资源、债务、风险、亲密与深层转化",
+          9: "迁移、进修、远景、信念与更大视野",
+          10: "事业位置、公众形象、名望与社会目标",
+          11: "朋友、社群、人脉、愿景与长期目标",
+          12: "潜意识、疗愈、退隐、消耗与未显化议题",
+        };
+        return map[Number(house)] || "现实主线";
+      }
+
+      function dominantHouseText(chart, keys = []) {
+        const targets = topPlanetsByHouses(chart, keys);
+        const counts = new Map();
+        targets.forEach((planet) => {
+          const house = Number(planet?.house);
+          if (!Number.isFinite(house) || house <= 0) return;
+          counts.set(house, (counts.get(house) || 0) + 1);
+        });
+        if (!counts.size) return "-";
+        const best = Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+        return `${best[0]} 宫`;
+      }
+
+      function angleAxisFocusText(chart) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        const axes = [
+          planets.find((planet) => planet.key === "ascendant"),
+          planets.find((planet) => planet.key === "descendant"),
+          planets.find((planet) => planet.key === "midheaven"),
+          planets.find((planet) => planet.key === "imumCoeli"),
+        ].filter(Boolean);
+        const majors = planets.filter((planet) => ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"].includes(planet.key));
+        let best = null;
+        axes.forEach((axis) => {
+          majors.forEach((planet) => {
+            const gap = angleGap(axis.longitude, planet.longitude);
+            if (gap <= 8 && (!best || gap < best.gap)) {
+              best = { axis, planet, gap };
+            }
+          });
+        });
+        if (!best) return "当前四轴没有特别紧的主星贴近，可先以主星落宫为主。";
+        return `${best.planet.label} 贴近${best.axis.label}（约 ${best.gap.toFixed(1)}°），这通常会把盘面的主题更直接推向现实事件层。`;
+      }
+
+      function planetToneText(chart, keys = []) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        const selected = keys.map((key) => planets.find((planet) => planet.key === key)).filter(Boolean);
+        if (!selected.length) return "当前主导星体气质还不够集中，可先以宫位与四轴判断。";
+        const lead = selected
+          .filter((planet) => Number.isFinite(Number(planet.house)))
+          .sort((a, b) => Number(a.house) - Number(b.house))[0] || selected[0];
+        const toneMap = {
+          sun: "更强调主观意志、身份感与自我发光的议题",
+          moon: "更强调情绪反馈、身体感受与安全需求",
+          mercury: "更强调沟通、判断、合约、信息与日常安排",
+          venus: "更强调关系吸引、价值排序、审美与金钱流向",
+          mars: "更强调行动压力、推进、切割、竞争与执行动作",
+          jupiter: "更强调扩张、机会、资源放大与外部支持",
+          saturn: "更强调责任、压力、延迟、边界与长期建设",
+        };
+        const tone = toneMap[lead.key] || "更强调主星本身代表的议题。";
+        return `${lead.label}${lead.house ? `落在 ${lead.house} 宫` : ""}，这会让本轮判断 ${tone}`;
+      }
+
+      function practicalAreaTagsText(houses = [], planetKeys = []) {
+        const scores = new Map();
+        const add = (tag, score = 1) => scores.set(tag, (scores.get(tag) || 0) + score);
+        houses.map((house) => Number(house)).forEach((house) => {
+          if (!Number.isFinite(house)) return;
+          if ([2, 8].includes(house)) add("金钱", house === 2 ? 3 : 2);
+          if ([4].includes(house)) add("居住", 3);
+          if ([6, 1].includes(house)) add("健康", house === 6 ? 3 : 2);
+          if ([7, 5].includes(house)) add("关系", house === 7 ? 3 : 2);
+          if ([10, 6].includes(house)) add("事业", house === 10 ? 3 : 2);
+          if ([3, 9].includes(house)) add("学习迁移", house === 9 ? 3 : 2);
+        });
+        planetKeys.forEach((key) => {
+          if (key === "venus") {
+            add("关系", 2);
+            add("金钱", 1);
+          }
+          if (key === "jupiter") {
+            add("金钱", 2);
+            add("学习迁移", 2);
+          }
+          if (key === "saturn") {
+            add("事业", 2);
+            add("健康", 1);
+          }
+          if (key === "mars") {
+            add("事业", 1);
+            add("健康", 1);
+          }
+          if (key === "moon") {
+            add("关系", 1);
+            add("居住", 1);
+          }
+          if (key === "mercury") {
+            add("学习迁移", 1);
+          }
+        });
+        if (!scores.size) return "综合";
+        return Array.from(scores.entries())
+          .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-Hans-CN"))
+          .slice(0, 3)
+          .map(([tag]) => tag)
+          .join(" / ");
+      }
+
+      function topPracticalTagText(houses = [], planetKeys = []) {
+        const scores = new Map();
+        const add = (tag, score = 1) => scores.set(tag, (scores.get(tag) || 0) + score);
+        houses.map((house) => Number(house)).forEach((house) => {
+          if (!Number.isFinite(house)) return;
+          if ([2, 8].includes(house)) add("金钱", house === 2 ? 3 : 2);
+          if ([4].includes(house)) add("居住", 3);
+          if ([6, 1].includes(house)) add("健康", house === 6 ? 3 : 2);
+          if ([7, 5].includes(house)) add("关系", house === 7 ? 3 : 2);
+          if ([10, 6].includes(house)) add("事业", house === 10 ? 3 : 2);
+          if ([3, 9].includes(house)) add("学习迁移", house === 9 ? 3 : 2);
+        });
+        planetKeys.forEach((key) => {
+          if (key === "venus") {
+            add("关系", 2);
+            add("金钱", 1);
+          }
+          if (key === "jupiter") {
+            add("金钱", 2);
+            add("学习迁移", 2);
+          }
+          if (key === "saturn") {
+            add("事业", 2);
+            add("健康", 1);
+          }
+          if (key === "mars") {
+            add("事业", 1);
+            add("健康", 1);
+          }
+          if (key === "moon") {
+            add("关系", 1);
+            add("居住", 1);
+          }
+          if (key === "mercury") {
+            add("学习迁移", 1);
+          }
+        });
+        if (!scores.size) return "综合";
+        return Array.from(scores.entries())
+          .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-Hans-CN"))[0][0];
+      }
+
+      function topPracticalTagReasonText(tag, chart, kind) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        const sun = planets.find((planet) => planet.key === "sun");
+        const moon = planets.find((planet) => planet.key === "moon");
+        const mercury = planets.find((planet) => planet.key === "mercury");
+        const venus = planets.find((planet) => planet.key === "venus");
+        const mars = planets.find((planet) => planet.key === "mars");
+        const jupiter = planets.find((planet) => planet.key === "jupiter");
+        const saturn = planets.find((planet) => planet.key === "saturn");
+        if (tag === "关系") {
+          return `这一次关系会排在最前，不只是因为 ${venus?.house ? `金星落在 ${venus.house} 宫` : "金星被明显强调"}，也因为 ${moon?.house ? `月亮 ${moon.house} 宫` : "月亮层面的感受"} 已经把外界回应、亲密需求和互动质量推到你最先能感到的位置。`;
+        }
+        if (tag === "事业") {
+          return `这一次事业会排在最前，往往说明 ${sun?.house ? `太阳 ${sun.house} 宫` : "太阳"}、${saturn?.house ? `土星 ${saturn.house} 宫` : "土星"} 或角轴已经把重心压到社会位置、责任承担与结果兑现这一层，很多判断都会更现实。`;
+        }
+        if (tag === "金钱") {
+          return `这一次金钱会排在最前，通常不是单纯的钱本身，而是 ${jupiter?.house ? `木星 ${jupiter.house} 宫` : "木星"} 与 ${venus?.house ? `金星 ${venus.house} 宫` : "金星"} 同时把资源、价值判断和财务分配的重要性往上提了。`;
+        }
+        if (tag === "居住") {
+          return `这一次居住会排在最前，多半说明 ${moon?.house ? `月亮 ${moon.house} 宫` : "月亮"} 或四宫主题被反复碰到，所以现实里更容易先表现为家庭关系、住所安排或安全感上的调整。`;
+        }
+        if (tag === "健康") {
+          return `这一次健康会排在最前，常见是因为 ${mars?.house ? `火星 ${mars.house} 宫` : "火星"}、${saturn?.house ? `土星 ${saturn.house} 宫` : "土星"} 或一六宫被强化，身体状态、压力承受和日常执行感会先给你最直接的信号。`;
+        }
+        if (tag === "学习迁移") {
+          return `这一次学习迁移会排在最前，通常说明 ${mercury?.house ? `水星 ${mercury.house} 宫` : "水星"}、${jupiter?.house ? `木星 ${jupiter.house} 宫` : "木星"} 或三九宫主题更强，所以变化会先通过学习、证件、移动、远景或跨地域安排表现出来。`;
+        }
+        return `${kind ? "这一轮" : "当前"}的现实重心更偏向综合推进，建议回到主星落宫和四轴一起读。`;
+      }
+
+      function advancedAutoBriefHtml(kind, chart, options = {}) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        const sun = planets.find((planet) => planet.key === "sun");
+        const moon = planets.find((planet) => planet.key === "moon");
+        const asc = planets.find((planet) => planet.key === "ascendant");
+        const mc = planets.find((planet) => planet.key === "midheaven");
+        const lines = [];
+        if (kind === "solar-return" || kind === "lunar-return") {
+          const dominant = dominantHouseText(chart, ["sun", "moon", "venus", "mars", "ascendant", "midheaven"]);
+          const focusHouse = kind === "solar-return" ? sun?.house : moon?.house;
+          const topTag = topPracticalTagText([focusHouse, asc?.house, mc?.house], kind === "solar-return" ? ["sun", "venus", "mars", "jupiter"] : ["moon", "mercury", "venus", "saturn"]);
+          lines.push(`现实标签：${practicalAreaTagsText([focusHouse, asc?.house, mc?.house], kind === "solar-return" ? ["sun", "venus", "mars", "jupiter"] : ["moon", "mercury", "venus", "saturn"])}`);
+          lines.push(`主标签说明：${topPracticalTagReasonText(topTag, chart, kind)}`);
+          lines.push(`这一轮的主线先落在 ${kind === "solar-return" ? `太阳 ${sun?.house || "-"} 宫` : `月亮 ${moon?.house || "-"} 宫`}，所以最先浮上来的，多半会是 ${houseThemeText(focusHouse)}。`);
+          lines.push(`从整张盘看，注意力还会持续被带向 ${dominant}，这说明相关现实场景不会只出现一次，而是会反复要求你回应。`);
+          lines.push(`气质上，${planetToneText(chart, kind === "solar-return" ? ["sun", "venus", "mars", "jupiter"] : ["moon", "mercury", "venus", "saturn"])}`);
+          lines.push(`如果要找事件真正落地的位置，${angleAxisFocusText(chart)}`);
+          lines.push(`更实际地说，${asc ? `上升 ${asc.house || "-"} 宫` : "-"} 像事情开始发生的入口，${mc ? `天顶 ${mc.house || "-"} 宫` : "-"} 更像最后会被外界看见的结果。`);
+        } else if (kind === "secondary" || kind === "tertiary" || kind === "solar-arc") {
+          const dominant = dominantHouseText(chart, ["sun", "moon", "mercury", "mars", "ascendant", "midheaven"]);
+          const topTag = topPracticalTagText([dominant, moon?.house, sun?.house, mc?.house], kind === "secondary" ? ["moon", "sun", "venus", "saturn"] : kind === "tertiary" ? ["moon", "mercury", "mars"] : ["sun", "mars", "saturn", "jupiter"]);
+          lines.push(`现实标签：${practicalAreaTagsText([dominant, moon?.house, sun?.house, mc?.house], kind === "secondary" ? ["moon", "sun", "venus", "saturn"] : kind === "tertiary" ? ["moon", "mercury", "mars"] : ["sun", "mars", "saturn", "jupiter"])}`);
+          lines.push(`主标签说明：${topPracticalTagReasonText(topTag, chart, kind)}`);
+          lines.push(`这段时间被慢慢推到台前的主场在 ${dominant}，所以判断时最好先盯住 ${houseThemeText(Number.parseInt(dominant, 10))}。`);
+          lines.push(`${kind === "secondary" ? `次限里，推运月亮落到 ${moon?.house || "-"} 宫，往往最先告诉你内在成熟到哪一步，也会提示关系或生活节奏准备怎样转弯。` : kind === "tertiary" ? `三限里，月亮和水星会让变化更快地落到沟通、决定、出行和日常安排里，所以现实感通常来得很直接。` : `日弧更像把事件推到眼前的一只手，只要主星碰到角轴，很多事就不再只是感受，而会变成外在事实。`}`);
+          lines.push(`气质上，${planetToneText(chart, kind === "secondary" ? ["moon", "sun", "venus", "saturn"] : kind === "tertiary" ? ["moon", "mercury", "mars"] : ["sun", "mars", "saturn", "jupiter"])}`);
+          lines.push(`真正决定事情会不会被看见的，还是四轴这一层: ${angleAxisFocusText(chart)}`);
+          lines.push(`${kind === "solar-arc" ? "读日弧时，先找角轴的精确接触，再看主星怎样把它外化成事件。" : "读推运时，先看推运月亮，再回头确认太阳与角轴怎样给出阶段方向。"} `);
+        } else if (kind === "profections" || kind === "firdaria") {
+          const dominant = dominantHouseText(chart, ["sun", "moon", "mars", "jupiter", "saturn", "ascendant"]);
+          const topTag = topPracticalTagText([dominant, moon?.house, asc?.house], kind === "firdaria" ? ["jupiter", "saturn", "sun", "moon"] : ["mars", "moon", "jupiter", "saturn"]);
+          lines.push(`现实标签：${practicalAreaTagsText([dominant, moon?.house, asc?.house], kind === "firdaria" ? ["jupiter", "saturn", "sun", "moon"] : ["mars", "moon", "jupiter", "saturn"])}`);
+          lines.push(`主标签说明：${topPracticalTagReasonText(topTag, chart, kind)}`);
+          lines.push(`如果把这一阶段当成一条更长的线来看，真正反复出现的主题还是在 ${dominant}，也就是 ${houseThemeText(Number.parseInt(dominant, 10))}。`);
+          lines.push(`${kind === "firdaria" ? "法达更像先把一个阶段的大气候定下来，再让次运星去决定这几年具体会从哪里切入。" : "小限更像直接告诉你这一年的主场在哪，再看现实会从哪个口子最快启动。"} `);
+          lines.push(`气质上，${planetToneText(chart, kind === "firdaria" ? ["jupiter", "saturn", "sun", "moon"] : ["mars", "moon", "jupiter", "saturn"])}`);
+          lines.push(`如果想知道这条长期线会不会在现实里被明显感到，还是要回到四轴: ${angleAxisFocusText(chart)}`);
+          lines.push(`通常最先让人有感觉的，不一定是大事本身，而是 ${moon ? `月亮 ${moon.house || "-"} 宫` : "-"} 带来的情绪反馈、关系回应或身体感受。`);
+        }
+        if (!lines.length) {
+          lines.push("当前盘已生成，可先以主星落宫与四轴接触作为阅读顺序。");
+        }
+        return advancedInsightHtml("自动摘要", lines);
+      }
+
+      function topPlanetsByHouses(chart, keys = []) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        return keys.map((key) => planets.find((planet) => planet.key === key)).filter(Boolean);
+      }
+
+      function advancedDynamicInsight(kind, chart) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        const sun = planets.find((planet) => planet.key === "sun");
+        const moon = planets.find((planet) => planet.key === "moon");
+        const asc = planets.find((planet) => planet.key === "ascendant");
+        const mercury = planets.find((planet) => planet.key === "mercury");
+        const venus = planets.find((planet) => planet.key === "venus");
+        const mars = planets.find((planet) => planet.key === "mars");
+        const jupiter = planets.find((planet) => planet.key === "jupiter");
+        const placeText = (planet) => planet ? `${planet.label}${formatSignDegreeCompact(planet.longitude)} · ${planet.house || "-"}宫` : null;
+        if (kind === "solar-return" || kind === "lunar-return") {
+          const focus = kind === "solar-return" ? sun : moon;
+          return advancedInsightHtml("动态观察", [
+            focus ? `主题：${placeText(focus)}，本轮主线会优先落到这颗回归主星所在的宫位事务。` : "主题：当前回归主星宫位暂未识别。",
+            asc ? `现实舞台：上升点当前在 ${formatSignDegreeCompact(asc.longitude)}，落入 ${asc.house || "-"} 宫轴附近时，说明全年议题更容易从这一类现实场景进入。`
+              : "触发：可重点对照回归上升与本命角轴的呼应。",
+            kind === "solar-return"
+              ? `阅读重点：优先看太阳与四轴、宫主星的联系${venus ? `，再看 ${placeText(venus)} 如何参与年度关系与价值议题。` : "，并确认太阳落宫是否就是这一年的主舞台。"}`
+              : `阅读重点：优先看月亮落宫与相位${mercury ? `，同时留意 ${placeText(mercury)} 对这个月沟通、安排与日常节奏的牵引。` : "，并确认月亮落宫是否就是本月最敏感的现实焦点。"} `,
+            `关键相位：${strongestMajorAspectText(planets)}`
+          ]);
+        }
+        if (kind === "secondary" || kind === "tertiary" || kind === "solar-arc") {
+          return advancedInsightHtml("动态观察", [
+            moon ? `主题：${placeText(moon)}，近期被推进的生活议题会集中在这一宫位。` : "主题：当前推运月亮宫位暂未识别。",
+            sun ? `触发：${placeText(sun)}，说明长期方向感正在向这一领域聚焦。` : "触发：可重点观察推运太阳与角轴接触。",
+            kind === "secondary"
+              ? `阅读重点：次限更适合读内在成熟与关系推进${venus ? `，尤其留意 ${placeText(venus)} 带来的情感与价值线索。` : "，重点放在阶段性成熟与关系节奏。"}`
+              : kind === "tertiary"
+                ? `阅读重点：三限更适合读中短期波动${mercury ? `，并观察 ${placeText(mercury)} 如何触发近期沟通与决策节奏。` : "，优先抓近期事件的催化点。"}`
+                : `阅读重点：日弧更适合抓事件触发点${mars ? `，当前可特别观察 ${placeText(mars)} 与角轴的精确接触。` : "，优先看角轴与主星的精确接触。"} `,
+            `关键相位：${strongestMajorAspectText(planets)}`
+          ]);
+        }
+        if (kind === "firdaria" || kind === "profections") {
+          return advancedInsightHtml("动态观察", [
+            sun ? `主题：太阳本命位置 ${placeText(sun)}，仍然是理解当前人生主线的重要参照。` : "主题：可结合当前主运星的本命宫位判断长期主线。",
+            moon ? `触发：月亮位置 ${placeText(moon)}，会提示现实中最先感受到节奏变化的领域。` : "触发：可再结合月亮与主运星的关系判断现实切入口。",
+            kind === "firdaria"
+              ? `阅读重点：法达先看主运星决定的大主题${jupiter ? `，再结合 ${placeText(jupiter)} 判断扩张与资源主题会如何落地。` : "，确认这十年左右真正被放大的生活主线。"}`
+              : `阅读重点：小限先看年度主宫落点${mars ? `，再观察 ${placeText(mars)} 如何把这一宫位议题推向现实行动。` : "，再看该宫宫主星如何被本命与行运共同激活。"} `,
+            `关键相位：${strongestMajorAspectText(planets)}`
+          ]);
+        }
+        return advancedInsightHtml("动态观察", [
+          "主题：当前盘已生成，可先抓主星落宫与轴线。",
+          "触发：再看与角轴的接触及相位触发点。",
+          "阅读重点：最后回到宫位主题，整理现实层面的主线。",
+        ]);
+      }
+
+      function chartPlanetByKey(chart, key) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets : [];
+        return planets.find((planet) => planet.key === key) || null;
+      }
+
+      function advancedToolModuleHtml(kind, context = {}) {
+        const { chart, baseDateText = "", refinedDiff = null, ageYearsRaw = null, progressedDays = null, ageYears = null, firdaria = null } = context;
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        const byKey = (key) => planets.find((planet) => planet.key === key);
+        const sun = byKey("sun");
+        const moon = byKey("moon");
+        const mercury = byKey("mercury");
+        const mars = byKey("mars");
+        const asc = byKey("ascendant");
+        const mc = byKey("midheaven");
+        const concise = (planet) => planet ? `${planet.glyph || ""} ${formatSignDegreeCompact(planet.longitude)} · ${planet.house || "-"}宫` : "-";
+        if (kind === "solar-return") {
+          return advancedSnapshotHtml("日返结构", [
+            { label: "太阳", value: concise(sun) },
+            { label: "月亮", value: concise(moon) },
+            { label: "上升", value: concise(asc) },
+            { label: "天顶", value: concise(mc) },
+            { label: "参照日", value: baseDateText || "-" },
+            { label: "年度焦点宫", value: sun?.house ? `${sun.house} 宫` : "-" },
+            { label: "误差", value: refinedDiff === null ? "-" : `${Number(refinedDiff).toFixed(4)}°` },
+          ]);
+        }
+        if (kind === "lunar-return") {
+          return advancedSnapshotHtml("月返结构", [
+            { label: "月亮", value: concise(moon) },
+            { label: "太阳", value: concise(sun) },
+            { label: "上升", value: concise(asc) },
+            { label: "天顶", value: concise(mc) },
+            { label: "参照月", value: baseDateText || "-" },
+            { label: "月度焦点宫", value: moon?.house ? `${moon.house} 宫` : "-" },
+            { label: "误差", value: refinedDiff === null ? "-" : `${Number(refinedDiff).toFixed(4)}°` },
+          ]);
+        }
+        if (kind === "secondary") {
+          return advancedSnapshotHtml("次限结构", [
+            { label: "推运月亮", value: concise(moon) },
+            { label: "推运太阳", value: concise(sun) },
+            { label: "年龄", value: ageYearsRaw === null ? "-" : `${Number(ageYearsRaw).toFixed(2)} 岁` },
+            { label: "折算", value: progressedDays === null ? "-" : `${Number(progressedDays).toFixed(2)} 天` },
+          ]);
+        }
+        if (kind === "tertiary") {
+          return advancedSnapshotHtml("三限结构", [
+            { label: "推运月亮", value: concise(moon) },
+            { label: "水星", value: concise(mercury) },
+            { label: "年龄", value: ageYearsRaw === null ? "-" : `${Number(ageYearsRaw).toFixed(2)} 岁` },
+            { label: "折算", value: progressedDays === null ? "-" : `${Number(progressedDays).toFixed(2)} 天` },
+          ]);
+        }
+        if (kind === "solar-arc") {
+          return advancedSnapshotHtml("日弧结构", [
+            { label: "太阳", value: concise(sun) },
+            { label: "火星", value: concise(mars) },
+            { label: "推进年龄", value: ageYearsRaw === null ? "-" : `${Number(ageYearsRaw).toFixed(2)} 岁` },
+            { label: "日弧折算", value: progressedDays === null ? "-" : `${Number(progressedDays).toFixed(2)} 天` },
+          ]);
+        }
+        if (kind === "profections") {
+          return advancedSnapshotHtml("小限结构", [
+            { label: "年度年龄", value: ageYears === null ? "-" : `${Number(ageYears)} 岁` },
+            { label: "年度主宫", value: ageYears === null ? "-" : `${(Number(ageYears) % 12) + 1} 宫` },
+            { label: "上升", value: concise(asc) },
+            { label: "月亮", value: concise(moon) },
+            { label: "年度主星", value: mars ? concise(mars) : "-" },
+            { label: "现实切口", value: moon?.house ? `月亮 ${moon.house} 宫` : "-" },
+          ]);
+        }
+        if (kind === "firdaria") {
+          return advancedSnapshotHtml("法达结构", [
+            { label: "昼夜", value: firdaria?.sect || "-" },
+            { label: "主运星", value: firdaria?.major || "-" },
+            { label: "次运星", value: firdaria?.sub || "-" },
+            { label: "主运阶段", value: firdaria?.majorRange || "-" },
+            { label: "次运阶段", value: firdaria?.subRange || "-" },
+            { label: "长期入口", value: sun?.house ? `太阳 ${sun.house} 宫` : "-" },
+          ]);
+        }
+        return "";
+      }
+
+      function planetTableHtml(points) {
+        const headers = ["星体", "星座度数", "宫位", "逆行"];
+        const rows = points.map((planet) => `
+          <tr>
+            <td><span class="astro-planet-name astro-planet-name-only"><span class="astro-planet-glyph">${planet.glyph || ""}</span></span></td>
+            <td>${formatSignDegreeCompact(planet.longitude)}</td>
+            <td>${planet.house || "-"} 宫</td>
+            <td>${planet.retrograde ? "℞ 逆行" : "-"}</td>
+          </tr>
+        `);
+        return tableHtml(headers, rows);
+      }
+
+      function houseRulerTableHtml(rows) {
+        return tableHtml(["宫位", "星座度数", "宫主星", "飞入"], rows);
+      }
+
+      function buildAspectMatrixMarkup(points, aspects, cellSize = 24) {
+        const tierFilteredPoints = (Array.isArray(points) ? points : []).filter((point) => {
+          if (state.activeTier === "expanded") return true;
+          return point?.key !== "southNode";
+        });
+        const visible = tierFilteredPoints.slice(0, 12);
+        if (!visible.length || !Array.isArray(aspects)) {
+          return `<div class="astro-aspect-empty">暂无相位</div>`;
+        }
+        const aspectMap = new Map();
+        const aspectBgMap = {
+          conjunction: "#faf6f1",
+          sextile: "#f4f8fb",
+          trine: "#f5f8f0",
+          square: "#fbf3f3",
+          opposition: "#f5f3fb",
+          quincunx: "#f7f8f4",
+        };
+        aspects
+          .filter((aspect) => {
+            if (state.activeTier === "expanded") return true;
+            return aspect?.a?.key !== "southNode" && aspect?.b?.key !== "southNode";
+          })
+          .forEach((aspect) => {
+          aspectMap.set(`${aspect.a.key}__${aspect.b.key}`, aspect);
+          aspectMap.set(`${aspect.b.key}__${aspect.a.key}`, aspect);
+          });
+        const rows = [];
+        const size = visible.length + 1;
+        for (let row = 0; row < size; row += 1) {
+          for (let col = 0; col < size; col += 1) {
+            if (col > row) {
+              rows.push(`<div class="astro-aspect-cell" style="border-color: transparent; background: transparent;"></div>`);
+              continue;
+            }
+            if (row === 0 && col === 0) {
+              rows.push(`<div class="astro-aspect-cell is-head"></div>`);
+              continue;
+            }
+            if (row === 0) {
+              rows.push(`<div class="astro-aspect-cell is-head">${visible[col - 1].glyph}</div>`);
+              continue;
+            }
+            if (col === 0) {
+              rows.push(`<div class="astro-aspect-cell is-head">${visible[row - 1].glyph}</div>`);
+              continue;
+            }
+            if (row === col) {
+              rows.push(`<div class="astro-aspect-cell is-head">${visible[row - 1].glyph}</div>`);
+              continue;
+            }
+            const aspect = aspectMap.get(`${visible[row - 1].key}__${visible[col - 1].key}`);
+            const bgColor = aspect ? (aspectBgMap[aspect.key] || "#f0ece6") : "";
+            const bg = aspect ? ` style="background:${bgColor};color:#5b564f;"` : "";
+            rows.push(`<div class="astro-aspect-cell${aspect ? " is-hit" : ""}"${bg}>${aspect ? aspect.label : ""}</div>`);
+          }
+        }
+        return `<div class="astro-aspect-grid" style="grid-template-columns: repeat(${size}, ${cellSize}px);">${rows.join("")}</div>`;
+      }
+
+      function renderAspectMatrixTable(points, aspects) {
+        const fullMarkup = buildAspectMatrixMarkup(points, aspects, 24);
+        if (aspectMatrix) {
+          aspectMatrix.innerHTML = fullMarkup;
+        }
+      }
+
+      function renderDerivedLists(chart, payload = null) {
+        const planets = Array.isArray(chart?.planets) ? chart.planets.map(normalizeDisplayPlanet) : [];
+        syncDetailTitles();
+        const detailTheme = currentDetailTheme();
+        const majors = planets.filter((planet) => ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "ascendant", "descendant", "imumCoeli", "midheaven"].includes(planet.key));
+        const extras = planets.filter((planet) => {
+          const baseKeys = ["chiron", "ceres", "pallas", "juno", "vesta", "northNode", "lilith", "fortune", "vertex", "eastPoint"];
+          const expandedOnlyKeys = ["southNode"];
+          if (baseKeys.includes(planet.key)) return true;
+          return state.activeTier === "expanded" && expandedOnlyKeys.includes(planet.key);
+        });
+
+        if (metaSummary) {
+          const houseSystem = String(payload?.houseSystem || houseSystemInput?.value || "P").trim() === "P" ? "Placidus" : "Whole Sign";
+          const timezoneOffset = String(payload?.timezone || readValue("astro-tz") || "").trim() || "-";
+          const timezoneName = state.cityMeta?.timezoneName || "未返回 IANA 时区";
+          const dstText = state.cityMeta?.observesDst === false
+            ? "否"
+            : typeof state.cityMeta?.isDst === "boolean"
+              ? (state.cityMeta.isDst ? "是" : "否")
+              : "未判定";
+          const baseMetaItems = [
+            { label: "宫制", value: houseSystem },
+            { label: "时区偏移", value: timezoneOffset },
+            { label: "时区名", value: timezoneName },
+            { label: "夏令时", value: dstText },
+          ];
+          const rawExtraMetaItems = Array.isArray(state.advancedMetaItems) ? state.advancedMetaItems : [];
+          const extraMetaItems = detailTheme === "default"
+            ? rawExtraMetaItems
+            : orderedAdvancedMetaItems(state.advancedLeaf, rawExtraMetaItems);
+          metaSummary.innerHTML = detailTheme === "default"
+            ? metaSummaryHtml([...baseMetaItems, ...extraMetaItems])
+            : advancedMetaSummaryHtml(detailTheme, baseMetaItems, extraMetaItems);
+        }
+
+        if (planetsTable) {
+          planetsTable.innerHTML = planetTableHtml(majors);
+        }
+
+        if (extraTable) {
+          extraTable.innerHTML = planetTableHtml(extras);
+        }
+
+        if (houseRulers) {
+          const rulerMap = {
+            0: "mars",
+            1: "venus",
+            2: "mercury",
+            3: "moon",
+            4: "sun",
+            5: "mercury",
+            6: "venus",
+            7: "mars",
+            8: "jupiter",
+            9: "saturn",
+            10: "saturn",
+            11: "jupiter"
+          };
+          const signGlyphs = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+          const signNames = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
+          const rows = (chart.houses || []).slice(0, 12).map((houseAngle, index) => {
+            const signIndex = Math.floor((((houseAngle % 360) + 360) % 360) / 30);
+            const rulerKey = rulerMap[signIndex];
+            const rulerPlanet = planets.find((planet) => planet.key === rulerKey);
+            return `
+              <tr>
+                <td>${index + 1} 宫</td>
+                <td>${signGlyphs[signIndex]} ${formatSignDegree(houseAngle).split(" ").slice(2).join(" ")}</td>
+                <td>${rulerPlanet ? `<span class="astro-planet-name astro-planet-name-only"><span class="astro-planet-glyph">${rulerPlanet.glyph || ""}</span></span>` : "-"}</td>
+                <td>${rulerPlanet ? `${formatSignDegreeCompact(rulerPlanet.longitude)} ${rulerPlanet.house} 宫` : "-"}</td>
+              </tr>
+            `;
+          });
+          houseRulers.innerHTML = houseRulerTableHtml(rows);
+        }
+
+        if (window.__mingxianAstroAspectSource) {
+          renderAspectMatrixTable(window.__mingxianAstroAspectSource.points, window.__mingxianAstroAspectSource.aspects);
+        }
+      }
+
+      function renderCandidates(target, results) {
+        const container = target === "natal" ? cityCandidates : transitCandidates;
+        if (!container) return;
+        if (!results.length) {
+          container.innerHTML = "";
+          return;
+        }
+        container.innerHTML = results.map((item, index) => `
+          <button class="chip" type="button" data-pick-city="${target}" data-pick-index="${index}">
+            ${[item.city || "", item.region || "", item.country || ""].filter(Boolean).join(", ") || item.display || "未命名"}
+          </button>
+        `).join("");
+        container.__results = results;
+      }
+
+      async function requestGeocode(target, count = 1) {
+        const city = target === "natal" ? String(cityInput?.value || "").trim() : String(transitCityInput?.value || "").trim();
+        const date = target === "natal" ? String(dateInput?.value || "").trim() : String(transitDateInput?.value || "").trim();
+        const statusEl = target === "natal" ? cityStatus : transitStatus;
+        if (!city) {
+          if (statusEl) statusEl.textContent = "先填城市。";
+          return null;
+        }
+        if (statusEl) statusEl.textContent = "正在自动校准城市...";
+        const payload = { city, count };
+        if (date) {
+          const [year, month, day] = date.split("-").map(Number);
+          payload.year = year;
+          payload.month = month;
+          payload.day = day;
+        }
+        const response = await fetch(geocodeApi, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await readJsonSafely(response, "城市校准失败。");
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "城市校准失败。");
+        }
+        return data;
+      }
+
+      async function autoResolveCity(target, count = 1) {
+        const tokenKey = target === "natal" ? "cityResolveToken" : "transitResolveToken";
+        state[tokenKey] += 1;
+        const token = state[tokenKey];
+        try {
+          const data = await requestGeocode(target, count);
+          if (!data || token !== state[tokenKey]) return;
+          if (Array.isArray(data.results)) {
+            renderCandidates(target, data.results);
+            const first = data.results[0];
+            if (first) {
+              applyResolvedCity(target, {
+                city: first.city,
+                display: first.display,
+                latitude: first.latitude,
+                longitude: first.longitude,
+                utcOffsetMinutes: first.utcOffsetMinutes,
+                timezone: first.timezone,
+              });
+            }
+            return;
+          }
+          renderCandidates(target, []);
+          applyResolvedCity(target, data);
+        } catch (error) {
+          const statusEl = target === "natal" ? cityStatus : transitStatus;
+          if (statusEl) statusEl.textContent = error instanceof Error ? error.message : "城市校准失败。";
+        }
+      }
+
+      async function suggestNatalCities() {
+        const city = String(cityInput?.value || "").trim();
+        if (city.length < 2) {
+          renderCandidates("natal", []);
+          if (cityStatus) cityStatus.textContent = "";
+          return;
+        }
+        try {
+          const data = await requestGeocode("natal", 6);
+          if (!data) return;
+          if (Array.isArray(data.results)) {
+            renderCandidates("natal", data.results);
+            if (cityStatus) cityStatus.textContent = "请选择下方候选城市。";
+            return;
+          }
+          renderCandidates("natal", [data]);
+          if (cityStatus) cityStatus.textContent = "请选择下方候选城市。";
+        } catch (error) {
+          renderCandidates("natal", []);
+          if (cityStatus) cityStatus.textContent = error instanceof Error ? error.message : "城市校准失败。";
+        }
+      }
+
+      async function requestChart() {
+        const date = readValue("astro-date");
+        const time = readValue("astro-time");
+        const latitude = Number(readValue("astro-lat"));
+        const longitude = Number(readValue("astro-lon"));
+        const timezone = readValue("astro-tz");
+        const missing = [];
+        if (!date) missing.push("出生日期");
+        if (!time) missing.push("出生时间");
+        if (!Number.isFinite(latitude)) missing.push("纬度");
+        if (!Number.isFinite(longitude)) missing.push("经度");
+        if (!timezone) missing.push("时区");
+        if (missing.length) {
+          const hasCityOnly = readValue("astro-city") && (!Number.isFinite(latitude) || !Number.isFinite(longitude) || !timezone);
+          throw new Error(hasCityOnly ? `还缺：${missing.join("、")}。城市已填时会自动校准，但这次还没拿到完整坐标。` : `还缺：${missing.join("、")}。`);
+        }
+        const [year, month, day] = date.split("-").map(Number);
+        const [hour, minute] = time.split(":").map(Number);
+        const payload = {
+          year,
+          month,
+          day,
+          hour,
+          minute,
+          second: 0,
+          latitude,
+          longitude,
+          timezone,
+          houseSystem: String(houseSystemInput?.value || "P").trim() || "P",
+          nodeType: String(nodeTypeInput?.value || "true").trim() || "true",
+          lilithType: String(lilithTypeInput?.value || "mean").trim() || "mean",
+        };
+        const requestUrl = astroApiBase === "/api/astrochart" ? astroApiBase : `${astroApiBase}/chart`;
+        const response = await fetch(requestUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await readJsonSafely(response, "排盘接口没有返回有效数据。");
+        if (!response.ok || !data.ok || !data.chart) {
+          throw new Error(data.error || "排盘请求失败。");
+        }
+        return { chart: data.chart, payload };
+      }
+
+      async function requestChartForRecord(record) {
+        const date = String(record?.date || "").trim();
+        const time = String(record?.time || "").trim();
+        const latitude = Number(record?.latitude);
+        const longitude = Number(record?.longitude);
+        const timezone = String(record?.timezone || "").trim();
+        if (!date || !time || !Number.isFinite(latitude) || !Number.isFinite(longitude) || !timezone) {
+          throw new Error("合盘对象资料不完整。");
+        }
+        const [year, month, day] = date.split("-").map(Number);
+        const [hour, minute] = time.split(":").map(Number);
+        const payload = {
+          year,
+          month,
+          day,
+          hour,
+          minute,
+          second: 0,
+          latitude,
+          longitude,
+          timezone,
+          houseSystem: String(houseSystemInput?.value || "P").trim() || "P",
+          nodeType: String(nodeTypeInput?.value || "true").trim() || "true",
+          lilithType: String(lilithTypeInput?.value || "mean").trim() || "mean",
+        };
+        const requestUrl = astroApiBase === "/api/astrochart" ? astroApiBase : `${astroApiBase}/chart`;
+        const response = await fetch(requestUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await readJsonSafely(response, "合盘接口没有返回有效数据。");
+        if (!response.ok || !data.ok || !data.chart) {
+          throw new Error(data.error || "合盘请求失败。");
+        }
+        return data.chart;
+      }
+
+      function parseBirthPayloadFromInputs() {
+        const date = readValue("astro-date");
+        const time = readValue("astro-time");
+        const latitude = Number(readValue("astro-lat"));
+        const longitude = Number(readValue("astro-lon"));
+        const timezone = readValue("astro-tz");
+        const missing = [];
+        if (!date) missing.push("出生日期");
+        if (!time) missing.push("出生时间");
+        if (!Number.isFinite(latitude)) missing.push("纬度");
+        if (!Number.isFinite(longitude)) missing.push("经度");
+        if (!timezone) missing.push("时区");
+        if (missing.length) {
+          throw new Error(`还缺：${missing.join("、")}。`);
+        }
+        const [year, month, day] = date.split("-").map(Number);
+        const [hour, minute] = time.split(":").map(Number);
+        return {
+          year,
+          month,
+          day,
+          hour,
+          minute,
+          second: 0,
+          latitude,
+          longitude,
+          timezone,
+          houseSystem: String(houseSystemInput?.value || "P").trim() || "P",
+          nodeType: String(nodeTypeInput?.value || "true").trim() || "true",
+          lilithType: String(lilithTypeInput?.value || "mean").trim() || "mean",
+        };
+      }
+
+      function buildShiftedDate(baseDate, dayDelta = 0) {
+        const shifted = new Date(baseDate.getTime() + dayDelta * 24 * 3600 * 1000);
+        return {
+          year: shifted.getUTCFullYear(),
+          month: shifted.getUTCMonth() + 1,
+          day: shifted.getUTCDate(),
+          hour: shifted.getUTCHours(),
+          minute: shifted.getUTCMinutes(),
+          second: shifted.getUTCSeconds(),
+        };
+      }
+
+      function normalize360(value) {
+        return ((Number(value) % 360) + 360) % 360;
+      }
+
+      function angularDistance(a, b) {
+        const delta = Math.abs(normalize360(a) - normalize360(b));
+        return Math.min(delta, 360 - delta);
+      }
+
+      function toUtcMillis(parts) {
+        return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour || 0, parts.minute || 0, parts.second || 0);
+      }
+
+      function determineHouseForLongitude(longitude, houseAngles) {
+        const normalized = normalize360(longitude);
+        for (let index = 0; index < houseAngles.length; index += 1) {
+          const start = normalize360(houseAngles[index]);
+          const end = normalize360(houseAngles[(index + 1) % houseAngles.length]);
+          const span = normalize360(end - start);
+          const rel = normalize360(normalized - start);
+          if (rel >= 0 && rel < span) {
+            return index + 1;
+          }
+        }
+        return 1;
+      }
+
+      function buildChartLikeFromState(stateLike) {
+        return {
+          planets: stateLike.planets.map((planet) => ({
+            key: planet.key,
+            longitude: planet.longitude,
+            latitude: planet.latitude || 0,
+            speed: planet.speed || 0,
+            house: planet.house || 0,
+            retrograde: !!planet.retrograde,
+          })),
+          houses: stateLike.houses.map((house) => normalize360(house.start)),
+          axes: {
+            asc: normalize360(stateLike.angles.asc),
+            dsc: normalize360(stateLike.angles.dsc),
+            mc: normalize360(stateLike.angles.mc),
+            ic: normalize360(stateLike.angles.ic),
+            vertex: normalize360(stateLike.rawChart?.axes?.vertex || 0),
+            equAsc: normalize360(stateLike.rawChart?.axes?.equAsc || stateLike.angles.asc),
+          },
+          input: stateLike.rawChart?.input || {},
+        };
+      }
+
+      function buildProfectionState(natalChart, ageYears) {
+        const base = window.__mingxianBuildWheelStateFromChart?.(natalChart, {
+          name: readValue("astro-name") || "未命名",
+          city: readValue("astro-city") || "未填城市",
+        });
+        if (!base) throw new Error("小限盘生成失败。");
+        const shift = normalize360((Math.max(0, ageYears) % 12) * 30);
+        const shiftedHouseAngles = base.houses.map((house) => normalize360(house.start + shift));
+        const nextState = {
+          ...base,
+          houses: shiftedHouseAngles.map((start, index) => ({
+            house: index + 1,
+            start,
+            end: shiftedHouseAngles[(index + 1) % shiftedHouseAngles.length],
+          })),
+          angles: {
+            asc: normalize360(base.angles.asc + shift),
+            dsc: normalize360(base.angles.dsc + shift),
+            mc: normalize360(base.angles.mc + shift),
+            ic: normalize360(base.angles.ic + shift),
+          },
+        };
+        nextState.planets = base.planets.map((planet) => ({
+          ...planet,
+          house: determineHouseForLongitude(planet.longitude, shiftedHouseAngles),
+        }));
+        return nextState;
+      }
+
+      function computeFirdaria(ageYearsRaw, natalChart) {
+        const sun = Array.isArray(natalChart?.planets) ? natalChart.planets.find((planet) => planet.key === "sun") : null;
+        const isDayBirth = Number(sun?.house || 0) >= 7 && Number(sun?.house || 0) <= 12;
+        const daySeq = [
+          { key: "sun", label: "太阳", years: 10 },
+          { key: "venus", label: "金星", years: 8 },
+          { key: "mercury", label: "水星", years: 13 },
+          { key: "moon", label: "月亮", years: 9 },
+          { key: "saturn", label: "土星", years: 11 },
+          { key: "jupiter", label: "木星", years: 12 },
+          { key: "mars", label: "火星", years: 7 },
+          { key: "northNode", label: "北交", years: 3 },
+          { key: "southNode", label: "南交", years: 2 },
+        ];
+        const nightSeq = [
+          { key: "moon", label: "月亮", years: 9 },
+          { key: "saturn", label: "土星", years: 11 },
+          { key: "jupiter", label: "木星", years: 12 },
+          { key: "mars", label: "火星", years: 7 },
+          { key: "sun", label: "太阳", years: 10 },
+          { key: "venus", label: "金星", years: 8 },
+          { key: "mercury", label: "水星", years: 13 },
+          { key: "northNode", label: "北交", years: 3 },
+          { key: "southNode", label: "南交", years: 2 },
+        ];
+        const sequence = isDayBirth ? daySeq : nightSeq;
+        let remainder = Math.max(0, ageYearsRaw);
+        let major = sequence[0];
+        let majorStart = 0;
+        let cursor = 0;
+        for (const period of sequence) {
+          if (remainder < period.years) {
+            major = period;
+            majorStart = cursor;
+            break;
+          }
+          remainder -= period.years;
+          cursor += period.years;
+          major = period;
+        }
+        const subBase = sequence.filter((item) => !item.key.includes("Node"));
+        const majorIndex = subBase.findIndex((item) => item.key === major.key);
+        const subSeq = majorIndex >= 0 ? [...subBase.slice(majorIndex), ...subBase.slice(0, majorIndex)] : subBase;
+        const subYears = major.years / subSeq.length;
+        const subIndex = Math.min(subSeq.length - 1, Math.floor(remainder / subYears));
+        const subStart = majorStart + subIndex * subYears;
+        const subEnd = subStart + subYears;
+        const subTimeline = subSeq.map((item, index) => ({
+          label: item.label,
+          start: Number((majorStart + index * subYears).toFixed(1)),
+          end: Number((majorStart + (index + 1) * subYears).toFixed(1)),
+          years: Number(subYears.toFixed(1)),
+          current: index === subIndex,
+        }));
+        const timeline = [];
+        let ageCursor = 0;
+        sequence.forEach((item) => {
+          const nextCursor = ageCursor + item.years;
+          timeline.push({
+            label: item.label,
+            start: ageCursor,
+            end: nextCursor,
+            years: item.years,
+          });
+          ageCursor = nextCursor;
+        });
+        return {
+          sect: isDayBirth ? "日生" : "夜生",
+          major: major.label,
+          sub: subSeq[subIndex]?.label || "-",
+          majorRange: `${majorStart}-${majorStart + major.years}岁`,
+          subRange: `${subStart.toFixed(1)}-${subEnd.toFixed(1)}岁`,
+          sequence: timeline,
+          subSequence: subTimeline,
+        };
+      }
+
+      async function refineByLongitudeMatch(basePayload, planetKey, targetLongitude, approxMillis, stepMinutes = 720, rounds = 5) {
+        let bestPayload = null;
+        let bestChart = null;
+        let bestDiff = Infinity;
+        let center = approxMillis;
+        let windowMinutes = stepMinutes;
+        for (let round = 0; round < rounds; round += 1) {
+          for (let offset = -2; offset <= 2; offset += 1) {
+            const probeDate = new Date(center + offset * windowMinutes * 60 * 1000);
+            const payload = {
+              ...basePayload,
+              year: probeDate.getUTCFullYear(),
+              month: probeDate.getUTCMonth() + 1,
+              day: probeDate.getUTCDate(),
+              hour: probeDate.getUTCHours(),
+              minute: probeDate.getUTCMinutes(),
+              second: probeDate.getUTCSeconds(),
+            };
+            const chart = await requestChartByPayload(payload);
+            const body = Array.isArray(chart?.planets) ? chart.planets.find((planet) => planet.key === planetKey) : null;
+            if (!body) continue;
+            const diff = angularDistance(body.longitude, targetLongitude);
+            if (diff < bestDiff) {
+              bestDiff = diff;
+              bestPayload = payload;
+              bestChart = chart;
+              center = toUtcMillis(payload);
+            }
+          }
+          windowMinutes = Math.max(5, Math.round(windowMinutes / 4));
+        }
+        if (!bestPayload || !bestChart) {
+          throw new Error("进阶盘计算失败。");
+        }
+        return { payload: bestPayload, chart: bestChart, diff: bestDiff };
+      }
+
+      async function requestAdvancedChart(kind) {
+        const birth = parseBirthPayloadFromInputs();
+        const transitDate = String(transitDateInput?.value || "").trim();
+        const shiftDays = Number(state.transitDraft?.shift || document.getElementById("astro-transit-shift")?.value || "0");
+        const baseDateText = transitDate || new Date().toISOString().slice(0, 10);
+        const baseUtc = new Date(`${baseDateText}T12:00:00Z`);
+        const shifted = buildShiftedDate(baseUtc, Number.isFinite(shiftDays) ? shiftDays : 0);
+        const ageYearsRaw = Math.max(0, (toUtcMillis(shifted) - toUtcMillis(birth)) / (365.2422 * 24 * 3600 * 1000));
+        const ageYears = Math.max(0, shifted.year - birth.year + ((shifted.month * 100 + shifted.day) >= (birth.month * 100 + birth.day) ? 0 : -1));
+        const natalChart = await requestChartByPayload(birth);
+        if (kind === "solar-return" || kind === "lunar-return") {
+          const planetKey = kind === "solar-return" ? "sun" : "moon";
+          const natalTarget = Array.isArray(natalChart?.planets) ? natalChart.planets.find((planet) => planet.key === planetKey) : null;
+          if (!natalTarget) {
+            throw new Error(`${kind === "solar-return" ? "日返" : "月返"}基准点缺失。`);
+          }
+          const approxMillis = Date.UTC(shifted.year, shifted.month - 1, shifted.day, birth.hour, birth.minute, 0);
+          const refined = await refineByLongitudeMatch(birth, planetKey, natalTarget.longitude, approxMillis, kind === "solar-return" ? 720 : 180, kind === "solar-return" ? 6 : 5);
+          return {
+            chart: refined.chart,
+            payload: refined.payload,
+            label: kind === "solar-return" ? "日返" : "月返",
+            metaItems: [
+              { label: kind === "solar-return" ? "返照类别" : "返照类别", value: kind === "solar-return" ? "太阳回归" : "月亮回归" },
+              { label: kind === "solar-return" ? "回归参考日" : "回归参考月", value: baseDateText },
+              { label: kind === "solar-return" ? "太阳回归误差" : "月亮回归误差", value: `${refined.diff.toFixed(4)}°` },
+              { type: "html", value: advancedToolModuleHtml(kind, { chart: refined.chart, baseDateText, refinedDiff: refined.diff }) },
+              {
+                type: "html",
+                value: advancedChecklistHtml(
+                  kind === "solar-return" ? "返照抓手" : "月返抓手",
+                  kind === "solar-return"
+                    ? [
+                        { label: "主轴", value: `太阳 ${chartPlanetByKey(refined.chart, "sun")?.house || "-"} 宫` },
+                        { label: "入口", value: `上升 ${chartPlanetByKey(refined.chart, "ascendant")?.house || "-"} 宫` },
+                        { label: "阅读顺序", value: "先四轴，再日月，再宫主星" },
+                        { label: "判读重点", value: "年度主场、关系与事业落点" },
+                      ]
+                    : [
+                        { label: "主轴", value: `月亮 ${chartPlanetByKey(refined.chart, "moon")?.house || "-"} 宫` },
+                        { label: "入口", value: `上升 ${chartPlanetByKey(refined.chart, "ascendant")?.house || "-"} 宫` },
+                        { label: "阅读顺序", value: "先月亮，再四轴，再主相位" },
+                        { label: "判读重点", value: "月度节奏、情绪反应与事件入口" },
+                      ]
+                ),
+              },
+              { type: "html", value: advancedAutoBriefHtml(kind, refined.chart) },
+              ...(kind === "solar-return" ? [{
+                type: "html",
+                value: advancedChecklistHtml("年度判断", [
+                  { label: "年度主轴", value: `太阳 ${chartPlanetByKey(refined.chart, "sun")?.house || "-"} 宫` },
+                  { label: "情绪落点", value: `月亮 ${chartPlanetByKey(refined.chart, "moon")?.house || "-"} 宫` },
+                  { label: "现实入口", value: `上升 ${chartPlanetByKey(refined.chart, "ascendant")?.house || "-"} 宫` },
+                  { label: "事业入口", value: `天顶 ${chartPlanetByKey(refined.chart, "midheaven")?.house || "-"} 宫` },
+                ]),
+              }] : []),
+              {
+                type: "html",
+                value: advancedInsightHtml(
+                  kind === "solar-return" ? "返照解读" : "月返解读",
+                  kind === "solar-return"
+                    ? [
+                        "太阳回归用于看生日到下一次生日之间，这一整年的年度主题、现实主场与事件重心。",
+                        "优先读返照上升、天顶、太阳与月亮，再确认四轴是否把主题推向关系、事业、家庭或资源议题。",
+                        "如果返照主星与本命四轴、日月或宫主星形成紧密联系，通常就是年度事件真正落地的主入口。",
+                      ]
+                    : [
+                        "月亮回归用于看这一轮月度节奏里，情绪重心、现实触发点与生活关注焦点会落向哪里。",
+                        "优先读月亮、上升、天顶与月亮落宫，再判断这个月最容易被推进的是关系、工作、居住还是资源议题。",
+                        "如果月返月亮与本命角轴、本命月亮或关系工作主线形成紧密呼应，通常就是本月最直接的事件入口。",
+                      ]
+                ),
+              },
+              { type: "html", value: advancedDynamicInsight(kind, refined.chart) },
+            ],
+          };
+        }
+        if (kind === "secondary" || kind === "tertiary" || kind === "solar-arc") {
+          const progressedDays = kind === "secondary" ? ageYearsRaw : kind === "tertiary" ? Math.max(0, ageYearsRaw / 12) : ageYearsRaw;
+          const progressedUtc = new Date(Date.UTC(birth.year, birth.month - 1, birth.day, birth.hour, birth.minute, 0) + progressedDays * 24 * 3600 * 1000);
+          const payload = {
+            ...birth,
+            year: progressedUtc.getUTCFullYear(),
+            month: progressedUtc.getUTCMonth() + 1,
+            day: progressedUtc.getUTCDate(),
+            hour: progressedUtc.getUTCHours(),
+            minute: progressedUtc.getUTCMinutes(),
+          };
+          const chart = await requestChartByPayload(payload);
+          if (kind === "solar-arc") {
+            const natalSun = Array.isArray(natalChart?.planets) ? natalChart.planets.find((planet) => planet.key === "sun") : null;
+            const progressedSun = Array.isArray(chart?.planets) ? chart.planets.find((planet) => planet.key === "sun") : null;
+            if (natalSun && progressedSun) {
+              const arc = normalize360(progressedSun.longitude - natalSun.longitude);
+              chart.planets = chart.planets.map((planet) => ({
+                ...planet,
+                longitude: normalize360((planet.longitude || 0) + arc),
+              }));
+            }
+          }
+          return {
+            chart,
+            payload,
+            label: advancedLeafLabel(),
+            metaItems: [
+              { label: kind === "secondary" ? "次限年龄" : kind === "tertiary" ? "三限年龄" : "日弧年龄", value: `${ageYearsRaw.toFixed(2)} 岁` },
+              { label: kind === "secondary" ? "年日折算" : kind === "tertiary" ? "月日折算" : "弧度折算", value: `${progressedDays.toFixed(2)} 天` },
+              ...(kind === "solar-arc" ? [{ label: "日弧推进法", value: "按推运太阳弧平移全盘" }] : []),
+              { type: "html", value: advancedToolModuleHtml(kind, { chart, ageYearsRaw, progressedDays }) },
+              {
+                type: "html",
+                value: advancedSnapshotHtml(
+                  kind === "secondary" ? "推运窗口" : kind === "tertiary" ? "短期窗口" : "事件窗口",
+                  kind === "secondary"
+                    ? [
+                        { label: "推运月亮", value: chartPlanetByKey(chart, "moon")?.house ? `${chartPlanetByKey(chart, "moon").house} 宫` : "-" },
+                        { label: "推运太阳", value: chartPlanetByKey(chart, "sun")?.house ? `${chartPlanetByKey(chart, "sun").house} 宫` : "-" },
+                        { label: "节奏类型", value: "慢速成熟" },
+                        { label: "现实用途", value: "阶段变化与内在成熟" },
+                      ]
+                    : kind === "tertiary"
+                      ? [
+                          { label: "推运月亮", value: chartPlanetByKey(chart, "moon")?.house ? `${chartPlanetByKey(chart, "moon").house} 宫` : "-" },
+                          { label: "推运水星", value: chartPlanetByKey(chart, "mercury")?.house ? `${chartPlanetByKey(chart, "mercury").house} 宫` : "-" },
+                          { label: "节奏类型", value: "中短期波动" },
+                          { label: "现实用途", value: "近期催化与决策变化" },
+                        ]
+                      : [
+                          { label: "推运太阳", value: chartPlanetByKey(chart, "sun")?.house ? `${chartPlanetByKey(chart, "sun").house} 宫` : "-" },
+                          { label: "推运火星", value: chartPlanetByKey(chart, "mars")?.house ? `${chartPlanetByKey(chart, "mars").house} 宫` : "-" },
+                          { label: "节奏类型", value: "精确触发" },
+                          { label: "现实用途", value: "关键事件与时间点" },
+                        ]
+                ),
+              },
+              {
+                type: "html",
+                value: advancedChecklistHtml(
+                  kind === "secondary" ? "推运抓手" : kind === "tertiary" ? "短期抓手" : "事件抓手",
+                  kind === "secondary"
+                    ? [
+                        { label: "主轴", value: chartPlanetByKey(chart, "moon")?.house ? `月亮 ${chartPlanetByKey(chart, "moon").house} 宫` : "-" },
+                        { label: "方向", value: chartPlanetByKey(chart, "sun")?.house ? `太阳 ${chartPlanetByKey(chart, "sun").house} 宫` : "-" },
+                        { label: "阅读顺序", value: "先月亮，再太阳，再角轴" },
+                        { label: "判读重点", value: "成熟、关系推进、阶段转折" },
+                      ]
+                    : kind === "tertiary"
+                      ? [
+                          { label: "主轴", value: chartPlanetByKey(chart, "moon")?.house ? `月亮 ${chartPlanetByKey(chart, "moon").house} 宫` : "-" },
+                          { label: "触发", value: chartPlanetByKey(chart, "mercury")?.house ? `水星 ${chartPlanetByKey(chart, "mercury").house} 宫` : "-" },
+                          { label: "阅读顺序", value: "先月亮，再内行星，再主相位" },
+                          { label: "判读重点", value: "短期波动、沟通决策、事件催化" },
+                        ]
+                      : [
+                          { label: "主轴", value: chartPlanetByKey(chart, "sun")?.house ? `太阳 ${chartPlanetByKey(chart, "sun").house} 宫` : "-" },
+                          { label: "触发", value: chartPlanetByKey(chart, "mars")?.house ? `火星 ${chartPlanetByKey(chart, "mars").house} 宫` : "-" },
+                          { label: "阅读顺序", value: "先角轴，再主星，再精确相位" },
+                          { label: "判读重点", value: "事件外化、精确触发、时间窗口" },
+                        ]
+                ),
+              },
+              { type: "html", value: advancedAutoBriefHtml(kind, chart) },
+              {
+                type: "html",
+                value: advancedInsightHtml(
+                  kind === "secondary" ? "次限解读" : kind === "tertiary" ? "三限解读" : "日弧解读",
+                  kind === "secondary"
+                    ? [
+                        "次限以一年折算一天，适合看内在成熟、关系推进与人生阶段转折。",
+                        "重点看推运月亮、推运太阳与本命角轴的联系，再确认哪些宫位被长期慢速推进。",
+                      ]
+                    : kind === "tertiary"
+                      ? [
+                          "三限节奏更快，适合观察中短期心理波动、沟通节奏与事件催化。",
+                          "重点看推运月亮、内行星与当下触发点的互动，再判断现实事件为什么在这段时间集中发生。",
+                        ]
+                      : [
+                          "日弧把推运太阳的弧度平移到全盘，用来抓外在事件与关键转折。",
+                          "重点看角轴、主星与日弧推动后的精确接触，尤其适合判断事件何时真正外化。",
+                        ]
+                ),
+              },
+              { type: "html", value: advancedDynamicInsight(kind, chart) },
+            ],
+          };
+        }
+        if (kind === "firdaria" || kind === "profections") {
+          if (kind === "profections") {
+            const profectionState = buildProfectionState(natalChart, ageYears);
+            const cycleRows = Array.from({ length: 12 }, (_, index) => `
+              <tr${index === (ageYears % 12) ? ` class="is-current"` : ""}>
+                <td>${index} 岁</td>
+                <td>${(index % 12) + 1} 宫</td>
+              </tr>
+            `);
+            return {
+              chart: buildChartLikeFromState(profectionState),
+              payload: birth,
+              label: advancedLeafLabel(),
+              stateLike: profectionState,
+              metaItems: [
+                { label: "年度年龄", value: `${ageYears} 岁` },
+                { label: "年度主宫", value: `${(ageYears % 12) + 1} 宫` },
+                { label: "推限方式", value: "每年顺推一宫" },
+                { type: "html", value: advancedToolModuleHtml(kind, { chart: natalChart, ageYears }) },
+                {
+                  type: "html",
+                  value: advancedSnapshotHtml("年度窗口", [
+                    { label: "当前年份", value: `${ageYears} 岁` },
+                    { label: "年度主宫", value: `${(ageYears % 12) + 1} 宫` },
+                    { label: "现实入口", value: chartPlanetByKey(natalChart, "moon")?.house ? `月亮 ${chartPlanetByKey(natalChart, "moon").house} 宫` : "-" },
+                    { label: "读盘用途", value: "年度重心与生活主场" },
+                  ]),
+                },
+                { type: "html", value: advancedChecklistHtml("年度切换", [
+                  { label: "当前年份", value: `${ageYears} 岁` },
+                  { label: "当年主宫", value: `${(ageYears % 12) + 1} 宫` },
+                  { label: "判读起点", value: "先看主宫，再看宫主星" },
+                  { label: "配合方法", value: "叠看本命与当年行运" },
+                ]) },
+                {
+                  type: "html",
+                  value: advancedChecklistHtml("年度抓手", [
+                    { label: "主轴", value: `${(ageYears % 12) + 1} 宫` },
+                    { label: "触发", value: chartPlanetByKey(natalChart, "mars")?.house ? `火星 ${chartPlanetByKey(natalChart, "mars").house} 宫` : "-" },
+                    { label: "阅读顺序", value: "先主宫，再宫主星，再叠行运" },
+                    { label: "判读重点", value: "年度主场、现实切口与事件启动" },
+                  ]),
+                },
+                { type: "html", value: advancedAutoBriefHtml(kind, natalChart) },
+                { type: "html", value: advancedTimelineTableHtml(["年龄", "对应宫位"], cycleRows) },
+                {
+                  type: "html",
+                  value: advancedInsightHtml(
+                    "小限解读",
+                    [
+                      "小限用于看每一年由哪一宫成为年度主场，因此特别适合判断这一年生活重心会落到哪个领域。",
+                      "先看年度主宫，再看该宫宫主星落在本命哪里，最后叠看当年行运判断事件如何启动。",
+                      "如果年度主宫正好触到本命角轴、日月或关系事业主线，通常就是这一年最直接的现实切口与发力方向。",
+                    ]
+                  ),
+                },
+                { type: "html", value: advancedDynamicInsight(kind, natalChart) },
+              ],
+            };
+          }
+          const firdaria = computeFirdaria(ageYearsRaw, natalChart);
+          const sequenceTable = advancedTimelineTableHtml(
+            ["法达主序", "起始年龄", "结束年龄", "年限"],
+            firdaria.sequence.map((item) => `
+              <tr${firdaria.major === item.label ? ` class="is-current"` : ""}>
+                <td>${item.label}</td>
+                <td>${item.start}</td>
+                <td>${item.end}</td>
+                <td>${item.years}</td>
+              </tr>
+            `)
+          );
+          const subSequenceTable = advancedTimelineTableHtml(
+            ["当前主运次序", "起始年龄", "结束年龄", "年限"],
+            firdaria.subSequence.map((item) => `
+              <tr${item.current ? ` class="is-current"` : ""}>
+                <td>${item.label}</td>
+                <td>${item.start}</td>
+                <td>${item.end}</td>
+                <td>${item.years}</td>
+              </tr>
+            `)
+          );
+          return {
+            chart: natalChart,
+            payload: birth,
+            label: advancedLeafLabel(),
+            metaItems: [
+              { label: "昼夜属性", value: firdaria.sect },
+              { label: "当前主运星", value: firdaria.major },
+              { label: "当前次运星", value: firdaria.sub },
+              { label: "主运年龄段", value: firdaria.majorRange },
+              { label: "次运年龄段", value: firdaria.subRange },
+              { type: "html", value: advancedToolModuleHtml(kind, { chart: natalChart, firdaria }) },
+              {
+                type: "html",
+                value: advancedSnapshotHtml("阶段窗口", [
+                  { label: "主运星", value: firdaria.major || "-" },
+                  { label: "次运星", value: firdaria.sub || "-" },
+                  { label: "主运阶段", value: firdaria.majorRange || "-" },
+                  { label: "读盘用途", value: "长期主线与阶段主题" },
+                ]),
+              },
+              { type: "html", value: advancedChecklistHtml("阶段抓手", [
+                { label: "主运主线", value: firdaria.major || "-" },
+                { label: "次运切口", value: firdaria.sub || "-" },
+                { label: "阅读顺序", value: "先主运，再次运，再看本命落宫" },
+                { label: "现实方法", value: "叠看本命角轴、主星与当前行运" },
+              ]) },
+              { type: "html", value: advancedAutoBriefHtml(kind, natalChart) },
+              {
+                type: "html",
+                value: advancedChecklistHtml("阶段判断", [
+                  { label: "昼夜属性", value: firdaria.sect || "-" },
+                  { label: "主线时段", value: firdaria.majorRange || "-" },
+                  { label: "次线时段", value: firdaria.subRange || "-" },
+                  { label: "判读重点", value: "长期主题与阶段切换" },
+                ]),
+              },
+              { type: "html", value: sequenceTable },
+              { type: "html", value: subSequenceTable },
+              {
+                type: "html",
+                value: advancedInsightHtml(
+                  "法达解读",
+                  [
+                    "法达用于看一个较长人生阶段由哪颗行星主导，因此更适合读长期主题，而不是短期事件起伏。",
+                    "先判断主运星代表的总方向，再看次运星如何把这个阶段切成更具体的几年议题。",
+                    "若主运星与本命角轴、日月或事业关系主星联系紧密，通常就是这一阶段最明显的现实主线与长期任务。",
+                  ]
+                ),
+              },
+              { type: "html", value: advancedDynamicInsight(kind, natalChart) },
+            ],
+          };
+        }
+        throw new Error("暂不支持该进阶盘。");
+      }
+
+      async function requestChartByPayload(payload) {
+        const requestUrl = astroApiBase === "/api/astrochart" ? astroApiBase : `${astroApiBase}/chart`;
+        const response = await fetch(requestUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await readJsonSafely(response, "排盘接口没有返回有效数据。");
+        if (!response.ok || !data.ok || !data.chart) {
+          throw new Error(data.error || "排盘请求失败。");
+        }
+        return data.chart;
+      }
+
+      async function renderAdvancedChart() {
+        const { chart, payload, label, stateLike, metaItems } = await requestAdvancedChart(state.advancedLeaf);
+        const displayTheme = state.advancedFamily === "returns"
+          ? "returns"
+          : state.advancedFamily === "directions"
+            ? "directions"
+            : state.advancedFamily === "periods"
+              ? "periods"
+              : "natal";
+        const context = {
+          name: `${readValue("astro-name") || "未命名"} · ${label}`,
+          city: readValue("astro-city") || "未填城市",
+          displayTheme: "natal",
+          displayVariant: "",
+        };
+        state.advancedMetaItems = Array.isArray(metaItems) ? metaItems : null;
+        window.__mingxianRenderMainWheel?.(stateLike || chart, context);
+        renderDerivedLists(chart, payload);
+        setDetailLabel(`${label} · 参数`);
+      }
+
+      async function recalcCurrentChart(options = {}) {
+        const { archive = true } = options;
+        setDetailLabel("参数 · 排盘中");
+        const { chart, payload } = await requestChart();
+        state.advancedMetaItems = null;
+        state.detailReady = true;
+        syncTransitDefaultsFromNatal();
+        if (typeof window.__mingxianAstroSetMode === "function") {
+          window.__mingxianAstroSetMode("natal", false);
+        }
+        if (currentActiveView() === "synastry" && state.synastryPartnerKey) {
+          await syncCompareChart();
+        } else {
+          state.synastryPartnerRecord = null;
+          window.__mingxianAstroSetCompareChart?.(null);
+        }
+        if (archive) archiveCurrentProfile();
+        setDetailLabel("参数");
+        renderDerivedLists(chart, payload);
+        if (archive) {
+          renderRecords();
+          setFormExpanded(false);
+        }
+        return chart;
+      }
+
+      async function openRecord(record, options = {}) {
+        const { expandForm = false } = options;
+        if (!record) return;
+        state.activeRecordKey = record.createdAt;
+        renderRecords();
+        fillProfile(record);
+        setFormExpanded(expandForm);
+        syncTransitDraftFromInputs();
+        setDetailLabel("参数 · 调取中");
+        await autoResolveNatalIfReady();
+        activateChartView("natal", { recalc: false });
+        setDetailExpanded(false);
+        await recalcCurrentChart({ archive: false });
+        setDetailLabel("参数");
+      }
+
+      if (!recalcButton) return;
+
+      resolveCityButton?.addEventListener("click", async () => {
+        await autoResolveCity("natal", 6);
+      });
+
+      async function autoResolveNatalIfReady() {
+        const hasResolved = readValue("astro-lat") && readValue("astro-lon") && readValue("astro-tz");
+        if (hasResolved) return;
+        if (readValue("astro-city") && readValue("astro-date")) {
+          await autoResolveCity("natal", 1);
+        }
+      }
+
+      [cityInput, dateInput].forEach((el) => {
+        el?.addEventListener("change", autoResolveNatalIfReady);
+        el?.addEventListener("blur", autoResolveNatalIfReady);
+      });
+
+      cityInput?.addEventListener("input", () => {
+        state.cityLocked = false;
+        if (latInput) latInput.value = "";
+        if (lonInput) lonInput.value = "";
+        if (tzInput) tzInput.value = "";
+        if (state.citySuggestTimer) {
+          window.clearTimeout(state.citySuggestTimer);
+        }
+        state.citySuggestTimer = window.setTimeout(suggestNatalCities, 220);
+      });
+
+      document.getElementById("astro-name")?.addEventListener("change", async () => {
+        await hydrateSharedProfileByName(readValue("astro-name"));
+      });
+
+      [transitDateInput].forEach((el) => {
+        el?.addEventListener("change", syncTransitDraftFromInputs);
+        el?.addEventListener("blur", syncTransitDraftFromInputs);
+      });
+
+      document.getElementById("astro-transit-shift")?.addEventListener("input", syncTransitDraftFromInputs);
+
+      cityCandidates?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-pick-city='natal']");
+        if (!button) return;
+        const index = Number(button.getAttribute("data-pick-index"));
+        const result = cityCandidates.__results?.[index];
+        if (result) {
+          state.cityLocked = true;
+          applyResolvedCity("natal", result);
+          renderCandidates("natal", []);
+        }
+      });
+
+      recalcButton.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        try {
+          if (!readValue("astro-lat") || !readValue("astro-lon") || !readValue("astro-tz")) {
+            await autoResolveNatalIfReady();
+          }
+          if (!readValue("astro-lat") || !readValue("astro-lon") || !readValue("astro-tz")) {
+            throw new Error("请先点选一个城市候选项，再排盘。");
+          }
+          setRecalcPending(true, "排盘中");
+          setDetailLabel("参数 · 排盘中");
+          activateChartView("natal", { recalc: false });
+          await autoResolveNatalIfReady();
+          await recalcCurrentChart({ archive: true });
+        } catch (error) {
+          setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "排盘失败 · 参数");
+        } finally {
+          setRecalcPending(false);
+        }
+      }, true);
+
+      profileList?.addEventListener("click", async (event) => {
+        const openButton = event.target.closest("[data-open-profile]");
+        const removeButton = event.target.closest("[data-remove-record]");
+        const item = event.target.closest("[data-select-profile]");
+        if (openButton) {
+          const key = Number(openButton.getAttribute("data-open-profile"));
+          const record = state.records.find((item) => item.createdAt === key);
+          try {
+            await openRecord(record, { expandForm: true });
+          } catch (error) {
+            setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "调取档案失败 · 参数");
+          }
+          return;
+        }
+        if (removeButton) {
+          const key = Number(removeButton.getAttribute("data-remove-record"));
+          if (state.activeRecordKey === key) state.activeRecordKey = null;
+          if (state.synastryPrimaryKey === key) {
+            state.synastryPrimaryKey = null;
+            state.synastryPrimaryRecord = null;
+            window.__mingxianRenderSingleWheel?.(null, {}, "left");
+          }
+          if (state.synastryPartnerKey === key) {
+            state.synastryPartnerKey = null;
+            state.synastryPartnerRecord = null;
+            window.__mingxianAstroSetCompareChart?.(null);
+            window.__mingxianRenderSingleWheel?.(null, {}, "right");
+          }
+          await persistRecords(state.records.filter((item) => item.createdAt !== key));
+          renderRecords();
+          return;
+        }
+        if (item) {
+          const key = Number(item.getAttribute("data-select-profile"));
+          const record = state.records.find((entry) => entry.createdAt === key);
+          try {
+            await openRecord(record, { expandForm: false });
+          } catch (error) {
+            setDetailLabel(error instanceof Error ? `${error.message} · 参数` : "调取档案失败 · 参数");
+          }
+        }
+      });
+
+      detailToggleButton?.addEventListener("click", () => {
+        setDetailExpanded(!state.detailExpanded);
+      });
+
+      formToggleButton?.addEventListener("click", () => {
+        if (!state.formExpanded) {
+          clearIntakeForm();
+        }
+        setFormExpanded(!state.formExpanded);
+      });
+
+      chartSwitch?.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-chart-view]");
+        if (!button) return;
+        const directFamily = button.getAttribute("data-advanced-family-direct");
+        if (directFamily) {
+          state.advancedFamily = ["returns", "directions", "periods"].includes(directFamily) ? directFamily : "returns";
+          if (state.advancedFamily === "returns" && !["solar-return", "lunar-return"].includes(state.advancedLeaf)) {
+            state.advancedLeaf = "solar-return";
+          }
+          if (state.advancedFamily === "directions" && !["secondary", "tertiary", "solar-arc"].includes(state.advancedLeaf)) {
+            state.advancedLeaf = "secondary";
+          }
+          if (state.advancedFamily === "periods" && !["firdaria", "profections"].includes(state.advancedLeaf)) {
+            state.advancedLeaf = "firdaria";
+          }
+          syncAdvancedFamilyUi();
+          syncAdvancedLeafUi();
+        }
+        const view = button.getAttribute("data-chart-view");
+        activateChartView(view);
+      });
+
+      leftPickerTrigger?.addEventListener("click", () => {
+        setSynastryPickerOpen("left");
+      });
+
+      rightPickerTrigger?.addEventListener("click", () => {
+        setSynastryPickerOpen("right");
+      });
+
+      leftPickerMenu?.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-synastry-pick='left']");
+        if (!button) return;
+        const key = Number(button.getAttribute("data-record-key"));
+        const record = state.records.find((item) => item.createdAt === key);
+        await applySynastryPrimary(record);
+      });
+
+      rightPickerMenu?.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-synastry-pick='right']");
+        if (!button) return;
+        const key = Number(button.getAttribute("data-record-key"));
+        const record = state.records.find((item) => item.createdAt === key);
+        await applySynastryPartner(record);
+      });
+
+      function syncHouseSystemUi() {
+        const activeValue = String(houseSystemInput?.value || "P").trim() || "P";
+        document.querySelectorAll("[data-house-system]").forEach((button) => {
+          button.classList.toggle("active", button.getAttribute("data-house-system") === activeValue);
+        });
+      }
+
+      houseSwitch?.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-house-system]");
+        if (!button || !houseSystemInput) return;
+        const nextValue = String(button.getAttribute("data-house-system") || "P").trim() || "P";
+        if (houseSystemInput.value === nextValue) return;
+        houseSystemInput.value = nextValue;
+        syncHouseSystemUi();
+        try {
+          const uiPrefs = JSON.parse(localStorage.getItem("mingli-astro-ui-prefs-v1") || "{}");
+          uiPrefs.houseSystem = nextValue;
+          localStorage.setItem("mingli-astro-ui-prefs-v1", JSON.stringify(uiPrefs));
+        } catch {}
+        const activeView = currentActiveView();
+        if (activeView === "synastry") {
+          await activateChartView("synastry");
+          return;
+        }
+        if (activeView === "natal" || activeView === "transit") {
+          if (readValue("astro-date") && readValue("astro-time") && readValue("astro-lat") && readValue("astro-lon") && readValue("astro-tz")) {
+            await recalcCurrentChart({ archive: false });
+          }
+          return;
+        }
+        if (activeView === "celestial") {
+          window.__mingxianAstroSetMode?.("live", false);
+        }
+      });
+
+      modeTier?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-chart-tier]");
+        if (!button) return;
+        applyChartTier(button.getAttribute("data-chart-tier"));
+      });
+
+      wheelTierSwitch?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-chart-tier]");
+        if (!button) return;
+        applyChartTier(button.getAttribute("data-chart-tier"));
+      });
+
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-synastry-family]");
+        if (!button) return;
+        applySynastryFamily(button.getAttribute("data-synastry-family"));
+      });
+
+      chartTertiary?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-advanced-leaf]");
+        if (!button) return;
+        applyAdvancedLeaf(button.getAttribute("data-advanced-leaf"));
+      });
+
+      wheelAdvancedReturns?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-advanced-leaf]");
+        if (!button) return;
+        applyAdvancedLeaf(button.getAttribute("data-advanced-leaf"));
+      });
+
+      wheelAdvancedDirections?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-advanced-leaf]");
+        if (!button) return;
+        applyAdvancedLeaf(button.getAttribute("data-advanced-leaf"));
+      });
+
+      wheelAdvancedPeriods?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-advanced-leaf]");
+        if (!button) return;
+        applyAdvancedLeaf(button.getAttribute("data-advanced-leaf"));
+      });
+
+      loadRecords();
+      setDetailExpanded(false);
+      setFormExpanded(false);
+      syncChartTierUi();
+      syncHouseSystemUi();
+      syncSynastryFamilyUi();
+      syncAdvancedFamilyUi();
+      syncAdvancedLeafUi();
+      activateChartView("celestial");
+    })();
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.getRegistrations()
+          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+          .catch(() => {});
+        if ("caches" in window) {
+          caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).catch(() => {});
+        }
+      });
+    }
+  </script>
+</body>
+</html>
