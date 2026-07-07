@@ -1,73 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>命线</title>
-    <meta name="theme-color" content="#f6f6f3">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="命线">
-    <link rel="manifest" href="./manifest.webmanifest?v=20260621b">
-    <link rel="icon" href="./icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="./icon.svg">
-    <link rel="stylesheet" href="./style.css?v=20260621b">
-  </head>
-  <body>
-    <main class="app-shell">
-      <div class="install-banner" id="install-banner" hidden>
-        <div class="install-copy">
-          <p class="install-title">安装到主屏幕</p>
-          <p class="install-text" id="install-text">添加到主屏幕后，会更像独立 App 一样使用。</p>
-        </div>
-        <div class="install-actions">
-          <button class="action-button install-button" id="install-button" type="button">添加</button>
-          <button class="action-button secondary install-dismiss" id="install-dismiss" type="button">关闭</button>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>赵羽彤工作室</title>
+  <meta name="theme-color" content="#f6f6f3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="赵羽彤工作室">
+  <link rel="manifest" href="./manifest.webmanifest?v=20260708a">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <link rel="stylesheet" href="./style.css?v=20260708a">
+</head>
+<body>
+  <main class="app-shell studio-shell">
+    <header class="hero studio-hero">
+      <div class="hero-head">
+        <p class="eyebrow">ZHAO YUTONG STUDIO</p>
+        <div class="hero-mark">READING · JEWELRY · ART</div>
+      </div>
+      <nav class="subsite-nav" aria-label="站点导航">
+        <a class="subsite-link is-active" href="/">首页</a>
+        <a class="subsite-link" href="/reading/">排盘</a>
+        <a class="subsite-link" href="/jewelry/">饰品</a>
+        <a class="subsite-link" href="/art/">艺术</a>
+      </nav>
+      <h1>赵羽彤工作室</h1>
+      <p class="hero-copy">工作室主站分成三个入口。排盘负责命理分析与报告，饰品负责运势首饰与商店，艺术负责作品系列与长期档案。</p>
+      <div class="hero-meta studio-meta">
+        <span>排盘</span>
+        <span>饰品</span>
+        <span>艺术</span>
+        <span>长期结构</span>
+      </div>
+    </header>
+
+    <section class="panel studio-panel studio-panel-intro">
+      <div class="panel-head">
+        <h2>三个入口</h2>
+      </div>
+      <div class="home-grid">
+        <a class="home-card home-card-studio" href="/reading/">
+          <p class="home-kicker">Reading</p>
+          <h3>排盘</h3>
+          <p>四柱、占星与命理分析报告都从这里进入。工具是方法，不再是整站身份。</p>
+        </a>
+        <a class="home-card home-card-studio" href="/jewelry/">
+          <p class="home-kicker">Jewelry</p>
+          <h3>饰品</h3>
+          <p>运势首饰、定制佩戴物与后续商店结构从这里展开。</p>
+        </a>
+        <a class="home-card home-card-studio" href="/art/">
+          <p class="home-kicker">Art</p>
+          <h3>艺术</h3>
+          <p>作品档案按系列进入：日记、毛线球、痕迹、灵魂。</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="panel studio-panel">
+      <div class="panel-head">
+        <h2>当前结构</h2>
+      </div>
+      <div class="studio-intro-grid">
+        <article class="studio-lead-card">
+          <p class="home-kicker">Position</p>
+          <h3>工作室主站不再混杂旧命理站逻辑</h3>
+          <p>旧的独立命理站继续独立存在。这里是工作室母站，URL、页面层级和品牌都以赵羽彤工作室为中心重新组织。</p>
+        </article>
+        <div class="studio-intro-stack">
+          <article class="studio-mini-card">
+            <p class="block-label">排盘</p>
+            <p>在 `/reading/` 内部再分四柱、占星与命理报告，而不是直接把工具暴露成首页主身份。</p>
+          </article>
+          <article class="studio-mini-card">
+            <p class="block-label">艺术</p>
+            <p>艺术部分按系列归档，不再被旧项目命名和旧入口结构盖住方向。</p>
+          </article>
         </div>
       </div>
-      <header class="hero">
-        <div class="hero-head">
-          <p class="eyebrow">Private Axis Notes</p>
-          <div class="hero-mark">MING XIAN</div>
-        </div>
-        <h1>命线</h1>
-        <p class="hero-copy">四柱看人生结构与阶段起伏，占星看人格结构与关系动力。两套系统并行，入口分开，判断互补。</p>
-      </header>
-
-      <section class="panel home-panel">
-        <div class="panel-head">
-          <h2>算法入口</h2>
-        </div>
-        <div class="home-grid">
-          <a class="home-card" href="/bazi/">
-            <p class="home-kicker">Bazi</p>
-            <h3>四柱</h3>
-            <p>看命局底盘、大运节奏、年份起伏。</p>
-          </a>
-          <a class="home-card" href="/astrology/">
-            <p class="home-kicker">Astrology</p>
-            <h3>占星</h3>
-            <p>看人格结构、关系动力、行运触发。</p>
-          </a>
-          <a class="home-card home-card-studio" href="/studio/">
-            <p class="home-kicker">Studio</p>
-            <h3>赵羽彤工作室</h3>
-            <p>后续把作品、命理报告、定制珠串与工作室结构接进来。</p>
-          </a>
-        </div>
-      </section>
-    </main>
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.getRegistrations()
-            .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
-            .catch(() => {});
-          if ("caches" in window) {
-            caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).catch(() => {});
-          }
-        });
-      }
-    </script>
-  </body>
+    </section>
+  </main>
+</body>
 </html>
