@@ -4927,16 +4927,32 @@ if (personalChartGroup) {
   updatePersonalChartGroup("all");
 }
 
-fillAspectControls();
-fillQuestionTypeTabs();
-fillRangePresets();
-fillQuestionTemplates();
-fillTimeSelectors();
-renderStaticSections();
-renderHistory();
-renderAiChatHistory();
-bindChartEvents(timeChart, "time");
-bindQuickBirthChartEvents();
+const hasQuestionReadingUi = Boolean(aspectSelect && questionType && questionInput);
+const hasTimeChartUi = Boolean(timeChart);
+const hasQuickBirthUi = Boolean(quickBirthGenerate && quickBirthChart);
+const hasAiChatUi = Boolean(aiChatThread);
+
+if (hasQuestionReadingUi || hasTimeChartUi) {
+  fillAspectControls();
+  fillQuestionTypeTabs();
+  fillRangePresets();
+  fillQuestionTemplates();
+  renderStaticSections();
+  renderHistory();
+}
+
+if (hasAiChatUi) {
+  renderAiChatHistory();
+}
+
+if (hasTimeChartUi) {
+  fillTimeSelectors();
+  bindChartEvents(timeChart, "time");
+}
+
+if (hasQuickBirthUi) {
+  bindQuickBirthChartEvents();
+}
 
 if (aspectSelect && questionType && questionInput) {
   aspectSelect.addEventListener("change", () => {
