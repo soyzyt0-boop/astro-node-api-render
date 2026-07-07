@@ -487,6 +487,7 @@ body.is-locked {
   background: rgba(253, 253, 251, 0.84);
   color: var(--text);
   text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .home-card h3 {
@@ -498,6 +499,21 @@ body.is-locked {
   margin: 0;
   color: #4b4b46;
   line-height: 1.68;
+}
+
+.home-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(21, 21, 21, 0.12);
+  box-shadow: 0 14px 28px rgba(20, 20, 18, 0.05);
+}
+
+.home-card-meta {
+  display: inline-flex;
+  margin-top: 14px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #81817a;
 }
 
 .home-kicker {
@@ -4711,6 +4727,13 @@ body:has(.astro-panel) .astro-reading-guide p {
   .home-card-studio {
     grid-column: auto;
   }
+
+  .studio-rail-grid,
+  .jewelry-feature-grid,
+  .shop-preview-grid,
+  .jewelry-roadmap {
+    grid-template-columns: 1fr;
+  }
 }
 
 
@@ -4793,6 +4816,28 @@ body:has(.astro-panel) .astro-reading-guide p {
   margin-top: 16px;
 }
 
+.studio-hero-rail {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.studio-rail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.studio-rail-card {
+  border-top: 1px solid rgba(21, 21, 21, 0.08);
+  padding-top: 12px;
+}
+
+.studio-rail-card p:last-child {
+  margin: 0;
+  color: #4a4a46;
+  line-height: 1.66;
+}
+
 .studio-intro-grid,
 .studio-jewelry-layout {
   display: grid;
@@ -4864,6 +4909,62 @@ body:has(.astro-panel) .astro-reading-guide p {
   border: 1px solid rgba(21, 21, 21, 0.1);
   color: #151515;
   text-decoration: none;
+}
+
+.jewelry-feature-grid,
+.shop-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.jewelry-feature-card,
+.shop-preview-card {
+  min-height: 180px;
+  padding: 16px;
+  border: 1px solid rgba(21, 21, 21, 0.07);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(247,244,239,0.86) 100%);
+  box-shadow: 0 10px 22px rgba(20, 20, 18, 0.03);
+}
+
+.jewelry-feature-card p:last-child,
+.shop-preview-card p:last-of-type {
+  margin-bottom: 0;
+  color: #4a4a46;
+  line-height: 1.68;
+}
+
+.shop-preview-card span {
+  display: inline-flex;
+  margin-top: 14px;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #807b72;
+}
+
+.jewelry-roadmap {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.jewelry-roadmap-step {
+  border-top: 1px solid rgba(21, 21, 21, 0.08);
+  padding-top: 12px;
+}
+
+.jewelry-roadmap-step h3 {
+  margin: 8px 0 8px;
+  font-size: 1.04rem;
+}
+
+.jewelry-roadmap-step p:last-child {
+  margin: 0;
+  color: #4c4c47;
+  line-height: 1.68;
 }
 
 .studio-list {
