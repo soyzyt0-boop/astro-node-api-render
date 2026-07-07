@@ -18,55 +18,43 @@
   var astroPresets = document.querySelector("#astro-presets");
   var astroPointToggles = document.querySelector("#astro-point-toggles");
   var astroRecalc = document.querySelector("#astro-recalc");
-  var astroClearNatal = document.querySelector("#astro-clear-natal");
+  var astroClearNatal = null;
   var astroResolveCity = document.querySelector("#astro-resolve-city");
   var astroCityStatus = document.querySelector("#astro-city-status");
   var astroTransitDate = document.querySelector("#astro-transit-date");
-  var astroTransitTime = document.querySelector("#astro-transit-time");
   var astroTransitTz = document.querySelector("#astro-transit-tz");
-  var astroTransitCity = document.querySelector("#astro-transit-city");
-  var astroResolveTransitCity = document.querySelector("#astro-resolve-transit-city");
   var astroTransitCityStatus = document.querySelector("#astro-transit-city-status");
-  var astroTransitCityCandidates = document.querySelector("#astro-transit-city-candidates");
   var astroTransitShift = document.querySelector("#astro-transit-shift");
   var astroTransitShiftReadout = document.querySelector("#astro-transit-shift-readout");
-  var astroNow = document.querySelector("#astro-now");
-  var astroTransitApply = document.querySelector("#astro-transit-apply");
+  var astroNow = null;
+  var astroTransitApply = null;
   var astroWheel = document.querySelector("#astro-wheel");
-  var astroWheelWrap = document.querySelector(".astro-wheel-wrap");
-  var astroExportImage = document.querySelector("#astro-export-image");
-  var astroWheelLegend = document.querySelector("#astro-wheel-legend");
-  var astroWheelFocus = document.querySelector("#astro-wheel-focus");
-  var astroNatalSummary = document.querySelector("#astro-natal-summary");
-  var astroTransitSummary = document.querySelector("#astro-transit-summary");
-  var astroNatalList = document.querySelector("#astro-natal-list");
-  var astroTransitList = document.querySelector("#astro-transit-list");
-  var astroAspectList = document.querySelector("#astro-aspect-list");
-  var astroTransitJudgement = document.querySelector("#astro-transit-judgement");
-  var astroHouseNote = document.querySelector("#astro-house-note");
-  var astroRuleList = document.querySelector("#astro-rule-list");
-  var astroValidationList = document.querySelector("#astro-validation-list");
-  var astroValidationNote = document.querySelector("#astro-validation-note");
+  var astroWheelWrap = document.querySelector("#astro-main-wheel-wrap");
+  var astroLeftWheel = document.querySelector("#astro-left-wheel");
+  var astroRightWheel = document.querySelector("#astro-right-wheel");
+  var astroExportImage = null;
+  var astroWheelLegend = null;
+  var astroNatalSummary = null;
+  var astroTransitSummary = null;
+  var astroNatalList = null;
+  var astroTransitList = null;
+  var astroAspectList = null;
+  var astroTransitJudgement = null;
+  var astroHouseNote = null;
+  var astroValidationNote = null;
   var astroCityCandidates = document.querySelector("#astro-city-candidates");
-  var astroCopyLink = document.querySelector("#astro-copy-link");
-  var astroCopySummary = document.querySelector("#astro-copy-summary");
-  var astroSummaryCard = document.querySelector("#astro-summary-card");
-  var astroDebugCard = document.querySelector("#astro-debug-card");
-  var astroHistoryList = document.querySelector("#astro-history-list");
-  var astroHistoryClear = document.querySelector("#astro-history-clear");
-  var astroModePill = document.querySelector("#astro-mode-pill");
+  var astroCopyLink = null;
+  var astroSummaryCard = null;
+  var astroDebugCard = null;
+  var astroHistoryList = null;
+  var astroHistoryClear = null;
   var astroModeSwitch = document.querySelector("#astro-mode-switch");
-  var astroModeTabs = Array.from(document.querySelectorAll("[data-astro-mode]"));
-  var astroNatalSummaryLabel = document.querySelector("#astro-natal-summary-label");
-  var astroNatalListLabel = document.querySelector("#astro-natal-list-label");
-  var astroParamsLabel = document.querySelector("#astro-params-label");
-  var astroWheelDiagnostics = document.querySelector("#astro-wheel-diagnostics");
-  var ASTRO_VALIDATION_SAMPLES = [
-    { label: "Beijing 1986", diff: 0 },
-    { label: "Madrid 1993", diff: 0 },
-    { label: "NYC 2001", diff: 0 },
-    { label: "Sydney 1979", diff: 0 }
-  ];
+  var astroModeTabs = Array.from(document.querySelectorAll("[data-astro-mode]") || []);
+  var astroNatalSummaryLabel = null;
+  var astroNatalListLabel = null;
+  var astroParamsLabel = null;
+  var astroWheelDiagnostics = null;
+  var astroCopySummary = null;
   var ASTRO_STORAGE_KEY = "mingli-astro-history-v2";
   var ASTRO_API_BASE_KEY = "mingli-astro-api-base";
   var ASTRO_UI_PREFS_KEY = "mingli-astro-ui-prefs-v1";
@@ -105,7 +93,7 @@
     midheaven: { label: "\u5929\u9876", glyph: "MC" },
     imumCoeli: { label: "\u5929\u5E95", glyph: "IC" }
   };
-  var CORE_POINT_KEYS = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "chiron", "northNode", "southNode", "ascendant", "midheaven"];
+  var CORE_POINT_KEYS = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "chiron", "northNode", "ascendant", "midheaven"];
   var ADVANCED_POINT_KEYS = ["chiron", "northNode", "southNode", "lilith", "fortune", "vertex", "antiVertex", "eastPoint", "ceres", "pallas", "juno", "vesta"];
   var ASPECT_LABELS = {
     conjunction: { label: "\u5408", color: "#8ea0b8", angle: 0, orb: 5 },
@@ -123,6 +111,8 @@
     mode: "natal",
     natal: null,
     transit: null,
+    compare: null,
+    compareMode: false,
     showTransit: false,
     cityCandidates: [],
     transitCityCandidates: [],
@@ -140,6 +130,7 @@
   function saveUiPrefs() {
     const prefs = {
       visiblePointKeys: astroState.visiblePointKeys,
+      houseSystem: astroHouseSystem?.value || "P",
       wheelLayer: astroWheelLayer?.value || "both",
       aspectLines: astroAspectLines?.value || "on",
       pointSet: astroPointSet?.value || "core",
@@ -178,14 +169,7 @@
   function getAstroApiBase() {
     const queryValue = new URLSearchParams(window.location.search).get("astroApi");
     if (queryValue) return queryValue.replace(/\/$/, "");
-    const saved = localStorage.getItem(ASTRO_API_BASE_KEY);
-    if (saved) {
-      const normalized = saved.replace(/\/$/, "");
-      if (normalized !== "http://127.0.0.1:4318" && normalized !== "http://localhost:4318") {
-        return normalized;
-      }
-    }
-    return "https://astro-node-api.onrender.com";
+    return "/api/astrochart";
   }
   function setAstroApiBase(value) {
     localStorage.setItem(ASTRO_API_BASE_KEY, String(value || "").replace(/\/$/, ""));
@@ -215,6 +199,14 @@
     const diff = Math.abs(normalizeAngle(a) - normalizeAngle(b));
     return diff > 180 ? 360 - diff : diff;
   }
+  function midpointAngle(a, b) {
+    const a1 = normalizeAngle(a);
+    const b1 = normalizeAngle(b);
+    let diff = b1 - a1;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    return normalizeAngle(a1 + diff / 2);
+  }
   function modernPlanetColor(key) {
     const palette = {
       sun: "#ff5a52",
@@ -233,6 +225,32 @@
       chiron: "#8a6b57"
     };
     return palette[key] || "#58616d";
+  }
+  function transitPlanetColor() {
+    return "#3f7fe4";
+  }
+  function comparePlanetColor() {
+    return "#4e86cf";
+  }
+  function natalPlanetTone(key) {
+    const color = modernPlanetColor(key);
+    const softer = {
+      sun: "#ff675f",
+      moon: "#3a84ea",
+      mercury: "#4ecba5",
+      venus: "#cf9550",
+      mars: "#f76860",
+      jupiter: "#f36d61",
+      saturn: "#b58b59",
+      uranus: "#48ccb1",
+      neptune: "#3388e8",
+      pluto: "#247ce2",
+      northNode: "#63c5e8",
+      southNode: "#93cde1",
+      lilith: "#74685c",
+      chiron: "#9a7c64"
+    }[key];
+    return softer || color;
   }
   function signUiColor(index) {
     const palette = [
@@ -267,6 +285,28 @@
       12: "#3b86ea"
     };
     return palette[house] || "#8ea0bf";
+  }
+  function aspectStrokeWidth(aspect, highlighted = false, isTransit = false) {
+    const base = {
+      conjunction: isTransit ? 1.2 : 1.38,
+      opposition: isTransit ? 1.14 : 1.28,
+      square: isTransit ? 1.06 : 1.18,
+      trine: isTransit ? 0.9 : 1.02,
+      sextile: isTransit ? 0.74 : 0.84,
+      quincunx: isTransit ? 0.66 : 0.76
+    }[aspect?.key] || (isTransit ? 0.82 : 0.9);
+    return highlighted ? base + (isTransit ? 0.42 : 0.5) : base;
+  }
+  function aspectStrokeOpacity(aspect, highlighted = false, isTransit = false) {
+    if (highlighted) return isTransit ? 0.9 : 0.88;
+    return {
+      conjunction: isTransit ? 0.56 : 0.7,
+      opposition: isTransit ? 0.5 : 0.62,
+      square: isTransit ? 0.46 : 0.58,
+      trine: isTransit ? 0.34 : 0.44,
+      sextile: isTransit ? 0.22 : 0.3,
+      quincunx: isTransit ? 0.16 : 0.22
+    }[aspect?.key] || (isTransit ? 0.3 : 0.38);
   }
   function longitudeToSign(angle) {
     const normalized = normalizeAngle(angle);
@@ -319,84 +359,6 @@
   function buildNowLocalParts(tzValue) {
     return buildLocalDateParts(/* @__PURE__ */ new Date(), tzValue);
   }
-  function getAstroHistory() {
-    try {
-      return JSON.parse(localStorage.getItem(ASTRO_STORAGE_KEY) || "[]");
-    } catch {
-      return [];
-    }
-  }
-  function saveAstroHistory(history) {
-    localStorage.setItem(ASTRO_STORAGE_KEY, JSON.stringify(history.slice(0, 24)));
-  }
-  function buildAstroHistoryRecord(natal) {
-    return {
-      mode: natal.mode,
-      name: natal.name,
-      city: natal.city,
-      date: formatDateHuman(natal.date, natal.tz),
-      rawDate: astroDate?.value || "",
-      rawTime: astroTime?.value || "",
-      lat: Number(natal.lat).toFixed(4),
-      lon: Number(natal.lon).toFixed(4),
-      tz: natal.tz,
-      transitCity: astroTransitCity?.value || "",
-      transitDate: astroTransitDate?.value || "",
-      transitTime: astroTransitTime?.value || "",
-      transitTz: astroTransitTz?.value || "",
-      shift: astroTransitShift?.value || "0",
-      savedAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-  }
-  function pushAstroHistoryRecord(natal) {
-    const history = getAstroHistory();
-    const record = buildAstroHistoryRecord(natal);
-    const deduped = history.filter((item) => !(item.mode === record.mode && item.name === record.name && item.city === record.city && item.rawDate === record.rawDate && item.rawTime === record.rawTime && item.tz === record.tz));
-    deduped.unshift(record);
-    saveAstroHistory(deduped);
-    renderAstroHistory();
-  }
-  function renderAstroHistory() {
-    if (!astroHistoryList) return;
-    const history = getAstroHistory();
-    if (!history.length) {
-      astroHistoryList.innerHTML = '<div class="astro-empty">\u8FD8\u6CA1\u6709\u3002</div>';
-      return;
-    }
-    astroHistoryList.innerHTML = history.map((item, index) => `
-    <div class="astro-history-item">
-      <button class="astro-history-open" type="button" data-astro-history-open="${index}">
-        ${item.mode === "live" ? "\u5B9E\u65F6\u76D8" : "\u672C\u547D\u76D8"} \xB7 ${item.name || item.city || "\u672A\u547D\u540D"} \xB7 ${item.date}
-      </button>
-      <button class="astro-history-remove" type="button" data-astro-history-remove="${index}">\u5220</button>
-    </div>
-  `).join("");
-  }
-  function applyAstroHistoryRecord(index) {
-    const record = getAstroHistory()[index];
-    if (!record) return;
-    setAstroMode(record.mode === "natal" ? "natal" : "live");
-    if (astroName) astroName.value = record.mode === "natal" ? record.name || "" : "";
-    if (astroCity) astroCity.value = record.mode === "natal" ? record.city || "" : "";
-    if (astroDate) astroDate.value = record.rawDate || "";
-    if (astroTime) astroTime.value = record.rawTime || "";
-    if (astroLat) astroLat.value = record.mode === "natal" ? String(record.lat || "") : "";
-    if (astroLon) astroLon.value = record.mode === "natal" ? String(record.lon || "") : "";
-    if (astroTz) astroTz.value = record.mode === "natal" ? record.tz || "" : "";
-    if (astroTransitCity) astroTransitCity.value = record.transitCity || "";
-    if (astroTransitDate) astroTransitDate.value = record.transitDate || "";
-    if (astroTransitTime) astroTransitTime.value = record.transitTime || "";
-    if (astroTransitTz) astroTransitTz.value = record.transitTz || "";
-    if (astroTransitShift) astroTransitShift.value = record.shift || "0";
-    updateShiftReadout();
-    recalcAstro();
-  }
-  function removeAstroHistoryRecord(index) {
-    const history = getAstroHistory();
-    history.splice(index, 1);
-    saveAstroHistory(history);
-    renderAstroHistory();
-  }
   function hasNatalInputs() {
     return [
       astroName?.value,
@@ -438,12 +400,10 @@
       lat: astroLat?.value || "",
       lon: astroLon?.value || "",
       tz: astroTz?.value || "",
-      hsys: astroHouseSystem?.value || "W",
+      hsys: astroHouseSystem?.value || "P",
       ntype: astroNodeType?.value || "true",
       ltype: astroLilithType?.value || "mean",
-      tcity: astroTransitCity?.value || "",
       tdate: astroTransitDate?.value || "",
-      ttime: astroTransitTime?.value || "",
       ttz: astroTransitTz?.value || "",
       tshift: astroTransitShift?.value || "0",
       astroApi: getAstroApiBase()
@@ -476,12 +436,13 @@
     assign(astroLat, "lat");
     assign(astroLon, "lon");
     assign(astroTz, "tz");
-    assign(astroHouseSystem, "hsys");
+    const hsys = String(params.get("hsys") || "").trim().toUpperCase();
+    if (astroHouseSystem) {
+      astroHouseSystem.value = hsys === "P" || hsys === "W" ? hsys : "P";
+    }
     assign(astroNodeType, "ntype");
     assign(astroLilithType, "ltype");
-    assign(astroTransitCity, "tcity");
     assign(astroTransitDate, "tdate");
-    assign(astroTransitTime, "ttime");
     assign(astroTransitTz, "ttz");
     assign(astroTransitShift, "tshift");
     const astroApi = params.get("astroApi");
@@ -516,19 +477,31 @@
       latitude,
       longitude,
       timezone,
-      houseSystem: String(astroHouseSystem?.value || "W").trim() || "W",
+      houseSystem: String(astroHouseSystem?.value || "P").trim() || "P",
       nodeType: String(astroNodeType?.value || "true").trim() || "true",
       lilithType: String(astroLilithType?.value || "mean").trim() || "mean"
     };
   }
+  async function readJsonSafely(response, fallbackMessage) {
+    const raw = await response.text();
+    if (!raw) {
+      throw new Error(fallbackMessage);
+    }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      throw new Error(raw.slice(0, 180) || fallbackMessage);
+    }
+  }
   async function requestChart(payload) {
     const base = getAstroApiBase();
-    const response = await fetch(`${base}/chart`, {
+    const requestUrl = base === "/api/astrochart" ? base : `${base}/chart`;
+    const response = await fetch(requestUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    const data = await response.json();
+    const data = await readJsonSafely(response, "占星接口没有返回有效数据。");
     if (!response.ok || !data?.ok || !data?.chart) {
       throw new Error(data?.error || "\u6392\u76D8\u5931\u8D25\u3002");
     }
@@ -584,27 +557,16 @@
   }
   function renderWheelLegend() {
     if (!astroWheelLegend) return;
+    const isCompare = !!astroState.compareMode;
     astroWheelLegend.innerHTML = [
-      `<div class="astro-item"><span class="astro-item-label">内圈</span><span class="astro-item-value">本命点位</span></div>`,
-      `<div class="astro-item"><span class="astro-item-label">外圈</span><span class="astro-item-value">行运点位</span></div>`,
-      `<div class="astro-item"><span class="astro-item-label">实线</span><span class="astro-item-value">本命内部相位</span></div>`,
-      `<div class="astro-item"><span class="astro-item-label">虚线</span><span class="astro-item-value">行运对本命相位</span></div>`
+      `<div class="astro-item"><span class="astro-item-label">内圈</span><span class="astro-item-value">${isCompare ? "主盘本命" : "本命点位"}</span></div>`,
+      `<div class="astro-item"><span class="astro-item-label">外圈</span><span class="astro-item-value">${isCompare ? "对方本命" : "行运点位"}</span></div>`,
+      `<div class="astro-item"><span class="astro-item-label">实线</span><span class="astro-item-value">${isCompare ? "主盘内部相位" : "本命内部相位"}</span></div>`,
+      `<div class="astro-item"><span class="astro-item-label">虚线</span><span class="astro-item-value">${isCompare ? "双方交互相位" : "行运对本命相位"}</span></div>`
     ].join("");
   }
   function renderFocusedPoint() {
-    if (!astroWheelFocus) return;
-    const point = astroState.focusedPoint;
-    if (!point) {
-      astroWheelFocus.textContent = "\u70B9\u8F6E\u76D8\u91CC\u7684\u4EFB\u4E00\u70B9\u4F4D\uFF0C\u67E5\u770B\u8BE6\u7EC6\u8BF4\u660E\u3002";
-      return;
-    }
-    astroWheelFocus.textContent = [
-      `${point.glyph} ${point.label}`,
-      `\u843D\u70B9\uFF1A${formatLongitude(point.longitude)}`,
-      point.house ? `\u5BAB\u4F4D\uFF1A${point.house}\u5BAB` : "\u5BAB\u4F4D\uFF1A-",
-      `\u987A\u9006\uFF1A${point.retrograde ? "\u9006\u884C" : "\u987A\u884C/\u865A\u70B9"}`,
-      `\u7ECF\u5EA6\uFF1A${Number(point.longitude).toFixed(2)}\xB0`
-    ].join("\n");
+    return;
   }
   function isFocusedAspect(aspect) {
     if (astroState.focusedAspect) {
@@ -636,11 +598,11 @@
       if (!group) return;
       const key = String(group.getAttribute("data-wheel-point") || "");
       const scope = String(group.getAttribute("data-wheel-scope") || "natal");
-      const source = scope === "transit" ? astroState.transit?.planets || [] : astroState.natal?.planets || [];
+      const source = scope === "transit" ? (astroState.compareMode ? astroState.compare?.planets || [] : astroState.transit?.planets || []) : astroState.natal?.planets || [];
       astroState.focusedPoint = source.find((item) => item.key === key) || null;
       astroState.focusedAspect = null;
       renderFocusedPoint();
-      renderWheel(astroState.natal, astroState.transit);
+      renderWheel(astroState.natal, astroState.compareMode ? astroState.compare : astroState.transit);
     });
   }
   function filterPoints(points) {
@@ -831,7 +793,7 @@
         latitude: lat,
         longitude: lon,
         timezone: tz,
-        houseSystem: String(astroHouseSystem?.value || "W").trim() || "W",
+        houseSystem: String(astroHouseSystem?.value || "P").trim() || "P",
         nodeType: String(astroNodeType?.value || "true").trim() || "true",
         lilithType: String(astroLilithType?.value || "mean").trim() || "mean"
       });
@@ -845,21 +807,36 @@
     const chart = await requestChart(buildChartPayloadFromParts(parts, lat, lon, tz));
     return buildNatalStateFromChart("live", chart, {
       name: "\u5F53\u524D\u5B9E\u65F6\u661F\u76D8",
-      city: String(astroTransitCity?.value || "").trim() || DEFAULT_LIVE_CITY
+      city: String(astroCity?.value || "").trim() || DEFAULT_LIVE_CITY
     });
+  }
+  function resolvedTransitTimezone(natal) {
+    const transitTz = String(astroTransitTz?.value || "").trim();
+    if (transitTz) return transitTz;
+    const natalTz = String(astroTz?.value || "").trim();
+    if (natalTz) return natalTz;
+    return String(natal?.tz || "+02:00").trim() || "+02:00";
   }
   async function buildTransitState(natal) {
     if (!natal) return null;
-    const dateRaw = String(astroTransitDate?.value || "").trim();
-    if (!dateRaw) return null;
-    const timeRaw = String(astroTransitTime?.value || "12:00").trim() || "12:00";
-    const tz = String(astroTransitTz?.value || "+02:00").trim() || "+02:00";
+    const timeRaw = "12:00";
+    const tz = resolvedTransitTimezone(natal);
+    let dateRaw = String(astroTransitDate?.value || "").trim();
+    if (!dateRaw) {
+      const now = buildNowLocalParts(tz);
+      dateRaw = `${now.year}-${String(now.month).padStart(2, "0")}-${String(now.day).padStart(2, "0")}`;
+      if (astroTransitDate) astroTransitDate.value = dateRaw;
+    }
     const baseDate = buildUtcDate(dateRaw, timeRaw, tz);
     if (!baseDate) return null;
     const shiftDays = Number(astroTransitShift?.value || 0);
     const shiftedDate = new Date(baseDate.getTime() + shiftDays * 24 * 3600 * 1e3);
     const parts = buildLocalDateParts(shiftedDate, tz);
-    const chart = await requestChart(buildChartPayloadFromParts(parts, natal.lat, natal.lon, tz));
+    const transitLat = Number(astroLat?.value);
+    const transitLon = Number(astroLon?.value);
+    const lat = Number.isFinite(transitLat) ? transitLat : natal.lat;
+    const lon = Number.isFinite(transitLon) ? transitLon : natal.lon;
+    const chart = await requestChart(buildChartPayloadFromParts(parts, lat, lon, tz));
     const planets = chart.planets.map(normalizePlanet);
     const transitAspectTargets = [
       ...filterPoints(natal.planets),
@@ -887,75 +864,16 @@
     if (!astroCityCandidates) return;
     astroCityCandidates.innerHTML = items.length ? items.map((item, index) => `<button class="astro-candidate-item" type="button" data-index="${index}">${item.display}</button>`).join("") : "";
   }
-  function renderTransitCityCandidates(items = []) {
-    if (!astroTransitCityCandidates) return;
-    astroTransitCityCandidates.innerHTML = items.length ? items.map((item, index) => `<button class="astro-candidate-item" type="button" data-transit-index="${index}">${item.display}</button>`).join("") : "";
+  function buildSummaryText() {
+    return "";
   }
-  function buildSummaryText(natal, transit) {
-    const title = natal?.mode === "live" ? "\u5B9E\u65F6\u53C2\u6570" : "\u672C\u547D\u53C2\u6570";
-    const natalLine = [
-      `\u5BF9\u8C61\uFF1A${natal?.name || "-"}`,
-      `${natal?.mode === "live" ? "\u663E\u793A\u5730\u70B9" : "\u51FA\u751F\u57CE\u5E02"}\uFF1A${natal?.city || "-"}`,
-      `${natal?.mode === "live" ? "\u76D8\u9762\u65F6\u95F4" : "\u51FA\u751F\u65F6\u95F4"}\uFF1A${natal ? formatDateHuman(natal.date, natal.tz) : "-"}`,
-      `\u5750\u6807\uFF1A${Number(natal?.lat || 0).toFixed(4)}, ${Number(natal?.lon || 0).toFixed(4)}`,
-      `\u5BAB\u5236\uFF1A${natal?.rawChart?.input?.houseSystem === "W" ? "Whole Sign" : "Placidus"}`,
-      `\u5317\u4EA4\u70B9\uFF1A${natal?.rawChart?.input?.nodeType === "mean" ? "Mean Node" : "True Node"}`,
-      `\u8389\u8389\u4E1D\uFF1A${natal?.rawChart?.input?.lilithType === "oscu" ? "True Lilith" : "Mean Lilith"}`
-    ].join("\n");
-    const transitLine = [
-      `\u67E5\u8BE2\u57CE\u5E02\uFF1A${astroTransitCity?.value || "-"}`,
-      `\u67E5\u8BE2\u65F6\u95F4\uFF1A${transit ? formatDateHuman(transit.date, transit.tz) : "-"}`,
-      `\u63A8\u79FB\u5929\u6570\uFF1A${astroTransitShift?.value || "0"} \u5929`
-    ].join("\n");
-    return [
-      title,
-      natalLine,
-      "",
-      "\u884C\u8FD0\u53C2\u6570",
-      transitLine,
-      "",
-      `\u8BA1\u7B97\u6838\u5FC3\uFF1ASwiss Ephemeris / \u70ED\u5E26\u9EC4\u9053 / ${natal?.rawChart?.input?.houseSystem === "W" ? "Whole Sign" : "Placidus"} \u5BAB\u5236 / ${natal?.rawChart?.input?.nodeType === "mean" ? "Mean Node" : "True Node"} / ${natal?.rawChart?.input?.lilithType === "oscu" ? "True Lilith" : "Mean Lilith"}`
-    ].join("\n");
+  function renderSummaryCard() {
   }
-  function renderSummaryCard(natal, transit) {
-    if (astroSummaryCard) astroSummaryCard.textContent = buildSummaryText(natal, transit);
+  function renderDebugCard() {
   }
-  function renderDebugCard(natal) {
-    if (!astroDebugCard || !natal) return;
-    const sun = natal.planets.find((item) => item.key === "sun");
-    const moon = natal.planets.find((item) => item.key === "moon");
-    const mercury = natal.planets.find((item) => item.key === "mercury");
-    const venus = natal.planets.find((item) => item.key === "venus");
-    const mars = natal.planets.find((item) => item.key === "mars");
-    astroDebugCard.textContent = [
-      `\u6A21\u5F0F\uFF1A${natal.mode === "live" ? "\u5B9E\u65F6\u76D8" : "\u672C\u547D\u76D8"}`,
-      `\u5BF9\u8C61\uFF1A${natal.name || "-"}`,
-      `\u57CE\u5E02\uFF1A${natal.city || "-"}`,
-      `\u65F6\u95F4\uFF1A${formatDateHuman(natal.date, natal.tz)}`,
-      `\u7EAC\u5EA6\uFF1A${Number(natal.lat).toFixed(4)}`,
-      `\u7ECF\u5EA6\uFF1A${Number(natal.lon).toFixed(4)}`,
-      `\u65F6\u533A\uFF1A${natal.tz}`,
-      `\u592A\u9633\uFF1A${formatLongitude(sun?.longitude)} \xB7 ${Number(sun?.longitude || 0).toFixed(2)}\xB0 \xB7 ${sun?.house || "?"}\u5BAB`,
-      `\u6708\u4EAE\uFF1A${formatLongitude(moon?.longitude)} \xB7 ${Number(moon?.longitude || 0).toFixed(2)}\xB0 \xB7 ${moon?.house || "?"}\u5BAB`,
-      `\u6C34\u661F\uFF1A${formatLongitude(mercury?.longitude)} \xB7 ${Number(mercury?.longitude || 0).toFixed(2)}\xB0 \xB7 ${mercury?.house || "?"}\u5BAB`,
-      `\u91D1\u661F\uFF1A${formatLongitude(venus?.longitude)} \xB7 ${Number(venus?.longitude || 0).toFixed(2)}\xB0 \xB7 ${venus?.house || "?"}\u5BAB`,
-      `\u706B\u661F\uFF1A${formatLongitude(mars?.longitude)} \xB7 ${Number(mars?.longitude || 0).toFixed(2)}\xB0 \xB7 ${mars?.house || "?"}\u5BAB`,
-      `\u4E0A\u5347\uFF1A${formatLongitude(natal.angles.asc)}`,
-      `\u4E0B\u964D\uFF1A${formatLongitude(natal.angles.dsc)}`,
-      `\u5929\u9876\uFF1A${formatLongitude(natal.angles.mc)}`,
-      `\u5929\u5E95\uFF1A${formatLongitude(natal.angles.ic)}`
-    ].join("\n");
-  }
-  function renderWheelDiagnostics(lines) {
-    if (!astroWheelDiagnostics) return;
-    astroWheelDiagnostics.textContent = Array.isArray(lines) ? lines.join("\n") : String(lines || "");
+  function renderWheelDiagnostics() {
   }
   function clearAstroOutputs(message = "\u5F85\u8BA1\u7B97\u3002") {
-    if (astroNatalSummary) astroNatalSummary.textContent = message;
-    if (astroTransitSummary) astroTransitSummary.textContent = "\u5F85\u8BA1\u7B97\u3002";
-    if (astroTransitJudgement) astroTransitJudgement.textContent = "\u5F85\u8BA1\u7B97\u3002";
-    if (astroSummaryCard) astroSummaryCard.textContent = "";
-    if (astroDebugCard) astroDebugCard.textContent = "";
     if (astroWheelWrap) {
       astroWheelWrap.innerHTML = `<svg id="astro-wheel" viewBox="0 0 720 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="本命与行运占星轮盘"><rect x="0" y="0" width="720" height="720" fill="rgba(251,247,240,0.92)"/><text x="360" y="332" text-anchor="middle" font-size="24" fill="#5b4636">当前没有可显示的轮盘</text><text x="360" y="372" text-anchor="middle" font-size="15" fill="#7c6856">${message}</text></svg>`;
       astroWheel = document.querySelector("#astro-wheel");
@@ -966,17 +884,11 @@
     renderList(astroNatalList, [], () => "");
     renderList(astroTransitList, [], () => "");
     renderList(astroAspectList, [], () => "");
-    renderWheelDiagnostics([
-      "wheel: cleared",
-      `hasWrap: ${astroWheelWrap ? "yes" : "no"}`,
-      `hasSvg: ${astroWheel ? "yes" : "no"}`
-    ]);
+    astroState.compare = null;
   }
   function renderModeLabels(natal) {
     const isLive = natal?.mode === "live";
-    if (astroModePill) astroModePill.textContent = isLive ? "\u5B9E\u65F6\u76D8" : "\u672C\u547D\u76D8";
-    if (astroParamsLabel) astroParamsLabel.textContent = isLive ? "\u5B9E\u65F6\u53C2\u6570" : "\u672C\u547D\u53C2\u6570";
-    if (astroNatalSummaryLabel) astroNatalSummaryLabel.textContent = isLive ? "\u5B9E\u65F6\u6458\u8981" : "\u672C\u547D\u6458\u8981";
+    if (astroNatalSummaryLabel) astroNatalSummaryLabel.textContent = "\u70B9\u4F4D\u8BF4\u660E";
     if (astroNatalListLabel) astroNatalListLabel.textContent = isLive ? "\u5B9E\u65F6\u843D\u70B9" : "\u672C\u547D\u843D\u70B9";
   }
   function applyResolvedCity(item) {
@@ -995,26 +907,186 @@
   }
   function applyResolvedTransitCity(item) {
     if (!item) return;
-    if (astroTransitCity) astroTransitCity.value = item.city || item.display || "";
     if (astroTransitTz && item.utcOffsetMinutes !== void 0 && item.utcOffsetMinutes !== null) {
       astroTransitTz.value = formatOffsetMinutes(Number(item.utcOffsetMinutes));
     }
     if (astroTransitCityStatus) {
       astroTransitCityStatus.textContent = `\u5DF2\u6821\u51C6\uFF1A${item.display || item.city} \xB7 ${astroTransitTz?.value || ""}`;
     }
-    renderTransitCityCandidates([]);
     recalcAstro();
   }
-  function renderWheel(natal, transit) {
-    if (!astroWheel || !natal) return;
+  function renderWheel(natal, transit, options = {}) {
+    const targetWheel = options.targetWheel || astroWheel;
+    const targetWrap = options.targetWrap || astroWheelWrap;
+    if (!targetWheel || !natal) return;
+    const compare = astroState.compareMode ? astroState.compare : null;
+    const overlayState = compare || transit;
+    const overlayIsCompare = !!compare;
     const size = 720;
     const svgAttrs = `id="astro-wheel" viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="本命与行运占星轮盘" width="${size}" height="${size}"`;
     const cx = size / 2;
     const cy = size / 2;
     const outer = 286;
-    const signInner = 238;
-    const houseInner = 210;
-    const centerField = 178;
+    const signInner = 248;
+    const houseInner = 228;
+    const centerField = 202;
+    const displayTheme = String(natal.displayTheme || options.displayTheme || "natal");
+    const displayVariant = String(natal.displayVariant || options.displayVariant || "");
+    const themeStyles = {
+      natal: {
+        outerFill: "rgba(243,245,248,0.98)",
+        outerStroke: "rgba(202,208,216,0.68)",
+        signFill: "rgba(253,254,255,0.99)",
+        signStroke: "rgba(213,218,226,0.82)",
+        houseFill: "rgba(254,254,255,0.99)",
+        houseStroke: "rgba(205,211,219,0.76)",
+        centerFill: "rgba(250,252,254,0.99)",
+        centerStroke: "rgba(214,220,228,0.6)",
+        signLine: "rgba(120,124,132,0.18)",
+        majorTick: "rgba(130,136,146,0.22)",
+        minorTick: "rgba(130,136,146,0.08)",
+        degreeLabel: "rgba(124,130,138,0.46)",
+        houseLine: "rgba(150,154,162,0.14)",
+        houseTick: "rgba(138,142,150,0.10)",
+        houseNumberOpacity: "0.64",
+        axisColor: "#6f747c",
+        axisCrossOpacity: "0.78",
+        axisGuideOpacity: "0.66",
+        axisLabelOpacity: "0.56",
+        natalConnector: "rgba(128,128,123,0.42)",
+        transitConnector: "rgba(128,128,123,0.46)",
+        aspectOpacityScale: 1,
+        transitAspectOpacityScale: 1
+      },
+      returns: null,
+      directions: null,
+      periods: null
+    };
+    themeStyles.returns = themeStyles.natal;
+    themeStyles.directions = themeStyles.natal;
+    themeStyles.periods = themeStyles.natal;
+    const theme = themeStyles[displayTheme] || themeStyles.natal;
+    const variantStyles = {
+      "solar-return": {
+        innerGuideRadius: 188,
+        innerGuideDash: "1 0",
+        innerGuideOpacity: 0.26,
+        outerGuideRadius: 246,
+        outerGuideDash: "2 3",
+        outerGuideOpacity: 0.24,
+        accentTickEvery: 30,
+        accentTickOpacity: 0.3,
+        natalGlyphSize: 21.8,
+        overlayGlyphSize: 22.5,
+        connectorWidth: 0.88,
+        connectorOpacity: 0.92,
+        aspectWidthScale: 1.06,
+        transitAspectWidthScale: 1.02
+      },
+      "lunar-return": {
+        innerGuideRadius: 190,
+        innerGuideDash: "1.5 3.2",
+        innerGuideOpacity: 0.24,
+        outerGuideRadius: 244,
+        outerGuideDash: "1.5 2.8",
+        outerGuideOpacity: 0.2,
+        accentTickEvery: 15,
+        accentTickOpacity: 0.22,
+        natalGlyphSize: 21.4,
+        overlayGlyphSize: 22.1,
+        connectorWidth: 0.84,
+        connectorOpacity: 0.88,
+        aspectWidthScale: 0.98,
+        transitAspectWidthScale: 0.98
+      },
+      secondary: {
+        innerGuideRadius: 186,
+        innerGuideDash: "4 3",
+        innerGuideOpacity: 0.22,
+        outerGuideRadius: 242,
+        outerGuideDash: "1 0",
+        outerGuideOpacity: 0.16,
+        accentTickEvery: 30,
+        accentTickOpacity: 0.18,
+        natalGlyphSize: 21.2,
+        overlayGlyphSize: 22.3,
+        connectorWidth: 0.82,
+        connectorOpacity: 0.84,
+        aspectWidthScale: 0.94,
+        transitAspectWidthScale: 0.9
+      },
+      tertiary: {
+        innerGuideRadius: 184,
+        innerGuideDash: "2 2",
+        innerGuideOpacity: 0.24,
+        outerGuideRadius: 240,
+        outerGuideDash: "2 2",
+        outerGuideOpacity: 0.18,
+        accentTickEvery: 10,
+        accentTickOpacity: 0.2,
+        natalGlyphSize: 20.8,
+        overlayGlyphSize: 21.8,
+        connectorWidth: 0.78,
+        connectorOpacity: 0.8,
+        aspectWidthScale: 0.88,
+        transitAspectWidthScale: 0.84
+      },
+      "solar-arc": {
+        innerGuideRadius: 182,
+        innerGuideDash: "6 3",
+        innerGuideOpacity: 0.24,
+        outerGuideRadius: 242,
+        outerGuideDash: "1 0",
+        outerGuideOpacity: 0.18,
+        accentTickEvery: 45,
+        accentTickOpacity: 0.24,
+        natalGlyphSize: 21.6,
+        overlayGlyphSize: 22.7,
+        connectorWidth: 0.9,
+        connectorOpacity: 0.9,
+        aspectWidthScale: 1.08,
+        transitAspectWidthScale: 1.04
+      },
+      firdaria: {
+        innerGuideRadius: 192,
+        innerGuideDash: "1 0",
+        innerGuideOpacity: 0.12,
+        outerGuideRadius: 232,
+        outerGuideDash: "8 4",
+        outerGuideOpacity: 0.24,
+        accentTickEvery: 60,
+        accentTickOpacity: 0.22,
+        natalGlyphSize: 20.9,
+        overlayGlyphSize: 21.9,
+        connectorWidth: 0.74,
+        connectorOpacity: 0.74,
+        aspectWidthScale: 0.76,
+        transitAspectWidthScale: 0.72
+      },
+      profections: {
+        innerGuideRadius: 194,
+        innerGuideDash: "3 4",
+        innerGuideOpacity: 0.18,
+        outerGuideRadius: 234,
+        outerGuideDash: "3 4",
+        outerGuideOpacity: 0.2,
+        accentTickEvery: 30,
+        accentTickOpacity: 0.24,
+        natalGlyphSize: 21,
+        overlayGlyphSize: 22,
+        connectorWidth: 0.76,
+        connectorOpacity: 0.78,
+        aspectWidthScale: 0.82,
+        transitAspectWidthScale: 0.78
+      }
+    };
+    const variant = variantStyles[displayVariant] || null;
+    const natalGlyphSize = variant?.natalGlyphSize || 21;
+    const overlayGlyphSize = variant?.overlayGlyphSize || 22.5;
+    const connectorWidth = variant?.connectorWidth || 0.82;
+    const connectorOpacity = variant?.connectorOpacity || 0.88;
+    const aspectWidthScale = variant?.aspectWidthScale || 1;
+    const transitAspectWidthScale = variant?.transitAspectWidthScale || 1;
     function longitudeToSvgAngle(longitude) {
       const relative = normalizeAngle(longitude - natal.angles.asc);
       return (180 + relative) * Math.PI / 180;
@@ -1024,6 +1096,24 @@
     }
     function polarY(angle, radius) {
       return cy - Math.sin(angle) * radius;
+    }
+    function radialAnchorForGlyph(angle, radius) {
+      return {
+        x: polarX(angle, radius),
+        y: polarY(angle, radius)
+      };
+    }
+    function connectorEndBeforeGlyph(x1, y1, x2, y2, glyphClearance = 12.5) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const distance = Math.hypot(dx, dy);
+      if (!distance) return { x: x1, y: y1 };
+      const usable = Math.max(0, distance - glyphClearance);
+      const ratio = usable / distance;
+      return {
+        x: x1 + dx * ratio,
+        y: y1 + dy * ratio
+      };
     }
     function zodiacBadge(x, y, index) {
       const stroke = signUiColor(index);
@@ -1040,17 +1130,30 @@
       const span = normalizeAngle(end - start);
       return normalizeAngle(start + span / 2);
     }
+    function minimallySeparateLongitudes(cluster, minGap) {
+      if (!cluster.length) return [];
+      const adjusted = cluster.map((item) => item.longitude);
+      for (let index = 1; index < adjusted.length; index += 1) {
+        const prev = adjusted[index - 1];
+        if (adjusted[index] - prev < minGap) adjusted[index] = prev + minGap;
+      }
+      const originalCenter = cluster.reduce((sum, item) => sum + item.longitude, 0) / cluster.length;
+      const adjustedCenter = adjusted.reduce((sum, value) => sum + value, 0) / adjusted.length;
+      const drift = adjustedCenter - originalCenter;
+      return adjusted.map((value) => value - drift);
+    }
     function distributeGlyphs(points, glyphRadii, anchorRadius) {
       const sorted = points.map((point, index) => ({ ...point, originalIndex: index })).sort((left, right) => left.longitude - right.longitude);
       const placements = new Array(points.length);
       let cluster = [];
       function flushCluster() {
         if (!cluster.length) return;
+        const adjustedLongitudes = minimallySeparateLongitudes(cluster, 1.35);
         cluster.forEach((item, index) => {
           const layer = index % glyphRadii.length;
-          const shift = (index - (cluster.length - 1) / 2) * 7.4;
+          const displayedLongitude = adjustedLongitudes[index];
           placements[item.originalIndex] = {
-            angle: longitudeToSvgAngle(normalizeAngle(item.longitude + shift)),
+            angle: longitudeToSvgAngle(normalizeAngle(displayedLongitude)),
             radius: glyphRadii[layer],
             anchorAngle: longitudeToSvgAngle(item.longitude),
             anchorRadius
@@ -1064,7 +1167,7 @@
           return;
         }
         const prev = sorted[index - 1];
-        if (angleDistance(item.longitude, prev.longitude) < 8.5) {
+        if (angleDistance(item.longitude, prev.longitude) < 2.4) {
           cluster.push(item);
         } else {
           flushCluster();
@@ -1074,18 +1177,54 @@
       flushCluster();
       return placements;
     }
-    function aspectLine(pointA, pointB, color, radius, highlighted = false) {
-      const angleA = longitudeToSvgAngle(pointA.longitude);
-      const angleB = longitudeToSvgAngle(pointB.longitude);
+    function distributeGlyphsOnTrack(points, glyphRadius, anchorRadius) {
+      const sorted = points.map((point, index) => ({ ...point, originalIndex: index })).sort((left, right) => left.longitude - right.longitude);
+      const placements = new Array(points.length);
+      let cluster = [];
+      function flushCluster() {
+        if (!cluster.length) return;
+        const adjustedLongitudes = minimallySeparateLongitudes(cluster, 5.6);
+        cluster.forEach((item, index) => {
+          const displayedLongitude = adjustedLongitudes[index];
+          placements[item.originalIndex] = {
+            angle: longitudeToSvgAngle(normalizeAngle(displayedLongitude)),
+            radius: glyphRadius,
+            anchorAngle: longitudeToSvgAngle(item.longitude),
+            anchorRadius
+          };
+        });
+        cluster = [];
+      }
+      sorted.forEach((item, index) => {
+        if (!cluster.length) {
+          cluster.push(item);
+          return;
+        }
+        const prev = sorted[index - 1];
+        if (angleDistance(item.longitude, prev.longitude) < 5.8) {
+          cluster.push(item);
+        } else {
+          flushCluster();
+          cluster.push(item);
+        }
+      });
+      flushCluster();
+      return placements;
+    }
+    function aspectLineCoords(x1, y1, x2, y2, aspect, highlighted = false, dash = "", isTransit = false) {
+      const baseOpacity = aspectStrokeOpacity(aspect, highlighted, isTransit);
+      const themeOpacity = isTransit ? theme.transitAspectOpacityScale : theme.aspectOpacityScale;
+      const widthScale = isTransit ? transitAspectWidthScale : aspectWidthScale;
       return `
       <line
-        x1="${polarX(angleA, radius)}"
-        y1="${polarY(angleA, radius)}"
-        x2="${polarX(angleB, radius)}"
-        y2="${polarY(angleB, radius)}"
-        stroke="${color}"
-        stroke-width="${highlighted ? 1.85 : 0.92}"
-        stroke-opacity="${highlighted ? 0.9 : 0.46}"
+        x1="${x1}"
+        y1="${y1}"
+        x2="${x2}"
+        y2="${y2}"
+        stroke="${aspect.color}"
+        stroke-width="${(aspectStrokeWidth(aspect, highlighted, isTransit) * widthScale).toFixed(2)}"
+        stroke-opacity="${Math.max(0.08, Math.min(1, baseOpacity * themeOpacity))}"
+        stroke-dasharray="${dash}"
       />
     `;
     }
@@ -1096,7 +1235,7 @@
       const lx = polarX(labelAngle, (outer + signInner) / 2);
       const ly = polarY(labelAngle, (outer + signInner) / 2);
       return `
-      <line x1="${polarX(angle, signInner)}" y1="${polarY(angle, signInner)}" x2="${polarX(angle, outer)}" y2="${polarY(angle, outer)}" stroke="rgba(120,124,132,0.18)" stroke-width="0.95"/>
+      <line x1="${polarX(angle, signInner)}" y1="${polarY(angle, signInner)}" x2="${polarX(angle, outer)}" y2="${polarY(angle, outer)}" stroke="${theme.signLine}" stroke-width="0.95"/>
       ${zodiacBadge(lx, ly, index)}
     `;
     }).join("");
@@ -1106,14 +1245,19 @@
       const isMajor = index % 6 === 0;
       const r1 = outer - (isMajor ? 10 : 5);
       const r2 = outer - 1;
-      return `<line x1="${polarX(angle, r1)}" y1="${polarY(angle, r1)}" x2="${polarX(angle, r2)}" y2="${polarY(angle, r2)}" stroke="rgba(130,136,146,${isMajor ? "0.22" : "0.08"})" stroke-width="${isMajor ? "0.95" : "0.62"}"/>`;
+      return `<line x1="${polarX(angle, r1)}" y1="${polarY(angle, r1)}" x2="${polarX(angle, r2)}" y2="${polarY(angle, r2)}" stroke="${isMajor ? theme.majorTick : theme.minorTick}" stroke-width="${isMajor ? "0.95" : "0.62"}"/>`;
     }).join("");
+    const variantTicks = variant ? Array.from({ length: Math.floor(360 / variant.accentTickEvery) }, (_, index) => {
+      const longitude = index * variant.accentTickEvery;
+      const angle = longitudeToSvgAngle(longitude);
+      return `<line x1="${polarX(angle, outer - 14)}" y1="${polarY(angle, outer - 14)}" x2="${polarX(angle, outer - 2)}" y2="${polarY(angle, outer - 2)}" stroke="${theme.axisColor}" stroke-opacity="${variant.accentTickOpacity}" stroke-width="0.9"/>`;
+    }).join("") : "";
     const degreeLabels = Array.from({ length: 36 }, (_, index) => {
       const longitude = index * 10;
       const angle = longitudeToSvgAngle(longitude);
       const label = String(longitude % 30).padStart(2, "0");
       return `
-      <text x="${polarX(angle, outer - 19)}" y="${polarY(angle, outer - 19)}" text-anchor="middle" dominant-baseline="middle" font-size="6.6" letter-spacing="0.02em" fill="rgba(124,130,138,0.46)">${label}</text>
+      <text x="${polarX(angle, outer - 19)}" y="${polarY(angle, outer - 19)}" text-anchor="middle" dominant-baseline="middle" font-size="6.6" letter-spacing="0.02em" fill="${theme.degreeLabel}">${label}</text>
     `;
     }).join("");
     const houseMarks = natal.houses.map((house) => {
@@ -1121,62 +1265,78 @@
       const labelAngle = longitudeToSvgAngle(houseMidpoint(house.start, house.end));
       const houseNumberRadius = (houseInner + centerField) / 2;
       return `
-      <line x1="${polarX(angle, centerField)}" y1="${polarY(angle, centerField)}" x2="${polarX(angle, signInner)}" y2="${polarY(angle, signInner)}" stroke="rgba(150,154,162,0.24)" stroke-width="0.9"/>
-      <line x1="${polarX(angle, houseInner - 6)}" y1="${polarY(angle, houseInner - 6)}" x2="${polarX(angle, houseInner + 6)}" y2="${polarY(angle, houseInner + 6)}" stroke="rgba(138,142,150,0.18)" stroke-width="0.95" stroke-linecap="round"/>
-      <text x="${polarX(labelAngle, houseNumberRadius)}" y="${polarY(labelAngle, houseNumberRadius)}" text-anchor="middle" dominant-baseline="middle" font-size="9.4" font-weight="600" letter-spacing="0.01em" fill="${houseUiColor(house.house)}" fill-opacity="0.94">${house.house}</text>
+      <line x1="${polarX(angle, centerField)}" y1="${polarY(angle, centerField)}" x2="${polarX(angle, signInner)}" y2="${polarY(angle, signInner)}" stroke="${theme.houseLine}" stroke-width="0.72"/>
+      <line x1="${polarX(angle, houseInner - 5)}" y1="${polarY(angle, houseInner - 5)}" x2="${polarX(angle, houseInner + 5)}" y2="${polarY(angle, houseInner + 5)}" stroke="${theme.houseTick}" stroke-width="0.72" stroke-linecap="round"/>
+      <text x="${polarX(labelAngle, houseNumberRadius)}" y="${polarY(labelAngle, houseNumberRadius)}" text-anchor="middle" dominant-baseline="middle" font-size="8.1" font-weight="520" letter-spacing="0.01em" fill="${houseUiColor(house.house)}" fill-opacity="${theme.houseNumberOpacity}">${house.house}</text>
     `;
     }).join("");
     const natalVisiblePlanets = filterPoints(natal.planets);
     const layerMode = selectedWheelLayer();
     const planetTrackRadius = (signInner + houseInner) / 2;
-    const natalPlacements = distributeGlyphs(natalVisiblePlanets, [160, 146, 132], planetTrackRadius);
+    const natalPlacements = distributeGlyphsOnTrack(natalVisiblePlanets, 181, planetTrackRadius);
+    const natalAnchorTrackRadius = 156;
+    const natalAnchorMap = new Map(natalVisiblePlanets.map((planet, index) => {
+      const anchor = radialAnchorForGlyph(longitudeToSvgAngle(planet.longitude), natalAnchorTrackRadius);
+      return [planet.key, anchor];
+    }));
     const natalAspects = filterAspectsByMode(calculateAspects(natalVisiblePlanets, natalVisiblePlanets, true)).slice(0, 24);
-    const natalAspectLines = showAspectLines() && layerMode !== "transit" ? natalAspects.map((aspect) => aspectLine(aspect.a, aspect.b, aspect.color, centerField - 10, isFocusedAspect(aspect))).join("") : "";
+    const natalAspectLines = showAspectLines() && layerMode !== "transit" ? natalAspects.map((aspect) => {
+      const a = natalAnchorMap.get(aspect.a.key);
+      const b = natalAnchorMap.get(aspect.b.key);
+      if (!a || !b) return "";
+      return aspectLineCoords(a.x, a.y, b.x, b.y, aspect, isFocusedAspect(aspect));
+    }).join("") : "";
     const natalGlyphs = layerMode === "transit" ? "" : natalVisiblePlanets.map((planet, index) => {
       const placement = natalPlacements[index];
       const x = polarX(placement.angle, placement.radius);
       const y = polarY(placement.angle, placement.radius);
-      const anchorX = polarX(placement.anchorAngle, placement.anchorRadius);
-      const anchorY = polarY(placement.anchorAngle, placement.anchorRadius);
+      const trackX = polarX(placement.anchorAngle, placement.anchorRadius);
+      const trackY = polarY(placement.anchorAngle, placement.anchorRadius);
+      const anchor = natalAnchorMap.get(planet.key);
+      const connectorEnd = connectorEndBeforeGlyph(anchor.x, anchor.y, x, y, 12.5);
       return `
       <g data-wheel-point="${planet.key}" data-wheel-scope="natal">
-        <circle cx="${anchorX}" cy="${anchorY}" r="2.3" fill="${modernPlanetColor(planet.key)}" fill-opacity="0.62"/>
-        ${renderPlanetGlyph(planet, x, y, 21, modernPlanetColor(planet.key))}
+        <circle cx="${trackX}" cy="${trackY}" r="1.7" fill="${natalPlanetTone(planet.key)}" fill-opacity="0.46"/>
+        <line x1="${anchor.x}" y1="${anchor.y}" x2="${connectorEnd.x}" y2="${connectorEnd.y}" stroke="${theme.natalConnector}" stroke-opacity="${connectorOpacity}" stroke-width="${connectorWidth}"/>
+        <circle cx="${anchor.x}" cy="${anchor.y}" r="2.05" fill="${natalPlanetTone(planet.key)}" fill-opacity="0.92"/>
+        ${renderPlanetGlyph(planet, x, y, natalGlyphSize, natalPlanetTone(planet.key))}
         <circle class="chart-hit-target" cx="${x}" cy="${y}" r="19" fill="transparent"/>
       </g>
     `;
     }).join("");
-    const transitVisiblePlanets = transit ? filterPoints(transit.planets) : [];
-    const transitPlacements = transit ? distributeGlyphs(transitVisiblePlanets, [118, 106], planetTrackRadius) : [];
-    const transitToNatalAspects = transit ? filterAspectsByMode(calculateAspects(transitVisiblePlanets, natalVisiblePlanets)).slice(0, 18) : [];
-    const transitAspectLines = showAspectLines() && transit && layerMode === "both" ? transitToNatalAspects.map((aspect) => {
-      const angleA = longitudeToSvgAngle(aspect.a.longitude);
-      const angleB = longitudeToSvgAngle(aspect.b.longitude);
+    const transitVisiblePlanets = overlayState ? filterPoints(overlayState.planets) : [];
+    const transitOuter = 318;
+    const transitInner = 296;
+    const transitPlacements = overlayState ? distributeGlyphsOnTrack(transitVisiblePlanets, 308, transitInner) : [];
+    const transitAnchorTrackRadius = 296;
+    const transitAnchorMap = new Map(transitVisiblePlanets.map((planet, index) => {
+      const anchor = radialAnchorForGlyph(longitudeToSvgAngle(planet.longitude), transitAnchorTrackRadius);
+      return [planet.key, anchor];
+    }));
+    const transitToNatalAspects = overlayState ? filterAspectsByMode(calculateAspects(transitVisiblePlanets, natalVisiblePlanets)).slice(0, 18) : [];
+    const transitAspectLines = showAspectLines() && overlayState && layerMode !== "natal" ? transitToNatalAspects.map((aspect) => {
+      const a = transitAnchorMap.get(aspect.a.key);
+      const b = natalAnchorMap.get(aspect.b.key);
+      if (!a || !b) return "";
       const highlighted = isFocusedAspect(aspect);
-      return `
-      <line
-        x1="${polarX(angleA, 258)}"
-        y1="${polarY(angleA, 258)}"
-        x2="${polarX(angleB, 170)}"
-        y2="${polarY(angleB, 170)}"
-        stroke="${aspect.color}"
-        stroke-width="${highlighted ? 1.8 : 0.88}"
-        stroke-opacity="${highlighted ? 0.82 : 0.3}"
-        stroke-dasharray="3 4"
-      />
-    `;
+      return aspectLineCoords(a.x, a.y, b.x, b.y, aspect, highlighted, overlayIsCompare ? "4 3" : "3 4", true);
     }).join("") : "";
-    const transitGlyphs = transit && layerMode !== "natal" ? transitVisiblePlanets.map((planet, index) => {
+    const transitGlyphs = overlayState && layerMode !== "natal" ? transitVisiblePlanets.map((planet, index) => {
       const placement = transitPlacements[index];
       const x = polarX(placement.angle, placement.radius);
       const y = polarY(placement.angle, placement.radius);
-      const anchorX = polarX(placement.anchorAngle, placement.anchorRadius);
-      const anchorY = polarY(placement.anchorAngle, placement.anchorRadius);
+      const trackX = polarX(placement.anchorAngle, placement.anchorRadius);
+      const trackY = polarY(placement.anchorAngle, placement.anchorRadius);
+      const anchor = transitAnchorMap.get(planet.key);
+      const overlayColor = overlayIsCompare ? comparePlanetColor() : transitPlanetColor();
+      const connectorEnd = connectorEndBeforeGlyph(anchor.x, anchor.y, x, y, 12.5);
       return `
       <g data-wheel-point="${planet.key}" data-wheel-scope="transit">
-        <circle cx="${anchorX}" cy="${anchorY}" r="2.1" fill="#5e8fda" fill-opacity="0.54"/>
-        ${renderPlanetGlyph(planet, x, y, 18, "#5e8fda")}
-        <circle class="chart-hit-target" cx="${x}" cy="${y}" r="18" fill="transparent"/>
+        <circle cx="${trackX}" cy="${trackY}" r="1.8" fill="${overlayColor}" fill-opacity="0.44"/>
+        <line x1="${anchor.x}" y1="${anchor.y}" x2="${connectorEnd.x}" y2="${connectorEnd.y}" stroke="${theme.transitConnector}" stroke-opacity="${Math.max(0.68, connectorOpacity - 0.04)}" stroke-width="${(connectorWidth + 0.04).toFixed(2)}"/>
+        <circle cx="${anchor.x}" cy="${anchor.y}" r="2.15" fill="${overlayColor}" fill-opacity="0.96"/>
+        ${renderPlanetGlyph(planet, x, y, overlayGlyphSize, overlayColor)}
+        <circle class="chart-hit-target" cx="${x}" cy="${y}" r="20" fill="transparent"/>
       </g>
     `;
     }).join("") : "";
@@ -1189,28 +1349,33 @@
     const axisOuter = outer + 8;
     const axisInner = centerField;
     const cardinalTicks = [
-      { angle: ascAngle, short: "Asc", color: "#6f747c", width: 2.25, dash: "", dot: 4.2 },
-      { angle: dscAngle, short: "Dsc", color: "#6f747c", width: 1.55, dash: "", dot: 3.4 },
-      { angle: mcAngle, short: "MC", color: "#6f747c", width: 2.25, dash: "", dot: 4.2 },
-      { angle: icAngle, short: "IC", color: "#6f747c", width: 1.55, dash: "", dot: 3.4 }
+      { angle: ascAngle, short: "Asc", color: theme.axisColor, width: 2.25, dash: "", dot: 4.2 },
+      { angle: dscAngle, short: "Dsc", color: theme.axisColor, width: 1.55, dash: "", dot: 3.4 },
+      { angle: mcAngle, short: "MC", color: theme.axisColor, width: 2.25, dash: "", dot: 4.2 },
+      { angle: icAngle, short: "IC", color: theme.axisColor, width: 1.55, dash: "", dot: 3.4 }
     ];
     const cardinalGuides = showAxisLines ? cardinalTicks.map((item) => `
-      <line x1="${polarX(item.angle, axisInner)}" y1="${polarY(item.angle, axisInner)}" x2="${polarX(item.angle, axisOuter)}" y2="${polarY(item.angle, axisOuter)}" stroke="${item.color}" stroke-width="${item.width}" stroke-dasharray="${item.dash}" stroke-linecap="round" stroke-opacity="0.82"/>
-      <path d="M ${polarX(item.angle, axisOuter + 8)} ${polarY(item.angle, axisOuter + 8)} L ${polarX(item.angle - 0.03, axisOuter + 2)} ${polarY(item.angle - 0.03, axisOuter + 2)} L ${polarX(item.angle + 0.03, axisOuter + 2)} ${polarY(item.angle + 0.03, axisOuter + 2)} Z" fill="${item.color}" fill-opacity="0.88"/>
-      <text x="${polarX(item.angle, axisOuter + 24)}" y="${polarY(item.angle, axisOuter + 24)}" text-anchor="middle" dominant-baseline="middle" font-size="8.8" letter-spacing="0.04em" fill="${item.color}">${item.short}</text>
+      <line x1="${polarX(item.angle, axisInner)}" y1="${polarY(item.angle, axisInner)}" x2="${polarX(item.angle, axisOuter)}" y2="${polarY(item.angle, axisOuter)}" stroke="${item.color}" stroke-width="${item.width - 0.46}" stroke-dasharray="${item.dash}" stroke-linecap="round" stroke-opacity="${theme.axisGuideOpacity}"/>
+      <text x="${polarX(item.angle, axisOuter + 16)}" y="${polarY(item.angle, axisOuter + 16)}" text-anchor="middle" dominant-baseline="middle" font-size="6.4" letter-spacing="0.04em" fill="${item.color}" fill-opacity="${theme.axisLabelOpacity}">${item.short}</text>
     `).join("") : "";
     const axisCross = showAxisLines ? `
-      <line x1="${polarX(ascAngle, axisOuter)}" y1="${polarY(ascAngle, axisOuter)}" x2="${polarX(dscAngle, axisOuter)}" y2="${polarY(dscAngle, axisOuter)}" stroke="#6f747c" stroke-width="1.6" stroke-linecap="round"/>
-      <line x1="${polarX(mcAngle, axisOuter)}" y1="${polarY(mcAngle, axisOuter)}" x2="${polarX(icAngle, axisOuter)}" y2="${polarY(icAngle, axisOuter)}" stroke="#6f747c" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="${polarX(ascAngle, axisOuter)}" y1="${polarY(ascAngle, axisOuter)}" x2="${polarX(dscAngle, axisOuter)}" y2="${polarY(dscAngle, axisOuter)}" stroke="${theme.axisColor}" stroke-width="1.14" stroke-linecap="round" stroke-opacity="${theme.axisCrossOpacity}"/>
+      <line x1="${polarX(mcAngle, axisOuter)}" y1="${polarY(mcAngle, axisOuter)}" x2="${polarX(icAngle, axisOuter)}" y2="${polarY(icAngle, axisOuter)}" stroke="${theme.axisColor}" stroke-width="1.14" stroke-linecap="round" stroke-opacity="${theme.axisCrossOpacity}"/>
+    ` : "";
+    const variantGuides = variant ? `
+      <circle cx="${cx}" cy="${cy}" r="${variant.outerGuideRadius}" fill="none" stroke="${theme.axisColor}" stroke-opacity="${variant.outerGuideOpacity}" stroke-width="0.9" stroke-dasharray="${variant.outerGuideDash}"/>
+      <circle cx="${cx}" cy="${cy}" r="${variant.innerGuideRadius}" fill="none" stroke="${theme.axisColor}" stroke-opacity="${variant.innerGuideOpacity}" stroke-width="0.84" stroke-dasharray="${variant.innerGuideDash}"/>
     ` : "";
     const wheelMarkup = `
     <rect x="0" y="0" width="${size}" height="${size}" fill="transparent"/>
-    <circle cx="${cx}" cy="${cy}" r="${outer}" fill="rgba(243,245,248,0.98)" stroke="rgba(202,208,216,0.68)"/>
-    <circle cx="${cx}" cy="${cy}" r="${signInner}" fill="rgba(253,254,255,0.99)" stroke="rgba(213,218,226,0.82)"/>
-    <circle cx="${cx}" cy="${cy}" r="${houseInner}" fill="rgba(254,254,255,0.99)" stroke="rgba(205,211,219,0.76)"/>
-    <circle cx="${cx}" cy="${cy}" r="${centerField}" fill="rgba(250,252,254,0.99)" stroke="rgba(214,220,228,0.6)"/>
+    <circle cx="${cx}" cy="${cy}" r="${outer}" fill="${theme.outerFill}" stroke="${theme.outerStroke}"/>
+    <circle cx="${cx}" cy="${cy}" r="${signInner}" fill="${theme.signFill}" stroke="${theme.signStroke}"/>
+    <circle cx="${cx}" cy="${cy}" r="${houseInner}" fill="${theme.houseFill}" stroke="${theme.houseStroke}"/>
+    <circle cx="${cx}" cy="${cy}" r="${centerField}" fill="${theme.centerFill}" stroke="${theme.centerStroke}"/>
     ${axisCross}
+    ${variantGuides}
     ${minorTicks}
+    ${variantTicks}
     ${degreeLabels}
     ${signMarks}
     ${houseMarks}
@@ -1220,57 +1385,26 @@
     ${natalGlyphs}
     ${transitGlyphs}
   `;
-    if (astroWheelWrap) {
-      astroWheelWrap.innerHTML = `<svg ${svgAttrs}>${wheelMarkup}</svg>`;
-      astroWheel = document.querySelector("#astro-wheel");
-      bindWheelInteraction();
+    if (targetWrap) {
+      const targetId = String(targetWheel.getAttribute("id") || "astro-wheel");
+      const ariaLabel = String(targetWheel.getAttribute("aria-label") || "占星轮盘");
+      targetWrap.innerHTML = `<svg id="${targetId}" viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${ariaLabel}" width="${size}" height="${size}">${wheelMarkup}</svg>`;
+      if (targetId === "astro-wheel") {
+        astroWheel = document.querySelector("#astro-wheel");
+        astroWheelWrap = document.querySelector("#astro-main-wheel-wrap");
+        bindWheelInteraction();
+      } else if (targetId === "astro-left-wheel") {
+        astroLeftWheel = document.querySelector("#astro-left-wheel");
+      } else if (targetId === "astro-right-wheel") {
+        astroRightWheel = document.querySelector("#astro-right-wheel");
+      }
     } else {
-      astroWheel.innerHTML = wheelMarkup;
+      targetWheel.innerHTML = wheelMarkup;
     }
-    const bboxWidth = astroWheel?.clientWidth || 0;
-    const bboxHeight = astroWheel?.clientHeight || 0;
-    renderWheelDiagnostics([
-      "wheel: rendered",
-      `city: ${centerCity || "-"}`,
-      `natalPoints: ${natalVisiblePlanets.length}`,
-      `transitPoints: ${transitVisiblePlanets.length}`,
-      `markupLength: ${wheelMarkup.length}`,
-      `svgWidth: ${bboxWidth}`,
-      `svgHeight: ${bboxHeight}`,
-      `childNodes: ${astroWheel?.childNodes?.length || 0}`
-    ]);
-    renderWheelLegend();
-    renderFocusedPoint();
-  }
-  function buildNatalSummary(natal) {
-    const sun = natal.planets.find((item) => item.key === "sun");
-    const moon = natal.planets.find((item) => item.key === "moon");
-    const jupiter = natal.planets.find((item) => item.key === "jupiter");
-    const sunText = `${sun?.signInfo?.sign || ""} ${sun?.signInfo?.degree?.toFixed?.(1) || "0.0"}\xB0`;
-    const moonText = `${moon?.signInfo?.sign || ""} ${moon?.signInfo?.degree?.toFixed?.(1) || "0.0"}\xB0`;
-    const jupiterText = `${jupiter?.signInfo?.sign || ""} ${jupiter?.signInfo?.degree?.toFixed?.(1) || "0.0"}\xB0`;
-    if (natal.mode === "live") {
-      return `${natal.city} \xB7 ${formatDateHuman(natal.date, natal.tz)}\u3002\u5F53\u524D\u592A\u9633 ${sunText}\uFF0C\u6708\u4EAE ${moonText}\uFF0C\u6728\u661F ${jupiterText}\u3002\u4E0A\u5347 ${formatLongitude(natal.angles.asc)}\uFF0CMC ${formatLongitude(natal.angles.mc)}\u3002`;
+    if (!options.silent) {
+      renderWheelLegend();
+      renderFocusedPoint();
     }
-    return `${natal.name} \xB7 ${natal.city} \xB7 ${formatDateHuman(natal.date, natal.tz)}\u3002\u592A\u9633 ${sunText}\uFF0C\u6708\u4EAE ${moonText}\uFF0C\u6728\u661F ${jupiterText}\u3002\u4E0A\u5347 ${formatLongitude(natal.angles.asc)}\uFF0CMC ${formatLongitude(natal.angles.mc)}\u3002`;
-  }
-  function buildTransitSummary(transit) {
-    if (!transit) return "\u5F85\u8BA1\u7B97\u3002";
-    const heavy = transit.aspects.filter((item) => ["conjunction", "opposition", "square"].includes(item.key)).slice(0, 3);
-    const headline = heavy.length ? heavy.map((item) => `${item.a.label}${item.label}${item.b.label}`).join("\u3001") : "\u8FD9\u4E00\u5929\u6CA1\u6709\u7279\u522B\u786C\u7684\u8FC7\u76D8\u9876\u70B9";
-    return `${formatDateHuman(transit.date, transit.tz)}\u3002\u5F53\u524D\u6700\u503C\u5F97\u770B\u7684\u8FC7\u76D8\u662F\uFF1A${headline}\u3002`;
-  }
-  function buildTransitJudgement(transit) {
-    if (!transit) return "\u5F85\u8BA1\u7B97\u3002";
-    const heavy = transit.aspects.filter((item) => ["conjunction", "opposition", "square"].includes(item.key));
-    const supportive = transit.aspects.filter((item) => ["trine", "sextile"].includes(item.key));
-    if (heavy.some((item) => item.b.key === "sun" || item.b.key === "moon")) {
-      return "\u8FD9\u6BB5\u65F6\u95F4\u66F4\u50CF\u88AB\u786C\u9876\uFF1A\u5173\u7CFB\u3001\u5DE5\u4F5C\u63A8\u8FDB\u3001\u8EAB\u4F53\u8282\u5F8B\u91CC\uFF0C\u81F3\u5C11\u6709\u4E00\u6761\u4F1A\u903C\u4F60\u7ACB\u8FB9\u754C\u3002\u5148\u770B\u54EA\u6761\u7EBF\u6700\u8017\u4F60\u3002";
-    }
-    if (supportive.some((item) => item.b.key === "jupiter" || item.b.key === "venus")) {
-      return "\u8FD9\u6BB5\u65F6\u95F4\u66F4\u50CF\u53EF\u501F\u52BF\uFF1A\u9002\u5408\u63A8\u8FDB\u4F5C\u54C1\u3001\u6C9F\u901A\u3001\u5F00\u53E3\u3001\u8BA9\u4E8B\u60C5\u6D41\u52A8\uFF0C\u4F46\u522B\u628A\u987A\u6ED1\u8BEF\u5224\u6210\u5DF2\u7ECF\u5F7B\u5E95\u7A33\u5B9A\u3002";
-    }
-    return "\u8FD9\u4E0D\u662F\u7279\u522B\u620F\u5267\u7684\u4E00\u6BB5\uFF0C\u66F4\u50CF\u5E95\u6D41\u5728\u52A8\u3002\u9002\u5408\u89C2\u5BDF\uFF0C\u4E0D\u9002\u5408\u628A\u4EFB\u4F55\u4E00\u4E2A\u6CE2\u52A8\u5938\u5927\u6210\u547D\u8FD0\u7ED3\u8BBA\u3002";
   }
   async function resolveNatalCity() {
     const city = String(astroCity?.value || "").trim();
@@ -1320,10 +1454,10 @@
     }
   }
   async function resolveTransitCity() {
-    const city = String(astroTransitCity?.value || "").trim();
+    const city = String(astroCity?.value || "").trim();
     const dateRaw = String(astroTransitDate?.value || "").trim();
     if (!city) {
-      if (astroTransitCityStatus) astroTransitCityStatus.textContent = "\u5148\u8F93\u5165\u67E5\u8BE2\u57CE\u5E02\u3002";
+      if (astroTransitCityStatus) astroTransitCityStatus.textContent = "\u5148\u8F93\u5165\u51FA\u751F\u57CE\u5E02\u3002";
       return;
     }
     if (!dateRaw) {
@@ -1339,34 +1473,13 @@
         applyResolvedTransitCity(results[0]);
         return;
       }
-      renderTransitCityCandidates(results);
       if (astroTransitCityStatus) astroTransitCityStatus.textContent = `\u627E\u5230 ${results.length} \u4E2A\u5019\u9009\u5730\u70B9\u3002\u8BF7\u70B9\u4E00\u4E2A\u4F60\u8981\u7684\u5730\u70B9\u3002`;
     } catch (error) {
       if (astroTransitCityStatus) astroTransitCityStatus.textContent = error instanceof Error ? error.message : "\u5730\u70B9\u6821\u51C6\u5931\u8D25\u3002";
     }
   }
-  async function suggestTransitCities() {
-    const city = String(astroTransitCity?.value || "").trim();
-    if (city.length < 2) {
-      renderTransitCityCandidates([]);
-      return;
-    }
-    try {
-      const dateRaw = String(astroTransitDate?.value || "").trim();
-      let results = [];
-      if (dateRaw) {
-        const [year, month, day] = dateRaw.split("-").map(Number);
-        results = await requestGeocodeCandidates(city, { year, month, day });
-      } else {
-        results = await requestGeocodeCandidates(city);
-      }
-      astroState.transitCityCandidates = results;
-      renderTransitCityCandidates(results);
-    } catch {
-      renderTransitCityCandidates([]);
-    }
-  }
   var recalcToken = 0;
+  var transitShiftRecalcTimer = null;
   async function recalcAstro() {
     const token = ++recalcToken;
     if (astroValidationNote) astroValidationNote.textContent = "\u6B63\u5728\u7528\u65B0\u5360\u661F\u5F15\u64CE\u6392\u76D8...";
@@ -1384,30 +1497,12 @@
         return;
       }
       renderModeLabels(natal);
-      if (astroNatalSummary) astroNatalSummary.textContent = buildNatalSummary(natal);
-      if (astroTransitSummary) astroTransitSummary.textContent = buildTransitSummary(astroState.transit);
-      if (astroTransitJudgement) astroTransitJudgement.textContent = buildTransitJudgement(astroState.transit);
       if (astroHouseNote) {
-        astroHouseNote.textContent = natal.mode === "live" ? "\u672C\u547D\u8D44\u6599\u7559\u7A7A\u65F6\uFF0C\u8FD9\u91CC\u663E\u793A\u5F53\u524D\u5B9E\u65F6\u661F\u76D8\uFF1B\u8F93\u5165\u51FA\u751F\u4FE1\u606F\u540E\uFF0C\u518D\u5207\u56DE\u4E2A\u4EBA\u672C\u547D\u76D8\u3002" : "\u5F53\u524D\u7248\u672C\u5DF2\u7ECF\u5207\u5230 Swiss Ephemeris \u65B0\u6838\u5FC3\uFF1B\u4E0A\u5347\u3001\u4E0B\u964D\u3001\u5929\u9876\u3001\u5929\u5E95\u4E0E\u5BAB\u4F4D\u90FD\u4ECE\u65B0\u63A5\u53E3\u76F4\u63A5\u8FD4\u56DE\u3002";
+        astroHouseNote.textContent = "";
       }
-      renderList(astroRuleList, [
-        "Swiss Ephemeris",
-        "\u70ED\u5E26\u9EC4\u9053",
-        natal.rawChart?.input?.houseSystem === "W" ? "Whole Sign \u5BAB\u5236" : "Placidus \u5BAB\u5236",
-        natal.rawChart?.input?.nodeType === "mean" ? "Mean Node" : "True Node",
-        natal.rawChart?.input?.lilithType === "oscu" ? "True Lilith" : "Mean Lilith",
-        selectedPointSet() === "all" ? "\u663E\u793A\u5168\u90E8\u70B9\u4F4D" : selectedPointSet() === "advanced" ? "\u663E\u793A\u6269\u5C55\u70B9\u4F4D" : "\u663E\u793A\u6838\u5FC3\u70B9\u4F4D",
-        `\u5BB9\u8BB8\u5EA6\u7CFB\u6570 ${selectedOrbScale().toFixed(2)}`
-      ], (item) => `<div class="astro-rule-item">${item}</div>`);
       if (astroValidationNote) {
-        astroValidationNote.textContent = `\u5F53\u524D\u63A5\u53E3\uFF1A${getAstroApiBase()}\u3002\u5982\u679C\u8FD9\u91CC\u8FDE\u4E0D\u4E0A\uFF0C\u5360\u661F\u9875\u5C31\u4E0D\u4F1A\u518D\u5077\u5077\u9000\u56DE\u65E7\u5F15\u64CE\u3002`;
+        astroValidationNote.textContent = "";
       }
-      renderList(astroValidationList, ASTRO_VALIDATION_SAMPLES, (item) => `
-      <div class="astro-item">
-        <span class="astro-item-label">${item.label}</span>
-        <span class="astro-item-value">\u5DEE ${item.diff.toFixed(4)}\xB0</span>
-      </div>
-    `);
       renderPointToggles(natal.planets);
       renderList(astroNatalList, filterPoints(natal.planets), (planet) => `
       <div class="astro-item">
@@ -1415,41 +1510,29 @@
         <span class="astro-item-value">${formatLongitude(planet.longitude)}</span>
       </div>
     `);
-      renderList(astroTransitList, filterPoints(astroState.transit?.planets || []), (planet) => `
+      renderList(astroTransitList, filterPoints((astroState.compareMode ? astroState.compare?.planets : astroState.transit?.planets) || []), (planet) => `
       <div class="astro-item">
         <span class="astro-item-label">${planet.glyph} ${planet.label}${planet.retrograde ? " \xB7 \u9006\u884C" : ""}</span>
         <span class="astro-item-value">${formatLongitude(planet.longitude)}</span>
       </div>
     `);
-      renderList(astroAspectList, filterAspectsByMode(astroState.transit?.aspects || []), (aspect) => `
+      renderList(astroAspectList, filterAspectsByMode((astroState.compareMode ? astroState.compare?.aspects : astroState.transit?.aspects) || []), (aspect) => `
       <div class="astro-item${isFocusedAspect(aspect) ? " active" : ""}" data-aspect-a="${aspect.a.key}" data-aspect-b="${aspect.b.key}" data-aspect-key="${aspect.key}">
         <span class="astro-item-label">${aspect.a.label}${aspect.label}${aspect.b.label}</span>
         <span class="astro-item-value">\u5BB9\u8BB8 ${aspect.orb.toFixed(1)}\xB0</span>
       </div>
     `);
+      window.__mingxianAstroAspectSource = {
+        points: filterPoints(natal.planets),
+        aspects: (astroState.compareMode ? astroState.compare?.aspects?.length : astroState.transit?.aspects?.length) ? filterAspectsByMode((astroState.compareMode ? astroState.compare.aspects : astroState.transit.aspects) || []) : filterAspectsByMode(calculateAspects(filterPoints(natal.planets), filterPoints(natal.planets), true))
+      };
       renderSummaryCard(natal, astroState.transit);
       renderDebugCard(natal);
-      renderWheel(natal, astroState.transit);
-      pushAstroHistoryRecord(natal);
+      renderWheel(natal, astroState.compareMode ? astroState.compare : astroState.transit);
       writeQueryStateToUrl();
     } catch (error) {
       if (token !== recalcToken) return;
-      clearAstroOutputs("\u65B0\u5360\u661F\u5F15\u64CE\u6682\u65F6\u672A\u8FDE\u901A\u3002");
-      if (astroDebugCard) {
-        astroDebugCard.textContent = error instanceof Error ? `${error.message}\n\n${error.stack || ""}` : "\u6392\u76D8\u5931\u8D25\u3002";
-      }
-      renderWheelDiagnostics([
-        "wheel: error",
-        `message: ${error instanceof Error ? error.message : "\u6392\u76D8\u5931\u8D25\u3002"}`,
-        `stack: ${error instanceof Error && error.stack ? error.stack.split("\n").slice(0, 3).join(" | ") : "-"}`,
-        `mode: ${getAstroMode()}`,
-        `hasDate: ${astroDate?.value ? "yes" : "no"}`,
-        `hasTime: ${astroTime?.value ? "yes" : "no"}`,
-        `hasLat: ${astroLat?.value ? "yes" : "no"}`,
-        `hasLon: ${astroLon?.value ? "yes" : "no"}`,
-        `hasTz: ${astroTz?.value ? "yes" : "no"}`,
-        `showTransit: ${astroState.showTransit ? "yes" : "no"}`
-      ]);
+      clearAstroOutputs(error instanceof Error ? error.message : "\u65B0\u5360\u661F\u5F15\u64CE\u6682\u65F6\u672A\u8FDE\u901A\u3002");
       if (astroValidationNote) {
         astroValidationNote.textContent = error instanceof Error ? error.message : "\u6392\u76D8\u5931\u8D25\u3002";
       }
@@ -1459,27 +1542,186 @@
     }
   }
   window.__mingxianRecalcAstro = recalcAstro;
+  window.__mingxianAstroSetMode = (mode, showTransit = false) => {
+    setAstroMode(mode);
+    astroState.showTransit = !!showTransit;
+    if (showTransit && astroWheelLayer) {
+      astroWheelLayer.value = "both";
+    } else if (astroWheelLayer) {
+      astroWheelLayer.value = mode === "live" ? "natal" : "natal";
+    }
+    if (showTransit && astroTransitTz && !String(astroTransitTz.value || "").trim() && astroTz?.value) {
+      astroTransitTz.value = String(astroTz.value || "").trim();
+    }
+    recalcAstro();
+  };
+  window.__mingxianAstroSetCompare = (enabled = false) => {
+    astroState.compareMode = !!enabled;
+    if (!enabled) {
+      astroState.compare = null;
+    }
+    renderWheelLegend();
+    if (astroState.natal) {
+      renderWheel(astroState.natal, astroState.compareMode ? astroState.compare : astroState.transit);
+    }
+  };
+  window.__mingxianAstroSetCompareChart = (chart, context = {}) => {
+    if (!chart) {
+      astroState.compare = null;
+      renderWheelLegend();
+      if (astroState.natal) {
+        renderWheel(astroState.natal, astroState.compareMode ? astroState.compare : astroState.transit);
+      }
+      return;
+    }
+    const compareState = buildNatalStateFromChart("compare", chart, {
+      name: String(context.name || "").trim() || "\u5BF9\u76D8\u5BF9\u8C61",
+      city: String(context.city || "").trim() || "\u672A\u586B\u57CE\u5E02"
+    });
+    compareState.aspects = filterAspectsByMode(calculateAspects(filterPoints(compareState.planets), filterPoints(astroState.natal?.planets || []))).slice(0, 24);
+    astroState.compare = compareState;
+    renderWheelLegend();
+    if (astroState.natal) {
+      renderWheel(astroState.natal, astroState.compareMode ? astroState.compare : astroState.transit);
+    }
+  };
+  window.__mingxianBuildCompositeWheel = (leftChart, rightChart, context = {}) => {
+    if (!leftChart || !rightChart) return null;
+    const leftState = buildNatalStateFromChart("composite-source-left", leftChart, {
+      name: String(context.leftName || "").trim() || "\u5DE6\u76D8",
+      city: String(context.leftCity || "").trim() || "\u672A\u586B\u57CE\u5E02"
+    });
+    const rightState = buildNatalStateFromChart("composite-source-right", rightChart, {
+      name: String(context.rightName || "").trim() || "\u53F3\u76D8",
+      city: String(context.rightCity || "").trim() || "\u672A\u586B\u57CE\u5E02"
+    });
+    const compositePlanets = leftState.planets.map((leftPlanet) => {
+      const rightPlanet = rightState.planets.find((item) => item.key === leftPlanet.key);
+      if (!rightPlanet) return leftPlanet;
+      const longitude = midpointAngle(leftPlanet.longitude, rightPlanet.longitude);
+      return {
+        ...leftPlanet,
+        longitude,
+        signInfo: longitudeToSign(longitude)
+      };
+    });
+    const composite = {
+      ...leftState,
+      mode: "composite",
+      name: String(context.name || "").trim() || "\u7EC4\u5408\u76D8",
+      city: `${leftState.city} / ${rightState.city}`,
+      planets: compositePlanets,
+      angles: {
+        asc: midpointAngle(leftState.angles.asc, rightState.angles.asc),
+        mc: midpointAngle(leftState.angles.mc, rightState.angles.mc),
+        dsc: midpointAngle(leftState.angles.dsc, rightState.angles.dsc),
+        ic: midpointAngle(leftState.angles.ic, rightState.angles.ic)
+      }
+    };
+    composite.aspects = filterAspectsByMode(calculateAspects(filterPoints(composite.planets), filterPoints(composite.planets), true)).slice(0, 24);
+    return composite;
+  };
+  window.__mingxianBuildWheelStateFromChart = (chart, context = {}) => {
+    const state = buildNatalStateFromChart("main", chart, {
+      name: String(context.name || "").trim() || "进阶盘",
+      city: String(context.city || "").trim() || "未填城市"
+    });
+    state.displayTheme = String(context.displayTheme || "natal");
+    state.displayVariant = String(context.displayVariant || "");
+    return state;
+  };
+  window.__mingxianRenderMainWheel = (chartOrState, context = {}) => {
+    if (!chartOrState) return;
+    const state = chartOrState.planets && chartOrState.angles && chartOrState.houses ? chartOrState : buildNatalStateFromChart("main", chartOrState, {
+      name: String(context.name || "").trim() || "进阶盘",
+      city: String(context.city || "").trim() || "未填城市"
+    });
+    state.displayTheme = String(context.displayTheme || state.displayTheme || "natal");
+    state.displayVariant = String(context.displayVariant || state.displayVariant || "");
+    astroState.natal = state;
+    astroState.transit = null;
+    astroState.compareMode = false;
+    astroState.compare = null;
+    window.__mingxianAstroAspectSource = {
+      points: filterPoints(state.planets),
+      aspects: filterAspectsByMode(calculateAspects(filterPoints(state.planets), filterPoints(state.planets), true)).slice(0, 24)
+    };
+    renderModeLabels(state);
+    renderPointToggles(state.planets);
+    renderWheelLegend();
+    renderFocusedPoint();
+    renderWheel(state, null);
+  };
+  window.__mingxianRenderSingleWheel = (chart, context = {}, target = "left") => {
+    const targetWheel = target === "right" ? astroRightWheel : astroLeftWheel;
+    const targetWrap = targetWheel?.parentElement || null;
+    if (!targetWheel || !targetWrap) return;
+    if (!chart) {
+      targetWrap.innerHTML = `<svg id="${target === "right" ? "astro-right-wheel" : "astro-left-wheel"}" viewBox="0 0 720 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${target === "right" ? "右盘" : "左盘"}"><rect x="0" y="0" width="720" height="720" fill="rgba(251,247,240,0.92)"/><text x="360" y="352" text-anchor="middle" font-size="22" fill="#6b5d4f">待选择</text></svg>`;
+      if (target === "right") {
+        astroRightWheel = document.querySelector("#astro-right-wheel");
+      } else {
+        astroLeftWheel = document.querySelector("#astro-left-wheel");
+      }
+      return;
+    }
+    const state = chart.planets && chart.angles && chart.houses ? chart : buildNatalStateFromChart("single", chart, {
+      name: String(context.name || "").trim() || (target === "right" ? "\u53F3\u76D8" : "\u5DE6\u76D8"),
+      city: String(context.city || "").trim() || "\u672A\u586B\u57CE\u5E02"
+    });
+    renderWheel(state, null, { targetWheel, targetWrap, silent: true });
+  };
   function fillTransitNow(force = false) {
-    if (!force && astroTransitDate?.value && astroTransitTime?.value) return;
+    if (!force && astroTransitDate?.value) return;
     const tz = String(astroTransitTz?.value || "+02:00").trim() || "+02:00";
     const now = buildNowLocalParts(tz);
     if (astroTransitDate) {
       astroTransitDate.value = `${now.year}-${String(now.month).padStart(2, "0")}-${String(now.day).padStart(2, "0")}`;
     }
-    if (astroTransitTime) {
-      astroTransitTime.value = `${String(now.hour).padStart(2, "0")}:${String(now.minute).padStart(2, "0")}`;
-    }
   }
   function updateShiftReadout() {
     if (!astroTransitShiftReadout || !astroTransitShift) return;
     const value = Number(astroTransitShift.value || 0);
-    astroTransitShiftReadout.textContent = `${value >= 0 ? "+" : ""}${value} \u5929`;
+    const dateRaw = String(astroTransitDate?.value || "").trim();
+    if (!dateRaw) {
+      astroTransitShiftReadout.textContent = `\u63A8\u79FB\u5929\u6570 \u00B7 ${value >= 0 ? "+" : ""}${value} \u5929`;
+      return;
+    }
+    const tz = String(astroTransitTz?.value || "+02:00").trim() || "+02:00";
+    const baseDate = buildUtcDate(dateRaw, "12:00", tz);
+    if (!baseDate) {
+      astroTransitShiftReadout.textContent = `\u63A8\u79FB\u5929\u6570 \u00B7 ${value >= 0 ? "+" : ""}${value} \u5929`;
+      return;
+    }
+    const shiftedDate = new Date(baseDate.getTime() + value * 24 * 3600 * 1e3);
+    const parts = buildLocalDateParts(shiftedDate, tz);
+    const shiftedLabel = `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+    astroTransitShiftReadout.textContent = `${shiftedLabel} \u00B7 ${value >= 0 ? "+" : ""}${value} \u5929`;
+  }
+  function queueTransitRecalc(immediate = false) {
+    if (transitShiftRecalcTimer) {
+      window.clearTimeout(transitShiftRecalcTimer);
+      transitShiftRecalcTimer = null;
+    }
+    const run = () => {
+      transitShiftRecalcTimer = null;
+      astroState.showTransit = true;
+      recalcAstro();
+    };
+    if (immediate) {
+      run();
+      return;
+    }
+    transitShiftRecalcTimer = window.setTimeout(run, 90);
   }
   if (astroTransitShift) {
     astroTransitShift.addEventListener("input", () => {
       updateShiftReadout();
-      astroState.showTransit = true;
-      recalcAstro();
+      queueTransitRecalc(false);
+    });
+    astroTransitShift.addEventListener("change", () => {
+      updateShiftReadout();
+      queueTransitRecalc(true);
     });
   }
   if (astroRecalc) {
@@ -1495,25 +1737,6 @@
         }
       }
       recalcAstro();
-    });
-  }
-  if (astroHistoryList) {
-    astroHistoryList.addEventListener("click", (event) => {
-      const openButton = event.target.closest("[data-astro-history-open]");
-      if (openButton) {
-        applyAstroHistoryRecord(Number(openButton.getAttribute("data-astro-history-open")));
-        return;
-      }
-      const removeButton = event.target.closest("[data-astro-history-remove]");
-      if (removeButton) {
-        removeAstroHistoryRecord(Number(removeButton.getAttribute("data-astro-history-remove")));
-      }
-    });
-  }
-  if (astroHistoryClear) {
-    astroHistoryClear.addEventListener("click", () => {
-      saveAstroHistory([]);
-      renderAstroHistory();
     });
   }
   if (astroClearNatal) {
@@ -1533,10 +1756,13 @@
     });
   }
   if (astroResolveCity) astroResolveCity.addEventListener("click", resolveNatalCity);
-  if (astroResolveTransitCity) astroResolveTransitCity.addEventListener("click", resolveTransitCity);
-  if (astroTransitApply) {
-    astroTransitApply.addEventListener("click", () => {
+  if (astroTransitDate) {
+    astroTransitDate.addEventListener("change", () => {
+      updateShiftReadout();
       astroState.showTransit = true;
+      if (!String(astroTransitTz?.value || "").trim() && String(astroTz?.value || "").trim()) {
+        astroTransitTz.value = String(astroTz.value || "").trim();
+      }
       recalcAstro();
     });
   }
@@ -1545,13 +1771,6 @@
       const button = event.target.closest("[data-index]");
       if (!button) return;
       applyResolvedCity(astroState.cityCandidates[Number(button.getAttribute("data-index"))]);
-    });
-  }
-  if (astroTransitCityCandidates) {
-    astroTransitCityCandidates.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-transit-index]");
-      if (!button) return;
-      applyResolvedTransitCity(astroState.transitCityCandidates[Number(button.getAttribute("data-transit-index"))]);
     });
   }
   if (astroPointToggles) {
@@ -1594,23 +1813,10 @@
       applyPreset(button.getAttribute("data-astro-preset"));
     });
   }
-  if (astroNow) {
-    astroNow.addEventListener("click", () => {
-      fillTransitNow(true);
-      astroState.showTransit = true;
-      recalcAstro();
-    });
-  }
   if (astroCity) {
     astroCity.addEventListener("input", () => {
       if (natalSuggestTimer) window.clearTimeout(natalSuggestTimer);
       natalSuggestTimer = window.setTimeout(suggestNatalCities, 260);
-    });
-  }
-  if (astroTransitCity) {
-    astroTransitCity.addEventListener("input", () => {
-      if (transitSuggestTimer) window.clearTimeout(transitSuggestTimer);
-      transitSuggestTimer = window.setTimeout(suggestTransitCities, 260);
     });
   }
   if (astroCopyLink) {
@@ -1635,7 +1841,7 @@
       }
     });
   }
-  [astroDate, astroTime, astroLat, astroLon, astroTz, astroHouseSystem, astroNodeType, astroLilithType, astroPointSet, astroAspectMode, astroOrbScale, astroWheelLayer, astroAspectLines, astroTransitDate, astroTransitTime, astroTransitTz].forEach((input) => {
+  [astroDate, astroTime, astroLat, astroLon, astroTz, astroHouseSystem, astroNodeType, astroLilithType, astroPointSet, astroAspectMode, astroOrbScale, astroWheelLayer, astroAspectLines, astroTransitDate, astroTransitTz].forEach((input) => {
     if (!input) return;
     input.addEventListener("change", () => {
       if ([astroDate, astroTime, astroLat, astroLon, astroTz].includes(input) && hasNatalInputs()) {
@@ -1651,6 +1857,7 @@
   }
   if (astroWheelLayer && uiPrefs.wheelLayer) astroWheelLayer.value = uiPrefs.wheelLayer;
   if (astroAspectLines && uiPrefs.aspectLines) astroAspectLines.value = uiPrefs.aspectLines;
+  if (astroHouseSystem && (uiPrefs.houseSystem === "P" || uiPrefs.houseSystem === "W")) astroHouseSystem.value = uiPrefs.houseSystem;
   if (astroPointSet && uiPrefs.pointSet) astroPointSet.value = uiPrefs.pointSet;
   if (astroAspectMode && uiPrefs.aspectMode) astroAspectMode.value = uiPrefs.aspectMode;
   if (astroOrbScale && uiPrefs.orbScale) astroOrbScale.value = uiPrefs.orbScale;
@@ -1660,6 +1867,5 @@
   }
   fillTransitNow();
   updateShiftReadout();
-  renderAstroHistory();
   recalcAstro();
 })();

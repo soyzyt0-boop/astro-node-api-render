@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>命线 · 四柱</title>
+  <meta name="theme-color" content="#f6f6f3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="命线">
+  <link rel="manifest" href="../manifest.webmanifest?v=20260621b">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../icon.svg">
+  <link rel="stylesheet" href="../style.css?v=20260621b">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div class="hero-head">
+        <p class="eyebrow">Private Axis Notes</p>
+        <div class="hero-mark">MING XIAN</div>
+      </div>
+      <nav class="subsite-nav" aria-label="子页面导航">
+        <a class="subsite-link" href="/">入口</a>
+        <a class="subsite-link is-active" href="/bazi/">四柱</a>
+        <a class="subsite-link" href="/astrology/">占星</a>
+      </nav>
+      <h1>四柱</h1>
+      <p class="hero-copy">八字速查、主盘、阶段走势与历史记录。</p>
+    </header>
+    <section class="panel quick-birth-panel" data-view-group="bazi">
+      <div class="panel-head">
+        <h2>四柱速查</h2>
+        <p class="panel-note">输入生日，查看四柱结构、作用线与阶段走势。</p>
+      </div>
+      <div class="quick-birth-grid quick-birth-grid-line">
+        <label class="field quick-name-field">
+          <span>姓名</span>
+          <input id="quick-name" type="text" placeholder="输入姓名">
+        </label>
+        <label class="field quick-city-field">
+          <span>出生城市</span>
+          <input id="quick-birth-city" type="text" autocomplete="off" placeholder="北京 / Madrid / Lima">
+          <div class="quick-city-picks" id="quick-birth-city-picks" hidden></div>
+          <p class="quick-city-hint" id="quick-birth-city-hint"></p>
+        </label>
+        <label class="field quick-date-field">
+          <span>出生年</span>
+          <select id="quick-birth-year"></select>
+        </label>
+        <label class="field quick-date-field">
+          <span>出生月</span>
+          <select id="quick-birth-month"></select>
+        </label>
+        <label class="field quick-date-field">
+          <span>出生日</span>
+          <select id="quick-birth-day"></select>
+        </label>
+        <label class="field quick-date-field quick-gender-field">
+          <span>性别</span>
+          <select id="quick-birth-gender">
+            <option value="">不填</option>
+            <option value="female">女</option>
+            <option value="male">男</option>
+          </select>
+        </label>
+        <div class="field quick-time-fieldset quick-time-line">
+          <span>时间</span>
+          <div class="quick-time-mode">
+            <label class="mini-choice">
+              <input id="quick-time-known" name="quick-time-mode" type="radio" value="known" checked>
+              <span>具体</span>
+            </label>
+            <label class="mini-choice">
+              <input id="quick-time-unknown" name="quick-time-mode" type="radio" value="unknown">
+              <span>不详</span>
+            </label>
+          </div>
+          <input id="quick-birth-time" type="time" placeholder="可不填">
+        </div>
+        <div class="button-row quick-birth-actions quick-birth-actions-line">
+          <button class="action-button" id="quick-birth-generate" type="button">开始排四柱</button>
+          <button class="action-button secondary" id="quick-birth-reset" type="button">回我</button>
+        </div>
+      </div>
+      <div class="result-card quick-birth-history-card">
+        <div class="result-block compact">
+          <div class="quick-history-toolbar">
+            <label class="field quick-history-search">
+              <span class="visually-hidden">搜索</span>
+              <input id="quick-birth-history-search" type="text" placeholder="搜姓名">
+            </label>
+            <div class="quick-history-tools">
+              <button class="action-button secondary" id="quick-birth-history-export" type="button">导出</button>
+              <label class="action-button secondary quick-import-button">
+                <input id="quick-birth-history-import" type="file" accept="application/json" hidden>
+                <span>导入</span>
+              </label>
+            </div>
+          </div>
+          <div class="quick-history-row" id="quick-birth-history">
+            <span class="quick-history-empty">还没有</span>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap quick-birth-chart-wrap">
+        <svg id="quick-birth-chart" viewBox="0 0 720 300" role="img" aria-label="通用生日八字作用曲线图"></svg>
+      </div>
+      <div class="result-card quick-birth-card">
+        <div class="result-block compact">
+          <p class="block-label">通用对象</p>
+          <p id="quick-birth-title">待看</p>
+          <div class="quick-birth-meta-grid">
+            <div class="quick-birth-meta-item">
+              <p class="block-label">四柱</p>
+              <p id="quick-birth-archetype">先输入生日后显示。</p>
+              <p class="micro-note">这是出生底色，不是全部人生。</p>
+            </div>
+            <div class="quick-birth-meta-item">
+              <p class="block-label">命主气质</p>
+              <p id="quick-birth-depth">先输入生日后显示。</p>
+            </div>
+            <div class="quick-birth-meta-item">
+              <p class="block-label">盘势</p>
+              <p id="quick-birth-pattern">先输入生日后显示。</p>
+            </div>
+            <div class="quick-birth-meta-item quick-birth-meta-item-wide">
+              <p class="block-label">命格倾向</p>
+              <p id="quick-birth-level">先输入生日后显示。</p>
+            </div>
+          </div>
+        </div>
+        <div class="result-block quick-birth-summary-block">
+          <p class="block-label">简断</p>
+          <p id="quick-birth-summary">输入生日后显示八字作用线。无时辰时，只看大势，不看细盘，也不把单条曲线当绝对人生结论。</p>
+        </div>
+        <details class="inline-details compact-fold quick-birth-meta-fold">
+          <summary>补充</summary>
+          <div class="result-block compact">
+            <p class="block-label">说明</p>
+            <p id="quick-birth-note">这里只呈现原局、大运、流年的相对作用强弱与结构变化，不直接代替整个人生命运判断。</p>
+          </div>
+          <div class="result-block">
+            <p class="block-label">该多做</p>
+            <p id="quick-birth-verdict">先输入生日后显示。</p>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">别过头</p>
+            <p id="quick-birth-soul-task">先输入生日后显示。</p>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">大运起点</p>
+            <p id="quick-birth-purpose">先输入生日后显示。</p>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">顺手方向</p>
+            <div class="quick-keyword-row" id="quick-birth-surface-tags">
+              <span class="quick-keyword-tag">待看</span>
+            </div>
+          </div>
+          <div class="result-block compact">
+            <p class="block-label">盘面提示</p>
+            <div class="quick-keyword-row" id="quick-birth-core-tags">
+              <span class="quick-keyword-tag">待看</span>
+            </div>
+          </div>
+        </details>
+      </div>
+      <details class="result-card inline-details compact-fold quick-birth-stage-card">
+        <summary>结构</summary>
+        <div class="result-block compact">
+          <div class="quick-stage-list" id="quick-birth-core-profile">
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">出生底盘</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">这个人</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">怎么走更顺</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">人生节奏</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+          </div>
+        </div>
+      </details>
+      <details class="result-card inline-details compact-fold quick-birth-stage-card">
+        <summary>十年运</summary>
+        <div class="result-block compact">
+          <div class="quick-stage-list" id="quick-birth-dayun-stages">
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">待定</p>
+              <p class="quick-stage-text">先输入生日后显示。</p>
+            </article>
+          </div>
+        </div>
+      </details>
+      <details class="result-card inline-details compact-fold quick-birth-stage-card">
+        <summary>四段</summary>
+        <div class="result-block compact">
+          <div class="quick-stage-list" id="quick-birth-stages">
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">0-20</p>
+              <p class="quick-stage-text">先输入生日后显示阶段大意。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">20-40</p>
+              <p class="quick-stage-text">无时辰也可先看大关系。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">40-60</p>
+              <p class="quick-stage-text">这里只看阶段，不看每年细批。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">60-80</p>
+              <p class="quick-stage-text">适合朋友、父母、亲缘对照看。</p>
+            </article>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel quick-panel primary-panel" data-view-group="bazi">
+      <div class="panel-head">
+        <h2>个人四柱主盘</h2>
+        <p class="panel-note">聚焦你的主轴、阶段、年份与命线判断。</p>
+      </div>
+      <div class="template-wrap">
+        <p class="block-label">线</p>
+        <div class="chip-row" id="question-type-tabs"></div>
+        <p class="mini-meaning" id="aspect-meaning">总命：看整条命的主轴。</p>
+      </div>
+      <div class="template-wrap compare-wrap">
+        <p class="block-label">图层</p>
+        <div class="chip-row" id="personal-chart-mode">
+          <button class="chip active" type="button" data-chart-mode="single">单看</button>
+          <button class="chip" type="button" data-chart-mode="overlay">叠看核心线</button>
+        </div>
+        <div class="chip-row" id="personal-chart-group" hidden>
+          <button class="chip active" type="button" data-chart-group="all">全部核心</button>
+          <button class="chip" type="button" data-chart-group="inner">内线</button>
+          <button class="chip" type="button" data-chart-group="outer">现实线</button>
+        </div>
+        <div class="chip-row compare-legend" id="personal-chart-legend" hidden></div>
+      </div>
+      <div class="query-grid">
+        <label class="field hidden-range-field" aria-hidden="true">
+          <span>领域</span>
+          <select id="aspect-select"></select>
+        </label>
+        <label class="field hidden-range-field" aria-hidden="true">
+          <span>年份</span>
+          <input id="year-range" type="range" min="1986" max="2066" step="1" value="2026">
+        </label>
+      </div>
+      <div class="chart-wrap interactive-chart-wrap">
+        <svg id="time-chart" viewBox="0 0 720 352" role="img" aria-label="时间查询 80 年曲线图"></svg>
+      </div>
+      <div class="chart-caption compact">
+        <p id="time-chart-note">悬看，点定。</p>
+      </div>
+      <details class="result-card inline-details compact-fold">
+        <summary>命核</summary>
+        <div class="result-block compact">
+          <div class="quick-stage-list" id="personal-core-profile">
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">命核</p>
+              <p class="quick-stage-text">先压命，再回命，再成画。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">钱结</p>
+              <p class="quick-stage-text">钱路长期被错位承接与旧讨好逻辑绑住。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">关系结</p>
+              <p class="quick-stage-text">最早的关系线不是爱，而是位置与控制。</p>
+            </article>
+            <article class="quick-stage-item">
+              <p class="quick-stage-range">艺核</p>
+              <p class="quick-stage-text">作品不是兴趣，是把命收回来后留下的证据。</p>
+            </article>
+          </div>
+        </div>
+      </details>
+      <details class="result-card inline-details compact-fold">
+        <summary>十年</summary>
+        <div class="result-block compact">
+          <div class="stage-list" id="personal-decade-profile"></div>
+        </div>
+      </details>
+      <div class="result-card" id="year-card">
+        <div class="score-row">
+          <div>
+            <p class="score-label">分值</p>
+            <div class="score-value"><span id="score-output">0</span><small>/ 9</small></div>
+          </div>
+          <div class="trend-pill" id="trend-output">读中</div>
+        </div>
+        <div class="result-block">
+          <p class="block-label">这一年</p>
+          <p id="year-summary"></p>
+        </div>
+        <details class="inline-details year-deep-details">
+          <summary>年批</summary>
+          <div class="result-block compact">
+            <p id="year-deep"></p>
+          </div>
+        </details>
+      </div>
+      <div class="hidden-time-fields" aria-hidden="true">
+        <select id="start-year"></select>
+        <select id="start-month"></select>
+        <select id="end-year"></select>
+        <select id="end-month"></select>
+      </div>
+      <div class="result-card">
+        <div class="result-block compact">
+          <p class="block-label">段</p>
+          <p id="range-window">2026 - 2026</p>
+        </div>
+        <div class="result-block">
+          <p class="block-label">这一段</p>
+          <p id="range-summary"></p>
+        </div>
+        <details class="inline-details range-deep-details">
+          <summary>段批</summary>
+          <div class="result-block compact">
+            <p id="range-deep"></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel secondary-panel" data-view-group="bazi">
+      <div class="panel-head">
+        <h2>四柱问答</h2>
+        <p class="panel-note">围绕财路、关系、年份和阶段，直接起问。</p>
+      </div>
+      <div class="ask-entry">
+        <div class="template-wrap ask-favorites-wrap">
+          <p class="block-label">常问</p>
+          <div class="chip-row" id="question-favorites"></div>
+        </div>
+        <details class="inline-details ask-templates">
+          <summary>模板</summary>
+          <div class="template-wrap">
+            <div class="chip-row" id="question-templates"></div>
+          </div>
+        </details>
+        <div class="query-grid ask-grid ask-entry-grid">
+          <label class="field visually-hidden">
+            <span>问类</span>
+            <select id="question-type">
+              <option value="overall">总命</option>
+              <option value="money">财路</option>
+              <option value="career">业途</option>
+              <option value="relationship">情缘</option>
+              <option value="property">宅运</option>
+              <option value="influence">名运</option>
+              <option value="health">体运</option>
+              <option value="spiritual">灵魂线</option>
+              <option value="growth">身命</option>
+              <option value="art">艺命</option>
+            </select>
+          </label>
+          <label class="field question-box">
+            <span>问句</span>
+            <textarea id="question-input" rows="3" placeholder="比如：2028到2031我该不该换地方？这一段钱从哪里来？"></textarea>
+          </label>
+        </div>
+        <p class="mini-meaning ask-meaning" id="question-aspect-meaning">总命：看整条命的主轴。</p>
+        <div class="button-row ask-button-row">
+          <button class="action-button" id="ask-button" type="button">起</button>
+        </div>
+        <details class="inline-details compact-fold ask-tools-fold">
+          <summary>更多</summary>
+          <div class="button-row ask-button-row compact-tools-row">
+            <button class="action-button secondary" id="export-reading" type="button">导</button>
+          </div>
+        </details>
+      </div>
+      <div class="result-card ask-result-card" id="ask-result-card">
+        <div class="mode-bar">
+          <select id="answer-mode" class="hidden-answer-mode" aria-hidden="true">
+            <option value="calm" selected>简</option>
+            <option value="insight">展</option>
+          </select>
+        </div>
+        <div class="result-block">
+          <p class="block-label">批</p>
+          <p id="question-answer">待起</p>
+        </div>
+        <details class="inline-details compact-fold ask-answer-fold">
+          <summary>细项</summary>
+          <div class="answer-grid">
+            <div class="result-block compact featured-block" id="block-phase-wrap">
+              <p class="block-label">总断</p>
+              <p id="answer-phase">待</p>
+            </div>
+            <div class="result-block compact featured-block" id="key-years-wrap">
+              <p class="block-label">关键年</p>
+              <p id="answer-key-years">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="block-wrap">
+              <p class="block-label">结</p>
+              <p id="answer-block">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="support-wrap">
+              <p class="block-label">来</p>
+              <p id="answer-support">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="break-wrap">
+              <p class="block-label">破</p>
+              <p id="answer-break">待</p>
+            </div>
+            <div class="result-block compact detail-block" id="habit-wrap">
+              <p class="block-label">业</p>
+              <p id="answer-habit">待</p>
+            </div>
+            <div class="result-block compact" id="reminder-wrap">
+              <p class="block-label">断</p>
+              <p id="answer-reminder">待</p>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <details class="result-card inline-details compact-fold ai-chat-card" id="ai-chat-card">
+        <summary>AI</summary>
+        <div class="panel-head ai-chat-head">
+          <p>随便打字问。</p>
+        </div>
+        <div class="ai-chat-thread" id="ai-chat-thread">
+          <div class="ai-chat-empty" id="ai-chat-empty">待问</div>
+        </div>
+        <div class="query-grid ask-grid ai-chat-grid">
+          <label class="field question-box">
+            <span>问句</span>
+            <textarea id="ai-chat-input" rows="3" placeholder="比如：我接下来两年最该守什么？钱会怎么来？我该不该换地方？"></textarea>
+          </label>
+        </div>
+        <div class="button-row ask-button-row">
+          <button class="action-button" id="ai-chat-send" type="button">问</button>
+          <button class="action-button secondary" id="ai-chat-clear" type="button">清</button>
+        </div>
+      </details>
+    </section>
+
+    <details class="panel settings-panel overview-panel" data-view-group="bazi">
+      <summary class="settings-summary">
+        <span>设置</span>
+      </summary>
+      <div class="settings-body">
+        <section class="panel inner-panel">
+          <p class="block-label">总断</p>
+          <p class="closing" id="final-verdict"></p>
+        </section>
+      </div>
+    </details>
+
+    
+  </main>
+  <script src="../data.js?v=20260615k"></script>
+  <script src="../app.js?v=20260621b"></script>
+</body>
+</html>

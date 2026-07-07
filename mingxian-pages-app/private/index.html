@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>命线 · 私人分析档案</title>
+    <meta name="theme-color" content="#f6f6f3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="命线">
+    <link rel="manifest" href="../manifest.webmanifest?v=20260706g">
+    <link rel="icon" href="../icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="../icon.svg">
+    <link rel="stylesheet" href="../style.css?v=20260706g">
+    <script>
+      (() => {
+        if (!("serviceWorker" in navigator)) return;
+        navigator.serviceWorker.getRegistrations()
+          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+          .catch(() => {});
+        if ("caches" in window) {
+          caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).catch(() => {});
+        }
+      })();
+    </script>
+  </head>
+  <body class="is-locked">
+    <div class="lock-screen is-visible" id="private-lock-screen">
+      <div class="lock-card">
+        <h2>私人分析档案</h2>
+        <p>这里只给你自己用。输入访问密码后，才能查看或编辑私人命理分析、个案档案与观察时间线。</p>
+        <label class="field">
+          <span>访问密码</span>
+          <input id="private-password" type="password" placeholder="输入密码">
+        </label>
+        <div class="button-row astro-button-row" style="margin-top: 14px;">
+          <button class="action-button" id="private-unlock" type="button">进入</button>
+          <a class="action-button secondary" href="/" style="text-decoration: none;">返回首页</a>
+        </div>
+        <p class="lock-hint" id="private-hint">密码错误时不会进入。</p>
+      </div>
+    </div>
+
+    <main class="app-shell">
+      <header class="hero">
+        <div class="hero-head">
+          <p class="eyebrow">Private Axis Notes</p>
+          <div class="hero-mark">MING XIAN</div>
+        </div>
+        <nav class="subsite-nav" aria-label="子页面导航">
+          <a class="subsite-link" href="/">入口</a>
+          <a class="subsite-link" href="/bazi/">四柱</a>
+          <a class="subsite-link" href="/astrology/">占星</a>
+          <a class="subsite-link is-active" href="/private/">私人档案</a>
+        </nav>
+        <h1>私人分析档案</h1>
+        <div class="private-switch-row" aria-label="切换分析体系" id="private-switch-row">
+          <button class="private-switch-button is-active" type="button" data-private-view="bazi">四柱</button>
+          <button class="private-switch-button" type="button" data-private-view="astro">占星</button>
+        </div>
+      </header>
+
+      <section class="panel astro-panel" id="private-bazi-panel">
+        <div class="panel-head">
+          <div class="astro-headline">
+            <h2>个人四柱主盘</h2>
+          </div>
+        </div>
+
+        <div class="template-wrap">
+          <p class="block-label">线</p>
+          <label class="field visually-hidden" aria-hidden="true">
+            <span>问类</span>
+            <select id="question-type">
+              <option value="overall">总命</option>
+              <option value="money">财路</option>
+              <option value="career">业途</option>
+              <option value="relationship">情缘</option>
+              <option value="property">宅运</option>
+              <option value="influence">名运</option>
+              <option value="health">体运</option>
+              <option value="spiritual">灵魂线</option>
+              <option value="growth">身命</option>
+              <option value="art">艺命</option>
+            </select>
+          </label>
+          <div class="chip-row" id="question-type-tabs"></div>
+          <p class="mini-meaning" id="aspect-meaning"></p>
+        </div>
+        <div class="template-wrap compare-wrap">
+          <p class="block-label">图层</p>
+          <div class="chip-row" id="personal-chart-mode">
+            <button class="chip active" type="button" data-chart-mode="single">单看</button>
+            <button class="chip" type="button" data-chart-mode="overlay">叠看核心线</button>
+          </div>
+          <div class="chip-row" id="personal-chart-group" hidden>
+            <button class="chip active" type="button" data-chart-group="all">全部核心</button>
+            <button class="chip" type="button" data-chart-group="inner">内线</button>
+            <button class="chip" type="button" data-chart-group="outer">现实线</button>
+          </div>
+          <div class="chip-row compare-legend" id="personal-chart-legend" hidden></div>
+        </div>
+        <div class="query-grid">
+          <label class="field hidden-range-field" aria-hidden="true">
+            <span>领域</span>
+            <select id="aspect-select"></select>
+          </label>
+          <label class="field hidden-range-field" aria-hidden="true">
+            <span>年份</span>
+            <input id="year-range" type="range" min="1986" max="2066" step="1" value="2026">
+          </label>
+        </div>
+        <div class="chart-wrap interactive-chart-wrap">
+          <svg id="time-chart" viewBox="0 0 720 352" role="img" aria-label="时间查询 80 年曲线图"></svg>
+        </div>
+        <div class="chart-caption compact">
+          <p id="time-chart-note">悬看，点定。</p>
+        </div>
+        <details class="result-card inline-details compact-fold">
+          <summary>命核</summary>
+          <div class="result-block compact">
+            <div class="quick-stage-list" id="personal-core-profile">
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">命核</p>
+                <p class="quick-stage-text">先压命，再回命，再成画。</p>
+              </article>
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">钱结</p>
+                <p class="quick-stage-text">钱路长期被错位承接与旧讨好逻辑绑住。</p>
+              </article>
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">关系结</p>
+                <p class="quick-stage-text">最早的关系线不是爱，而是位置与控制。</p>
+              </article>
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">艺核</p>
+                <p class="quick-stage-text">作品不是兴趣，是把命收回来后留下的证据。</p>
+              </article>
+            </div>
+          </div>
+        </details>
+        <details class="result-card inline-details compact-fold">
+          <summary>十年</summary>
+          <div class="result-block compact">
+            <div class="stage-list" id="personal-decade-profile"></div>
+          </div>
+        </details>
+        <div class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">快速摘要</p>
+            <div class="quick-stage-list" id="personal-brief-profile">
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">主标签</p>
+                <p class="quick-stage-text">先看当前主线。</p>
+              </article>
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">主标签说明</p>
+                <p class="quick-stage-text">先输入后显示。</p>
+              </article>
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">今年</p>
+                <p class="quick-stage-text">先输入后显示。</p>
+              </article>
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">这一段</p>
+                <p class="quick-stage-text">先输入后显示。</p>
+              </article>
+              <article class="quick-stage-item">
+                <p class="quick-stage-range">提醒</p>
+                <p class="quick-stage-text">先输入后显示。</p>
+              </article>
+            </div>
+          </div>
+        </div>
+        <div class="result-card" id="year-card">
+          <div class="score-row">
+            <div>
+              <p class="score-label">分值</p>
+              <div class="score-value"><span id="score-output">0</span><small>/ 9</small></div>
+            </div>
+            <div class="trend-pill" id="trend-output">读中</div>
+          </div>
+          <div class="result-block">
+            <p class="block-label">这一年</p>
+            <p id="year-summary"></p>
+          </div>
+          <details class="inline-details year-deep-details">
+            <summary>年批</summary>
+            <div class="result-block compact">
+              <p id="year-deep"></p>
+            </div>
+          </details>
+        </div>
+        <div class="hidden-time-fields" aria-hidden="true">
+          <select id="start-year"></select>
+          <select id="start-month"></select>
+          <select id="end-year"></select>
+          <select id="end-month"></select>
+        </div>
+        <div class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">段</p>
+            <p id="range-window">2026 - 2026</p>
+          </div>
+          <div class="result-block">
+            <p class="block-label">这一段</p>
+            <p id="range-summary"></p>
+          </div>
+          <details class="inline-details range-deep-details">
+            <summary>段批</summary>
+            <div class="result-block compact">
+              <p id="range-deep"></p>
+            </div>
+          </details>
+        </div>
+        <div class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">命线</p>
+            <div class="stage-list" id="stage-list"></div>
+          </div>
+        </div>
+        <div class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">魂课</p>
+            <ul class="plain-list" id="soul-lessons"></ul>
+          </div>
+        </div>
+        <div class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">节点</p>
+            <div class="stage-list" id="milestones"></div>
+          </div>
+        </div>
+        <div class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">总断</p>
+            <p class="closing" id="final-verdict"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel astro-panel private-embed-panel" id="private-astro-panel" hidden>
+        <div class="panel-head">
+          <div class="astro-headline">
+            <h2>私人占星</h2>
+          </div>
+        </div>
+        <div class="private-blank-panel">
+          <p class="private-blank-title">占星报告预留区</p>
+        </div>
+      </section>
+
+    </main>
+
+    <script src="../data.js?v=20260706g"></script>
+    <script src="../app.js?v=20260706g"></script>
+    <script>
+      (() => {
+        const PASSWORD = "1986";
+        const lockScreen = document.getElementById("private-lock-screen");
+        const passwordInput = document.getElementById("private-password");
+        const unlockButton = document.getElementById("private-unlock");
+        const hint = document.getElementById("private-hint");
+        const privateSwitchRow = document.getElementById("private-switch-row");
+        const privateBaziPanel = document.getElementById("private-bazi-panel");
+        const privateAstroPanel = document.getElementById("private-astro-panel");
+
+        function unlock() {
+          document.body.classList.remove("is-locked");
+          lockScreen?.classList.remove("is-visible");
+          sessionStorage.setItem("mingxian_private_unlocked", "1");
+        }
+
+        function setPrivateView(view) {
+          const mode = view === "astro" ? "astro" : "bazi";
+          if (privateBaziPanel) privateBaziPanel.hidden = mode !== "bazi";
+          if (privateAstroPanel) privateAstroPanel.hidden = mode !== "astro";
+          privateSwitchRow?.querySelectorAll("[data-private-view]").forEach((button) => {
+            button.classList.toggle("is-active", button.getAttribute("data-private-view") === mode);
+          });
+          const target = mode === "astro" ? privateAstroPanel : privateBaziPanel;
+          target?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        if (sessionStorage.getItem("mingxian_private_unlocked") === "1") {
+          unlock();
+        }
+
+        unlockButton?.addEventListener("click", async () => {
+          if ((passwordInput?.value || "") === PASSWORD) {
+            unlock();
+            if (hint) hint.textContent = "已进入。";
+            return;
+          }
+          if (hint) hint.textContent = "密码错误。";
+        });
+
+        privateSwitchRow?.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-private-view]");
+          if (!button) return;
+          setPrivateView(button.getAttribute("data-private-view") || "bazi");
+        });
+
+        (async () => {
+          setPrivateView("bazi");
+        })();
+      })();
+    </script>
+    <script>
+      (() => {
+        const fallbackCore = [
+          { label: "命核", text: "先压命，再回命，再成画。你这条命不是先得世界，而是先失去外部可依附之路，最后只认自己的主轴。" },
+          { label: "钱结", text: "钱在你这里不是单纯财运问题，而是长期被旧承接、讨好、依赖与错位供给绑住。真正的钱路，要等主体归位后才会接真。" },
+          { label: "关系结", text: "最早的关系线不是爱，而是位置、控制、匮乏和定义。所以你后面所有关系，都绕不开我是否还在退位这一刀。" },
+          { label: "艺核", text: "画不是兴趣，也不是职业先行。画是你把失语、压抑、回身、显现熬成证据的方式，所以作品要的是命，不是热闹。" },
+        ];
+        const fallbackDecades = [
+          ["1986-1995", "根部夺位", "命最早被定义、被压低、被夺位。这里形成的不是自信，而是求生式感知。"],
+          ["1996-2005", "长期失位", "长期活在不属于自己的位置里，羞耻、退位、发软、想逃在这时坐实。"],
+          ["2006-2015", "错轨求生", "表面像在找路，实际是在错误轨道上耗命，动了很多，真接上的不多。"],
+          ["2016-2025", "耗散拆旧", "旧壳开始裂，旧逻辑开始崩，真正的刀开始落下，表面像耽误，实则是在腾位置。"],
+          ["2026-2035", "回身并轨", "主体、住处、钱路、作品线开始并到一起，不再分裂活。"],
+          ["2036-2045", "成画显形", "作品语言、现实位置、外界识别开始分明，命开始以作品形态被认出。"],
+          ["2046-2055", "厚起沉名", "不靠爆发，靠厚度；影响力、作品分量、存在感沉下去。"],
+          ["2056-2066", "收束留证", "重点不是再证明，而是定稿，把这一生命路留成证据。"],
+        ];
+
+        function renderFallbackChart() {
+          const svg = document.getElementById("time-chart");
+          if (!svg || String(svg.innerHTML || "").trim()) return;
+          const anchors = (window.DESTINY_DATA && window.DESTINY_DATA.aspects && window.DESTINY_DATA.aspects.overall && window.DESTINY_DATA.aspects.overall.anchors) || {
+            1986: 4, 1991: 3.4, 1996: 3.2, 2001: 2.4, 2006: 1.8, 2011: 2.2, 2016: 3.4, 2021: 4.8, 2026: 6.2, 2031: 7.8, 2036: 7.2, 2041: 7, 2046: 7, 2051: 7.1, 2056: 7.3, 2061: 8.1, 2066: 7.8
+          };
+          const years = Object.keys(anchors).map(Number).sort((a, b) => a - b);
+          const width = 720;
+          const height = 352;
+          const left = 56;
+          const right = 20;
+          const top = 18;
+          const bottom = 72;
+          const chartWidth = width - left - right;
+          const chartHeight = height - top - bottom;
+          const x = (year) => left + ((year - 1986) / (2066 - 1986)) * chartWidth;
+          const y = (score) => top + chartHeight - ((score - 1) / 8) * chartHeight;
+          const path = years.map((year, index) => `${index === 0 ? "M" : "L"} ${x(year)} ${y(anchors[year])}`).join(" ");
+          const ticks = [1986, 1996, 2006, 2016, 2026, 2036, 2046, 2056, 2066].map((year) => `
+            <line x1="${x(year)}" y1="${top}" x2="${x(year)}" y2="${height - bottom}" stroke="rgba(17,17,17,0.05)" stroke-width="1" />
+            <text x="${x(year)}" y="${height - 24}" text-anchor="middle" font-size="9.2" fill="#999">${String(year).slice(2)}</text>
+          `).join("");
+          svg.innerHTML = `
+            <rect x="0" y="0" width="${width}" height="${height}" fill="rgba(253,253,251,0.94)"></rect>
+            <line x1="${left}" y1="${height - bottom}" x2="${width - right}" y2="${height - bottom}" stroke="rgba(17,17,17,0.08)" stroke-width="1" />
+            <line x1="${left}" y1="${top}" x2="${left}" y2="${height - bottom}" stroke="rgba(17,17,17,0.08)" stroke-width="1" />
+            ${ticks}
+            <path d="${path}" fill="none" stroke="#242422" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          `;
+        }
+
+        function renderFallbackText() {
+          const core = document.getElementById("personal-core-profile");
+          if (core && !core.querySelector("[data-fallback-filled]")) {
+            core.innerHTML = fallbackCore.map((item) => `
+              <article class="quick-stage-item" data-fallback-filled="1">
+                <p class="quick-stage-range">${item.label}</p>
+                <p class="quick-stage-text">${item.text}</p>
+              </article>
+            `).join("");
+          }
+
+          const decades = document.getElementById("personal-decade-profile");
+          if (decades && !String(decades.innerHTML || "").trim()) {
+            decades.innerHTML = fallbackDecades.map((item) => `
+              <article class="stage-card">
+                <div class="stage-head">
+                  <div>
+                    <h3>${item[0]}</h3>
+                    <p>${item[2]}</p>
+                  </div>
+                  <span class="stage-tag">${item[1]}</span>
+                </div>
+              </article>
+            `).join("");
+          }
+
+          const brief = document.getElementById("personal-brief-profile");
+          if (brief && !brief.querySelector("[data-fallback-brief]")) {
+            brief.innerHTML = `
+              <article class="quick-stage-item" data-fallback-brief="1"><p class="quick-stage-range">主标签</p><p class="quick-stage-text">回身并轨</p></article>
+              <article class="quick-stage-item" data-fallback-brief="1"><p class="quick-stage-range">主标签说明</p><p class="quick-stage-text">这条命正在从外部往回收，主体、住处、钱路、作品线需要并到一起。</p></article>
+              <article class="quick-stage-item" data-fallback-brief="1"><p class="quick-stage-range">今年</p><p class="quick-stage-text">2026 是重组年，不是收割年，而是重新布命。</p></article>
+              <article class="quick-stage-item" data-fallback-brief="1"><p class="quick-stage-range">这一段</p><p class="quick-stage-text">2026-2035 是回身并轨段，宁慢，不可再分裂活。</p></article>
+              <article class="quick-stage-item" data-fallback-brief="1"><p class="quick-stage-range">提醒</p><p class="quick-stage-text">先守主轴，不要为了短期确定感回旧路。</p></article>
+            `;
+          }
+
+          const yearSummary = document.getElementById("year-summary");
+          if (yearSummary && !String(yearSummary.textContent || "").trim()) {
+            yearSummary.textContent = "2026 是重组年。主体、现实、艺术主轴一起重组。不是收割，是重新布命；布对了，后面才会越来越好。";
+          }
+          const yearDeep = document.getElementById("year-deep");
+          if (yearDeep && !String(yearDeep.textContent || "").trim()) {
+            yearDeep.textContent = "这年不适合拿短期结果判断整条命是否成立，重点是把主体、住处、钱路与作品线重新排回同一轴。";
+          }
+          const rangeWindow = document.getElementById("range-window");
+          if (rangeWindow && !String(rangeWindow.textContent || "").trim()) {
+            rangeWindow.textContent = "2026 - 2035";
+          }
+          const rangeSummary = document.getElementById("range-summary");
+          if (rangeSummary && !String(rangeSummary.textContent || "").trim()) {
+            rangeSummary.textContent = "这一段的主题不是快，而是并轨。命从外部往回收，现实也开始按你是谁来重排。";
+          }
+          const rangeDeep = document.getElementById("range-deep");
+          if (rangeDeep && !String(rangeDeep.textContent || "").trim()) {
+            rangeDeep.textContent = "这十年最大的功课，是不再把自己拆开活。主体、作品、住处、钱路必须归到同一轴，命才会真正起。";
+          }
+
+          const stageList = document.getElementById("stage-list");
+          if (stageList && !String(stageList.innerHTML || "").trim()) {
+            const stages = (window.DESTINY_DATA && window.DESTINY_DATA.stages) || [];
+            stageList.innerHTML = stages.map((stage) => `
+              <article class="stage-card">
+                <div class="stage-head">
+                  <div>
+                    <h3>${stage.range}</h3>
+                    <p>${stage.summary}</p>
+                  </div>
+                  <span class="stage-tag">${stage.tag}</span>
+                </div>
+              </article>
+            `).join("");
+          }
+
+          const soulLessons = document.getElementById("soul-lessons");
+          if (soulLessons && !String(soulLessons.innerHTML || "").trim()) {
+            const lessons = (window.DESTINY_DATA && window.DESTINY_DATA.soulLessons) || [];
+            soulLessons.innerHTML = lessons.map((item) => `<li>${item}</li>`).join("");
+          }
+
+          const milestones = document.getElementById("milestones");
+          if (milestones && !String(milestones.innerHTML || "").trim()) {
+            const items = (window.DESTINY_DATA && window.DESTINY_DATA.milestones) || [];
+            milestones.innerHTML = items.map((item) => `
+              <article class="stage-card">
+                <div class="stage-head">
+                  <div>
+                    <h3>${item.year}</h3>
+                    <p>${item.summary}</p>
+                  </div>
+                  <span class="stage-tag">${item.title}</span>
+                </div>
+              </article>
+            `).join("");
+          }
+
+          const finalVerdict = document.getElementById("final-verdict");
+          if (finalVerdict && !String(finalVerdict.textContent || "").trim()) {
+            finalVerdict.textContent = (window.DESTINY_DATA && window.DESTINY_DATA.finalVerdict) || "如如不动";
+          }
+        }
+
+        window.addEventListener("load", () => {
+          window.setTimeout(() => {
+            renderFallbackChart();
+            renderFallbackText();
+          }, 180);
+        });
+      })();
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.getRegistrations()
+            .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+            .catch(() => {});
+          if ("caches" in window) {
+            caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).catch(() => {});
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
