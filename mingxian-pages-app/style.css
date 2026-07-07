@@ -5416,6 +5416,15 @@ body:has(.astro-panel) .astro-reading-guide p {
   line-height: 1.4;
 }
 
+.diary-art-card figure,
+.diary-art-card figcaption {
+  margin: 0;
+}
+
+.diary-art-card figcaption {
+  display: block;
+}
+
 
 /* Studio visual tightening */
 .studio-shell {
