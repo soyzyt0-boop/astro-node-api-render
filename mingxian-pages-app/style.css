@@ -2804,6 +2804,7 @@ body.is-locked {
   position: relative;
   z-index: 12;
   pointer-events: auto;
+  overflow: visible;
 }
 
 .quick-birth-grid-line {
@@ -2827,6 +2828,8 @@ body.is-locked {
   grid-column: 1 / 4;
   min-width: 132px;
   position: relative;
+  z-index: 24;
+  overflow: visible;
 }
 
 .quick-city-picks {
@@ -2834,7 +2837,7 @@ body.is-locked {
   left: 0;
   right: 0;
   top: calc(100% + 4px);
-  z-index: 8;
+  z-index: 40;
   display: grid;
   gap: 4px;
   padding: 6px;
@@ -2894,6 +2897,12 @@ body.is-locked {
   display: block;
   margin: 6px 0 0;
   min-height: 1.1em;
+}
+
+.quick-birth-panel,
+.quick-birth-panel .result-card,
+.quick-birth-panel .result-block {
+  overflow: visible;
 }
 
 .quick-date-field {
