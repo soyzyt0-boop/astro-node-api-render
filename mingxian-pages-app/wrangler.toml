@@ -3,6 +3,7 @@ compatibility_date = "2026-05-03"
 pages_build_output_dir = "."
 
 [vars]
+ASTRO_API_BASE = "https://astro-node-api.onrender.com"
 OPENAI_MODEL = "gpt-5.5-mini"
 CF_AI_MODEL = "@cf/ibm-granite/granite-4.0-h-micro"
 

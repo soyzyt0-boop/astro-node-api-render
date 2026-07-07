@@ -36,6 +36,11 @@ async function readJsonSafely(response, fallbackMessage) {
   }
 }
 
+function resolveAstroApiUrl(env) {
+  const base = String(env.ASTRO_API_BASE || "https://astro-node-api.onrender.com").trim();
+  return `${base.replace(/\/$/, "")}/chart`;
+}
+
 export async function onRequest(context) {
   try {
     const method = context.request.method.toUpperCase();
@@ -45,7 +50,7 @@ export async function onRequest(context) {
     }
 
     const payload = await context.request.json();
-    const upstream = await fetch("https://astro-node-api.onrender.com/chart", {
+    const upstream = await fetch(resolveAstroApiUrl(context.env || {}), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
