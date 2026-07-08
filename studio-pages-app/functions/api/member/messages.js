@@ -4,6 +4,41 @@ function buildInboxKey(userId) {
   return `member:${userId}:messages`;
 }
 
+async function syncReadReceipts(store, userId, messages) {
+  const readMap = new Map(
+    (Array.isArray(messages) ? messages : [])
+      .filter((item) => item?.id && item?.readAt)
+      .map((item) => [String(item.id), Number(item.readAt)]),
+  );
+  if (!readMap.size) return;
+  const list = await store.list({ prefix: "admin:" });
+  const keys = Array.isArray(list?.keys) ? list.keys : [];
+  await Promise.all(
+    keys
+      .filter((item) => String(item.name || "").endsWith(":sent-messages"))
+      .map(async (item) => {
+        const raw = await store.get(item.name);
+        if (!raw) return;
+        const log = JSON.parse(raw);
+        if (!Array.isArray(log)) return;
+        let changed = false;
+        const next = log.map((entry) => {
+          const readAt = readMap.get(String(entry.id || ""));
+          if (!readAt || entry.readAt) return entry;
+          changed = true;
+          return {
+            ...entry,
+            readAt,
+            readerUserId: userId,
+          };
+        });
+        if (changed) {
+          await store.put(item.name, JSON.stringify(next));
+        }
+      }),
+  );
+}
+
 function sortMessages(messages = []) {
   return [...messages].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 }
@@ -45,6 +80,7 @@ export async function onRequestPost(context) {
         : item
     ));
     await store.put(buildInboxKey(user.id), JSON.stringify(next));
+    await syncReadReceipts(store, user.id, next);
     return json({
       ok: true,
       messages: next,

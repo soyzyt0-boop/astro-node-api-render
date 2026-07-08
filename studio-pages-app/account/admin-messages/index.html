@@ -28,6 +28,17 @@
     </header>
 
     <section class="panel studio-panel">
+      <div class="auth-card admin-search-card">
+        <div class="panel-head"><h2>找用户</h2></div>
+        <div class="auth-form">
+          <label class="field"><span>邮箱 / 昵称 / 姓名</span><input id="admin-user-query" type="text" placeholder="输入关键词"></label>
+          <div class="studio-button-row">
+            <button class="studio-link-button" id="admin-user-search" type="button">搜索用户</button>
+          </div>
+        </div>
+        <div id="admin-user-results" class="member-record-list"></div>
+      </div>
+
       <form id="admin-message-form" class="auth-form auth-card">
         <label class="field"><span>用户邮箱</span><input name="email" type="email" required></label>
         <label class="field"><span>标题</span><input name="title" type="text" maxlength="120" required></label>
@@ -37,6 +48,11 @@
         </div>
       </form>
       <p class="mini-meaning" id="admin-message-note"></p>
+
+      <div class="auth-card">
+        <div class="panel-head"><h2>最近发送</h2></div>
+        <div id="admin-message-history" class="member-record-list"></div>
+      </div>
     </section>
   </main>
 
@@ -44,6 +60,10 @@
     (() => {
       const form = document.getElementById("admin-message-form");
       const note = document.getElementById("admin-message-note");
+      const queryInput = document.getElementById("admin-user-query");
+      const searchButton = document.getElementById("admin-user-search");
+      const resultsHost = document.getElementById("admin-user-results");
+      const historyHost = document.getElementById("admin-message-history");
       const readJson = async (response, fallback) => {
         const raw = await response.text();
         if (!raw) throw new Error(fallback);
@@ -53,6 +73,70 @@
           throw new Error(fallback);
         }
       };
+
+      const renderResults = (users) => {
+        if (!resultsHost) return;
+        if (!Array.isArray(users) || !users.length) {
+          resultsHost.innerHTML = '<p class="member-record-empty">还没有匹配用户。</p>';
+          return;
+        }
+        resultsHost.innerHTML = users.map((user) => `
+          <article class="member-record-card admin-user-card">
+            <strong>${user.displayName || user.fullName || user.email}</strong>
+            <p>${user.email}</p>
+            <div class="studio-button-row">
+              <button class="studio-link-button" type="button" data-pick-email="${user.email}">带入发信</button>
+            </div>
+          </article>
+        `).join("");
+      };
+
+      const renderHistory = (items) => {
+        if (!historyHost) return;
+        if (!Array.isArray(items) || !items.length) {
+          historyHost.innerHTML = '<p class="member-record-empty">还没有发送记录。</p>';
+          return;
+        }
+        historyHost.innerHTML = items.map((item) => `
+          <article class="member-record-card">
+            <div class="message-head">
+              <strong>${item.title || "未命名消息"}</strong>
+              <span class="message-state">${item.readAt ? "对方已读" : "对方未读"}</span>
+            </div>
+            <p>${item.displayName || item.email}</p>
+            <p class="member-record-meta">${item.email} · ${new Date(Number(item.createdAt || Date.now())).toLocaleString("zh-CN")}</p>
+          </article>
+        `).join("");
+      };
+
+      const loadAdminData = async (query = "") => {
+        const response = await fetch(`/api/admin/messages${query ? `?q=${encodeURIComponent(query)}` : ""}`, {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+        const data = await readJson(response, "读取后台数据失败。");
+        if (!response.ok || !data.ok) throw new Error(data.error || "读取后台数据失败。");
+        renderResults(data.users || []);
+        renderHistory(data.recent || []);
+      };
+
+      searchButton?.addEventListener("click", async () => {
+        note.textContent = "";
+        try {
+          await loadAdminData(String(queryInput?.value || "").trim());
+        } catch (error) {
+          note.textContent = error instanceof Error ? error.message : "搜索失败。";
+        }
+      });
+
+      resultsHost?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-pick-email]");
+        if (!button) return;
+        const email = button.getAttribute("data-pick-email") || "";
+        const emailInput = form?.querySelector('[name="email"]');
+        if (emailInput) emailInput.value = email;
+      });
+
       form?.addEventListener("submit", async (event) => {
         event.preventDefault();
         note.textContent = "正在发送。";
@@ -71,10 +155,15 @@
           const data = await readJson(response, "发送失败。");
           if (!response.ok || !data.ok) throw new Error(data.error || "发送失败。");
           note.textContent = "已发送到用户站内收件箱。";
+          renderHistory(data.recent || []);
           form.reset();
         } catch (error) {
           note.textContent = error instanceof Error ? error.message : "发送失败。";
         }
+      });
+
+      loadAdminData().catch((error) => {
+        note.textContent = error instanceof Error ? error.message : "读取后台数据失败。";
       });
     })();
   </script>
