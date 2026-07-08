@@ -1813,9 +1813,13 @@ function renderQuickBirthEngineResult(view, chart) {
   chartState.quickBirth.selectedYear = view.year;
   chartState.quickBirth.previewYear = null;
   const chartTitle = view.city ? `${view.name} · ${view.city} · 八字作用线` : `${view.name} · 八字作用线`;
-  renderQuickBirthChart(annualScores, chartTitle, chartState.quickBirth.selectedYear, chartState.quickBirth.previewYear);
+  if (loggedIn) {
+    renderQuickBirthChart(annualScores, chartTitle, chartState.quickBirth.selectedYear, chartState.quickBirth.previewYear);
+  } else if (quickBirthChart) {
+    quickBirthChart.innerHTML = "";
+  }
   renderQuickBirthStages(loggedIn ? buildBaziQuickStages(chart, chart?.annualScores || []) : [
-    { label: "体验模式", text: "未登录时只显示基础盘面和四柱学术信息。" },
+    { label: "体验模式", text: "未登录时只显示四柱起卦后的学术名词。" },
     { label: "登录后", text: "登录后显示命线、运势解释与阶段判断。" },
   ]);
   renderProfileGrid(quickBirthCoreProfile, loggedIn ? buildQuickBirthBaseProfile(chart) : []);
@@ -1825,7 +1829,7 @@ function renderQuickBirthEngineResult(view, chart) {
   if (quickBirthTitle) quickBirthTitle.textContent = `${view.name} · ${view.dateString}${view.time ? ` ${view.time}` : ""} · 八字排盘`;
   if (quickBirthSummary) quickBirthSummary.textContent = loggedIn
     ? buildBaziSummary(chart, chart?.annualScores || [], view.name)
-    : "当前为未登录体验模式：只显示四柱与基础盘面，不显示命线及运势解释。";
+    : "当前为未登录体验模式：只显示四柱起卦后的学术名词，不显示命线及运势解释。";
   if (quickBirthLocation) {
     const meta = chart?.locationMeta || {};
     const locationParts = [
@@ -1843,9 +1847,9 @@ function renderQuickBirthEngineResult(view, chart) {
     view.cityResolveWarning || "",
   ].filter(Boolean).join(" · ");
   if (quickBirthArchetype) quickBirthArchetype.textContent = pillarText;
-  if (quickBirthDepth) quickBirthDepth.textContent = loggedIn ? dayMasterText : "登录后显示。";
-  if (quickBirthPattern) quickBirthPattern.textContent = loggedIn ? strengthText : "登录后显示。";
-  if (quickBirthLevel) quickBirthLevel.textContent = loggedIn ? patternText : "登录后显示。";
+  if (quickBirthDepth) quickBirthDepth.textContent = loggedIn ? dayMasterText : "未登录不显示。";
+  if (quickBirthPattern) quickBirthPattern.textContent = loggedIn ? strengthText : "未登录不显示。";
+  if (quickBirthLevel) quickBirthLevel.textContent = loggedIn ? patternText : "未登录不显示。";
   if (quickBirthVerdict) quickBirthVerdict.textContent = loggedIn ? usefulText : "登录后显示。";
   if (quickBirthSoulTask) quickBirthSoulTask.textContent = loggedIn ? unfavorableText : "登录后显示。";
   if (quickBirthPurpose) quickBirthPurpose.textContent = loggedIn ? yunText : "登录后显示。";
