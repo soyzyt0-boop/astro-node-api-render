@@ -16,11 +16,8 @@ function isAdmin(user) {
   const email = String(user?.email || "").trim().toLowerCase();
   const defaults = new Set([
     "yutong@zhaoyutong.studio",
+    "soyzyt0@gmail.com",
   ]);
-  const extra = String(user?.adminEmailList || "").trim();
-  if (extra) {
-    extra.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean).forEach((item) => defaults.add(item));
-  }
   return defaults.has(email);
 }
 
