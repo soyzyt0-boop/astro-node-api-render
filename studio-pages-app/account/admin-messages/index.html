@@ -39,6 +39,11 @@
         <div id="admin-user-results" class="member-record-list"></div>
       </div>
 
+      <div class="auth-card">
+        <div class="panel-head"><h2>消息模板</h2></div>
+        <div class="member-record-list" id="admin-message-templates"></div>
+      </div>
+
       <form id="admin-message-form" class="auth-form auth-card">
         <label class="field"><span>用户邮箱</span><input name="email" type="email" required></label>
         <label class="field">
@@ -72,6 +77,27 @@
       const searchButton = document.getElementById("admin-user-search");
       const resultsHost = document.getElementById("admin-user-results");
       const historyHost = document.getElementById("admin-message-history");
+      const templateHost = document.getElementById("admin-message-templates");
+      const messageTemplates = [
+        {
+          type: "system",
+          label: "系统提醒",
+          title: "工作室站内通知",
+          body: "这是一条来自赵羽彤工作室的站内通知，请进入账户收件箱查看最新安排。",
+        },
+        {
+          type: "jewelry",
+          label: "饰品上新",
+          title: "有一组适合你的新饰品",
+          body: "工作室刚整理出一组更适合你当前阶段佩戴的饰品，如果你愿意，可以直接回复你的偏好方向。",
+        },
+        {
+          type: "custom",
+          label: "私人订制",
+          title: "你的私人订制建议已整理",
+          body: "根据你之前的排盘与需求，我已经整理出一版私人订制建议。你可以继续回信说明你更想加强的方向。",
+        },
+      ];
       const readJson = async (response, fallback) => {
         const raw = await response.text();
         if (!raw) throw new Error(fallback);
@@ -118,6 +144,22 @@
         `).join("");
       };
 
+      const renderTemplates = () => {
+        if (!templateHost) return;
+        templateHost.innerHTML = messageTemplates.map((item, index) => `
+          <article class="member-record-card">
+            <div class="message-head">
+              <strong>${item.label}</strong>
+              <span class="message-type-chip">${item.title}</span>
+            </div>
+            <p>${item.body}</p>
+            <div class="studio-button-row">
+              <button class="studio-link-button studio-link-button-ghost" type="button" data-template-index="${index}">带入模板</button>
+            </div>
+          </article>
+        `).join("");
+      };
+
       const loadAdminData = async (query = "") => {
         const response = await fetch(`/api/admin/messages${query ? `?q=${encodeURIComponent(query)}` : ""}`, {
           credentials: "same-origin",
@@ -144,6 +186,20 @@
         const email = button.getAttribute("data-pick-email") || "";
         const emailInput = form?.querySelector('[name="email"]');
         if (emailInput) emailInput.value = email;
+      });
+
+      templateHost?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-template-index]");
+        if (!button) return;
+        const index = Number(button.getAttribute("data-template-index"));
+        const template = messageTemplates[index];
+        if (!template) return;
+        const typeInput = form?.querySelector('[name="type"]');
+        const titleInput = form?.querySelector('[name="title"]');
+        const bodyInput = form?.querySelector('[name="body"]');
+        if (typeInput) typeInput.value = template.type;
+        if (titleInput) titleInput.value = template.title;
+        if (bodyInput) bodyInput.value = template.body;
       });
 
       form?.addEventListener("submit", async (event) => {
@@ -175,6 +231,7 @@
       loadAdminData().catch((error) => {
         note.textContent = error instanceof Error ? error.message : "读取后台数据失败。";
       });
+      renderTemplates();
     })();
   </script>
 </body>

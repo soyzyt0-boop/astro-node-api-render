@@ -32,6 +32,19 @@
     <section class="panel studio-panel">
       <div class="panel-head"><h2>收件箱</h2></div>
       <div class="studio-button-row">
+        <select id="inbox-filter-type">
+          <option value="all">全部类型</option>
+          <option value="system">系统通知</option>
+          <option value="jewelry">饰品推荐</option>
+          <option value="custom">私人订制</option>
+        </select>
+        <select id="inbox-filter-read">
+          <option value="all">全部状态</option>
+          <option value="unread">仅看未读</option>
+          <option value="read">仅看已读</option>
+        </select>
+      </div>
+      <div class="studio-button-row">
         <button class="studio-link-button" id="mark-read-button" type="button">全部标记已读</button>
       </div>
       <div id="inbox-list" class="member-record-list"></div>
@@ -44,6 +57,8 @@
       const inboxList = document.getElementById("inbox-list");
       const inboxNote = document.getElementById("inbox-note");
       const markReadButton = document.getElementById("mark-read-button");
+      const filterType = document.getElementById("inbox-filter-type");
+      const filterRead = document.getElementById("inbox-filter-read");
       let currentMessages = [];
       let expandedMessageId = null;
 
@@ -59,11 +74,19 @@
 
       const renderMessages = (messages) => {
         currentMessages = Array.isArray(messages) ? messages : [];
-        if (!currentMessages.length) {
+        const activeType = String(filterType?.value || "all");
+        const activeRead = String(filterRead?.value || "all");
+        const filtered = currentMessages.filter((item) => {
+          if (activeType !== "all" && String(item.type || "system") !== activeType) return false;
+          if (activeRead === "unread" && item.readAt) return false;
+          if (activeRead === "read" && !item.readAt) return false;
+          return true;
+        });
+        if (!filtered.length) {
           inboxList.innerHTML = '<p class="member-record-empty">还没有站内消息。</p>';
           return;
         }
-        inboxList.innerHTML = currentMessages.map((item) => `
+        inboxList.innerHTML = filtered.map((item) => `
           <article class="member-record-card${item.readAt ? "" : " is-unread"}${expandedMessageId === item.id ? " is-expanded" : ""}">
             <div class="message-head">
               <strong>${item.title || "未命名消息"}</strong>
@@ -134,6 +157,12 @@
             inboxNote.textContent = error instanceof Error ? error.message : "更新消息失败。";
           }
         }
+      });
+
+      [filterType, filterRead].forEach((control) => {
+        control?.addEventListener("change", () => {
+          renderMessages(currentMessages);
+        });
       });
 
       loadInbox().catch(() => {
