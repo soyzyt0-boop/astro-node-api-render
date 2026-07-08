@@ -4955,6 +4955,40 @@ body:has(.astro-panel) .astro-reading-guide p {
   background: #efece6;
 }
 
+.shop-preview-spec,
+.shop-preview-note {
+  margin-top: 8px;
+  font-size: 0.84rem;
+  line-height: 1.58;
+}
+
+.shop-preview-spec {
+  color: #5a5a54;
+}
+
+.shop-preview-note {
+  color: #686860;
+}
+
+.shop-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.shop-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid rgba(21, 21, 21, 0.08);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #4c4c47;
+  background: rgba(255, 255, 255, 0.7);
+}
+
 .shop-preview-card h3,
 .jewelry-feature-card h3 {
   margin: 8px 0 8px;
