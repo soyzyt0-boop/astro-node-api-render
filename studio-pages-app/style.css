@@ -4992,7 +4992,8 @@ body:has(.astro-panel) .astro-reading-guide p {
 }
 
 .shop-preview-spec,
-.shop-preview-note {
+.shop-preview-note,
+.shop-preview-status {
   margin-top: 8px;
   font-size: 0.84rem;
   line-height: 1.58;
@@ -5004,6 +5005,10 @@ body:has(.astro-panel) .astro-reading-guide p {
 
 .shop-preview-note {
   color: #686860;
+}
+
+.shop-preview-status {
+  color: #4e4e48;
 }
 
 .shop-tag-row {
