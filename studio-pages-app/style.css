@@ -4988,7 +4988,7 @@ body:has(.astro-panel) .astro-reading-guide p {
 }
 
 .birthday-row {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .password-toggle {
@@ -4997,6 +4997,12 @@ body:has(.astro-panel) .astro-reading-guide p {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.82);
   color: #151515;
+  position: relative;
+}
+
+.password-toggle::before {
+  content: "◉";
+  font-size: 0.9rem;
 }
 
 .auth-status-card {

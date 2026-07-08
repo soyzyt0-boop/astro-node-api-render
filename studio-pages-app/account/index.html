@@ -38,14 +38,14 @@
               <span>密码</span>
               <div class="password-row">
                 <input name="password" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6位数字" required>
-                <button class="password-toggle" type="button" data-toggle-password="password">看</button>
+                <button class="password-toggle" type="button" data-toggle-password="password"></button>
               </div>
             </label>
             <label class="field password-field">
               <span>验证密码</span>
               <div class="password-row">
                 <input name="confirmPassword" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="再次输入6位数字" required>
-                <button class="password-toggle" type="button" data-toggle-password="confirmPassword">看</button>
+                <button class="password-toggle" type="button" data-toggle-password="confirmPassword"></button>
               </div>
             </label>
             <label class="field"><span>昵称</span><input name="displayName" type="text" placeholder="前台显示名"></label>
@@ -53,8 +53,6 @@
               <span>生日</span>
               <div class="birthday-row">
                 <input name="birthDay" type="text" inputmode="numeric" maxlength="2" placeholder="日">
-                <input name="birthMonth" type="text" inputmode="numeric" maxlength="2" placeholder="月">
-                <input name="birthYear" type="text" inputmode="numeric" maxlength="4" placeholder="年">
               </div>
             </div>
             <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收饰品上新与推荐</span></label>
@@ -70,20 +68,21 @@
           <div class="panel-head"><h2>登录</h2></div>
           <form id="login-form" class="auth-form">
             <label class="field"><span>邮箱</span><input name="email" type="email" required></label>
-            <label class="field"><span>密码</span><input name="password" type="password" required></label>
+            <label class="field password-field">
+              <span>密码</span>
+              <div class="password-row">
+                <input name="loginPassword" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6位数字" required>
+                <button class="password-toggle" type="button" data-toggle-login-password="loginPassword"></button>
+              </div>
+            </label>
             <div class="studio-button-row">
               <button class="studio-link-button" type="submit">登录</button>
               <button class="studio-link-button studio-link-button-ghost" id="logout-button" type="button">退出</button>
             </div>
           </form>
-          <div class="result-card auth-status-card">
-            <div class="result-block compact">
-              <p class="block-label">当前状态</p>
-              <p id="account-status">正在读取账户状态。</p>
-            </div>
-          </div>
+          <p class="mini-meaning" id="login-note"></p>
           <div class="studio-button-row">
-            <a class="studio-link-button" href="/account/dashboard/">进入我的资料</a>
+            <a class="studio-link-button" href="/account/dashboard/">登录</a>
           </div>
         </article>
       </div>
@@ -96,12 +95,9 @@
       const loginForm = document.getElementById("login-form");
       const logoutButton = document.getElementById("logout-button");
       const registerNote = document.getElementById("register-note");
-      const accountStatus = document.getElementById("account-status");
+      const loginNote = document.getElementById("login-note");
       const passwordToggles = Array.from(document.querySelectorAll("[data-toggle-password]"));
-
-      const setStatus = (text) => {
-        if (accountStatus) accountStatus.textContent = text;
-      };
+      const loginPasswordToggles = Array.from(document.querySelectorAll("[data-toggle-login-password]"));
 
       const readJson = async (response, fallback) => {
         const raw = await response.text();
@@ -113,34 +109,17 @@
         }
       };
 
-      const toDateString = (year, month, day) => {
-        const yy = String(year || "").trim();
-        const mm = String(month || "").trim();
+      const toDateString = (day) => {
         const dd = String(day || "").trim();
-        if (!yy && !mm && !dd) return "";
-        if (!/^\d{4}$/.test(yy) || !/^\d{1,2}$/.test(mm) || !/^\d{1,2}$/.test(dd)) {
-          throw new Error("生日请按日、月、年填写完整数字。");
+        if (!dd) return "";
+        if (!/^\d{1,2}$/.test(dd)) {
+          throw new Error("生日请填写日。");
         }
-        const monthNumber = Number(mm);
         const dayNumber = Number(dd);
-        if (monthNumber < 1 || monthNumber > 12 || dayNumber < 1 || dayNumber > 31) {
+        if (dayNumber < 1 || dayNumber > 31) {
           throw new Error("生日日期不对。");
         }
-        return `${yy}-${String(monthNumber).padStart(2, "0")}-${String(dayNumber).padStart(2, "0")}`;
-      };
-
-      const refreshMe = async () => {
-        try {
-          const response = await fetch("/api/me", { credentials: "same-origin", cache: "no-store" });
-          const data = await readJson(response, "账户读取失败。");
-          if (data?.user?.email) {
-            setStatus(`已登录：${data.user.displayName || data.user.fullName || data.user.email}`);
-          } else {
-            setStatus("未登录。");
-          }
-        } catch {
-          setStatus("未登录。");
-        }
+        return `0000-00-${String(dayNumber).padStart(2, "0")}`;
       };
 
       passwordToggles.forEach((button) => {
@@ -149,7 +128,15 @@
           const input = registerForm?.querySelector(`[name="${fieldName}"]`);
           if (!input) return;
           input.type = input.type === "password" ? "text" : "password";
-          button.textContent = input.type === "password" ? "看" : "藏";
+        });
+      });
+
+      loginPasswordToggles.forEach((button) => {
+        button.addEventListener("click", () => {
+          const fieldName = button.getAttribute("data-toggle-login-password");
+          const input = loginForm?.querySelector(`[name="${fieldName}"]`);
+          if (!input) return;
+          input.type = input.type === "password" ? "text" : "password";
         });
       });
 
@@ -171,7 +158,7 @@
           email: form.get("email"),
           password,
           displayName: form.get("displayName"),
-          birthDate: toDateString(form.get("birthYear"), form.get("birthMonth"), form.get("birthDay")),
+          birthDate: toDateString(form.get("birthDay")),
           marketing: {
             jewelryOptIn: form.get("jewelryOptIn") === "on",
             customOptIn: form.get("customOptIn") === "on",
@@ -195,7 +182,6 @@
 
       loginForm?.addEventListener("submit", async (event) => {
         event.preventDefault();
-        setStatus("正在登录。");
         const form = new FormData(loginForm);
         try {
           const response = await fetch("/api/auth/login", {
@@ -204,14 +190,14 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: form.get("email"),
-              password: form.get("password"),
+              password: form.get("loginPassword"),
             }),
           });
           const data = await readJson(response, "登录失败。");
           if (!response.ok || !data.ok) throw new Error(data.error || "登录失败。");
           window.location.href = "/account/dashboard/";
         } catch (error) {
-          setStatus(error instanceof Error ? error.message : "登录失败。");
+          if (loginNote) loginNote.textContent = error instanceof Error ? error.message : "登录失败。";
         }
       });
 
@@ -222,10 +208,7 @@
             credentials: "same-origin",
           });
         } catch {}
-        setStatus("已退出。");
       });
-
-      refreshMe();
     })();
   </script>
 </body>
