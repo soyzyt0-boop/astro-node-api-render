@@ -5517,6 +5517,23 @@ body:has(.astro-panel) .astro-reading-guide p {
   line-height: 1.4;
 }
 
+.diary-art-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(21, 21, 21, 0.06);
+}
+
+.diary-art-info p {
+  margin: 0;
+  color: #5a5a54;
+  font-size: 0.8rem;
+  line-height: 1.58;
+}
+
+.diary-art-info p + p {
+  margin-top: 4px;
+}
+
 .diary-art-card figure,
 .diary-art-card figcaption {
   margin: 0;
