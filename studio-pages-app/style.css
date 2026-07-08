@@ -5327,6 +5327,16 @@ body:has(.astro-panel) .astro-reading-guide p {
   padding-top: 14px;
 }
 
+.archive-series-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.08 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  background: #efece6;
+}
+
 .archive-series-card h3,
 .archive-direction-card h3 {
   margin: 8px 0 8px;
