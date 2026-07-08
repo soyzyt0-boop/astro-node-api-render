@@ -175,8 +175,8 @@ async function createUser(env, payload) {
   if (!email || !email.includes("@")) {
     throw new Error("邮箱格式不对。");
   }
-  if (password.length < 8) {
-    throw new Error("密码至少 8 位。");
+  if (!/^\d{6}$/.test(password)) {
+    throw new Error("密码必须是 6 位数字。");
   }
   const existing = await getUserByEmail(env, email);
   if (existing) {

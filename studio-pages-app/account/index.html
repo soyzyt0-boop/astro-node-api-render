@@ -34,18 +34,33 @@
           <div class="panel-head"><h2>注册</h2></div>
           <form id="register-form" class="auth-form">
             <label class="field"><span>邮箱</span><input name="email" type="email" required></label>
-            <label class="field"><span>密码</span><input name="password" type="password" minlength="8" required></label>
-            <label class="field"><span>显示名</span><input name="displayName" type="text" placeholder="前台显示名"></label>
-            <label class="field"><span>姓名</span><input name="fullName" type="text" placeholder="可填真实姓名"></label>
-            <label class="field"><span>电话</span><input name="phone" type="text"></label>
-            <label class="field"><span>常住城市</span><input name="city" type="text"></label>
-            <label class="field"><span>生日</span><input name="birthDate" type="date"></label>
-            <label class="field"><span>备注</span><textarea name="notes" rows="3" placeholder="例如想关注定制饰品或长期命理档案"></textarea></label>
-            <label class="mini-choice"><input name="emailOptIn" type="checkbox"><span>接收工作室邮件</span></label>
+            <label class="field password-field">
+              <span>密码</span>
+              <div class="password-row">
+                <input name="password" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6位数字" required>
+                <button class="password-toggle" type="button" data-toggle-password="password">看</button>
+              </div>
+            </label>
+            <label class="field password-field">
+              <span>验证密码</span>
+              <div class="password-row">
+                <input name="confirmPassword" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="再次输入6位数字" required>
+                <button class="password-toggle" type="button" data-toggle-password="confirmPassword">看</button>
+              </div>
+            </label>
+            <label class="field"><span>昵称</span><input name="displayName" type="text" placeholder="前台显示名"></label>
+            <div class="field">
+              <span>生日</span>
+              <div class="birthday-row">
+                <input name="birthDay" type="text" inputmode="numeric" maxlength="2" placeholder="日">
+                <input name="birthMonth" type="text" inputmode="numeric" maxlength="2" placeholder="月">
+                <input name="birthYear" type="text" inputmode="numeric" maxlength="4" placeholder="年">
+              </div>
+            </div>
             <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收饰品上新与推荐</span></label>
             <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收私人订制建议</span></label>
             <div class="studio-button-row">
-              <button class="studio-link-button" type="submit">注册并进入账户</button>
+              <button class="studio-link-button" type="submit">注册并登录</button>
             </div>
           </form>
           <p class="mini-meaning" id="register-note"></p>
@@ -82,6 +97,7 @@
       const logoutButton = document.getElementById("logout-button");
       const registerNote = document.getElementById("register-note");
       const accountStatus = document.getElementById("account-status");
+      const passwordToggles = Array.from(document.querySelectorAll("[data-toggle-password]"));
 
       const setStatus = (text) => {
         if (accountStatus) accountStatus.textContent = text;
@@ -95,6 +111,22 @@
         } catch {
           throw new Error(fallback);
         }
+      };
+
+      const toDateString = (year, month, day) => {
+        const yy = String(year || "").trim();
+        const mm = String(month || "").trim();
+        const dd = String(day || "").trim();
+        if (!yy && !mm && !dd) return "";
+        if (!/^\d{4}$/.test(yy) || !/^\d{1,2}$/.test(mm) || !/^\d{1,2}$/.test(dd)) {
+          throw new Error("生日请按日、月、年填写完整数字。");
+        }
+        const monthNumber = Number(mm);
+        const dayNumber = Number(dd);
+        if (monthNumber < 1 || monthNumber > 12 || dayNumber < 1 || dayNumber > 31) {
+          throw new Error("生日日期不对。");
+        }
+        return `${yy}-${String(monthNumber).padStart(2, "0")}-${String(dayNumber).padStart(2, "0")}`;
       };
 
       const refreshMe = async () => {
@@ -111,21 +143,36 @@
         }
       };
 
+      passwordToggles.forEach((button) => {
+        button.addEventListener("click", () => {
+          const fieldName = button.getAttribute("data-toggle-password");
+          const input = registerForm?.querySelector(`[name="${fieldName}"]`);
+          if (!input) return;
+          input.type = input.type === "password" ? "text" : "password";
+          button.textContent = input.type === "password" ? "看" : "藏";
+        });
+      });
+
       registerForm?.addEventListener("submit", async (event) => {
         event.preventDefault();
         registerNote.textContent = "正在注册。";
         const form = new FormData(registerForm);
+        const password = String(form.get("password") || "");
+        const confirmPassword = String(form.get("confirmPassword") || "");
+        if (!/^\d{6}$/.test(password)) {
+          registerNote.textContent = "密码必须是 6 位数字。";
+          return;
+        }
+        if (password !== confirmPassword) {
+          registerNote.textContent = "两次密码不一致。";
+          return;
+        }
         const payload = {
           email: form.get("email"),
-          password: form.get("password"),
+          password,
           displayName: form.get("displayName"),
-          fullName: form.get("fullName"),
-          phone: form.get("phone"),
-          city: form.get("city"),
-          birthDate: form.get("birthDate"),
-          notes: form.get("notes"),
+          birthDate: toDateString(form.get("birthYear"), form.get("birthMonth"), form.get("birthDay")),
           marketing: {
-            emailOptIn: form.get("emailOptIn") === "on",
             jewelryOptIn: form.get("jewelryOptIn") === "on",
             customOptIn: form.get("customOptIn") === "on",
           },
