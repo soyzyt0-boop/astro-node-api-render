@@ -41,6 +41,14 @@
 
       <form id="admin-message-form" class="auth-form auth-card">
         <label class="field"><span>用户邮箱</span><input name="email" type="email" required></label>
+        <label class="field">
+          <span>消息类型</span>
+          <select name="type">
+            <option value="system">系统通知</option>
+            <option value="jewelry">饰品推荐</option>
+            <option value="custom">私人订制</option>
+          </select>
+        </label>
         <label class="field"><span>标题</span><input name="title" type="text" maxlength="120" required></label>
         <label class="field"><span>正文</span><textarea name="body" rows="6" maxlength="3000" required></textarea></label>
         <div class="studio-button-row">
@@ -103,6 +111,7 @@
               <strong>${item.title || "未命名消息"}</strong>
               <span class="message-state">${item.readAt ? "对方已读" : "对方未读"}</span>
             </div>
+            <p class="message-type-chip">${item.typeLabel || "系统通知"}</p>
             <p>${item.displayName || item.email}</p>
             <p class="member-record-meta">${item.email} · ${new Date(Number(item.createdAt || Date.now())).toLocaleString("zh-CN")}</p>
           </article>
@@ -148,6 +157,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: formData.get("email"),
+              type: formData.get("type"),
               title: formData.get("title"),
               body: formData.get("body"),
             }),

@@ -45,6 +45,7 @@
       const inboxNote = document.getElementById("inbox-note");
       const markReadButton = document.getElementById("mark-read-button");
       let currentMessages = [];
+      let expandedMessageId = null;
 
       const readJson = async (response, fallback) => {
         const raw = await response.text();
@@ -63,15 +64,33 @@
           return;
         }
         inboxList.innerHTML = currentMessages.map((item) => `
-          <article class="member-record-card${item.readAt ? "" : " is-unread"}">
+          <article class="member-record-card${item.readAt ? "" : " is-unread"}${expandedMessageId === item.id ? " is-expanded" : ""}">
             <div class="message-head">
               <strong>${item.title || "未命名消息"}</strong>
               <span class="message-state">${item.readAt ? "已读" : "未读"}</span>
             </div>
-            <p>${item.body || ""}</p>
+            <p class="message-type-chip">${item.typeLabel || "系统通知"}</p>
+            <div class="studio-button-row">
+              <button class="studio-link-button studio-link-button-ghost" type="button" data-toggle-message="${item.id}">${expandedMessageId === item.id ? "收起" : "展开"}</button>
+              ${item.readAt ? "" : `<button class="studio-link-button studio-link-button-ghost" type="button" data-read-message="${item.id}">标记已读</button>`}
+            </div>
+            ${expandedMessageId === item.id ? `<p>${item.body || ""}</p>` : ""}
             <p class="member-record-meta">${item.sender || "工作室"} · ${new Date(Number(item.createdAt || Date.now())).toLocaleString("zh-CN")}</p>
           </article>
         `).join("");
+      };
+
+      const markMessagesRead = async (ids, successText) => {
+        const response = await fetch("/api/member/messages", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids }),
+        });
+        const data = await readJson(response, "更新消息失败。");
+        if (!response.ok || !data.ok) throw new Error(data.error || "更新消息失败。");
+        renderMessages(data.messages || []);
+        inboxNote.textContent = successText;
       };
 
       const loadInbox = async () => {
@@ -91,18 +110,29 @@
           return;
         }
         try {
-          const response = await fetch("/api/member/messages", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ids: unreadIds }),
-          });
-          const data = await readJson(response, "更新消息失败。");
-          if (!response.ok || !data.ok) throw new Error(data.error || "更新消息失败。");
-          renderMessages(data.messages || []);
-          inboxNote.textContent = "已全部标记已读。";
+          await markMessagesRead(unreadIds, "已全部标记已读。");
         } catch (error) {
           inboxNote.textContent = error instanceof Error ? error.message : "更新消息失败。";
+        }
+      });
+
+      inboxList?.addEventListener("click", async (event) => {
+        const toggleButton = event.target.closest("[data-toggle-message]");
+        const readButton = event.target.closest("[data-read-message]");
+        if (toggleButton) {
+          const id = toggleButton.getAttribute("data-toggle-message") || "";
+          expandedMessageId = expandedMessageId === id ? null : id;
+          renderMessages(currentMessages);
+          return;
+        }
+        if (readButton) {
+          const id = readButton.getAttribute("data-read-message") || "";
+          if (!id) return;
+          try {
+            await markMessagesRead([id], "已标记该消息为已读。");
+          } catch (error) {
+            inboxNote.textContent = error instanceof Error ? error.message : "更新消息失败。";
+          }
         }
       });
 

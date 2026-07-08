@@ -4,6 +4,21 @@ function normalizeText(value = "", max = 5000) {
   return String(value || "").trim().slice(0, max);
 }
 
+function normalizeMessageType(value = "") {
+  const key = String(value || "").trim().toLowerCase();
+  if (["system", "jewelry", "custom"].includes(key)) return key;
+  return "system";
+}
+
+function messageTypeLabel(type = "") {
+  const map = {
+    system: "系统通知",
+    jewelry: "饰品推荐",
+    custom: "私人订制",
+  };
+  return map[String(type || "").trim().toLowerCase()] || "系统通知";
+}
+
 function buildInboxKey(userId) {
   return `member:${userId}:messages`;
 }
@@ -105,6 +120,7 @@ export async function onRequestPost(context) {
     const targetEmail = String(payload?.email || "").trim().toLowerCase();
     const title = normalizeText(payload?.title, 120);
     const body = normalizeText(payload?.body, 3000);
+    const type = normalizeMessageType(payload?.type);
     if (!targetEmail || !title || !body) {
       return json({ ok: false, error: "目标邮箱、标题、正文都要填。" }, 400);
     }
@@ -122,6 +138,8 @@ export async function onRequestPost(context) {
       id: crypto.randomUUID(),
       title,
       body,
+      type,
+      typeLabel: messageTypeLabel(type),
       createdAt: Date.now(),
       readAt: null,
       sender: auth.user.displayName || auth.user.email || "工作室后台",
@@ -134,6 +152,8 @@ export async function onRequestPost(context) {
       email: targetUser.email,
       displayName: targetUser.displayName || "",
       title: message.title,
+      type: message.type,
+      typeLabel: message.typeLabel,
       createdAt: message.createdAt,
       readAt: null,
     }, ...(Array.isArray(currentLog) ? currentLog : [])];
