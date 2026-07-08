@@ -4728,6 +4728,7 @@ body:has(.astro-panel) .astro-reading-guide p {
     grid-column: auto;
   }
 
+  .home-preview-grid,
   .studio-rail-grid,
   .jewelry-feature-grid,
   .shop-preview-grid,
@@ -4836,6 +4837,41 @@ body:has(.astro-panel) .astro-reading-guide p {
   margin: 0;
   color: #4a4a46;
   line-height: 1.66;
+}
+
+.home-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-preview-card {
+  border-top: 1px solid rgba(21, 21, 21, 0.08);
+  padding-top: 12px;
+}
+
+.home-preview-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #ece8e1;
+}
+
+.home-preview-copy {
+  margin-top: 10px;
+}
+
+.home-preview-copy h3 {
+  margin: 8px 0 8px;
+  font-size: 1.08rem;
+}
+
+.home-preview-copy p:last-child {
+  margin: 0;
+  color: #4b4b46;
+  line-height: 1.68;
 }
 
 .studio-intro-grid,
