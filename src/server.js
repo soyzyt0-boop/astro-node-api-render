@@ -1,6 +1,6 @@
 import http from "node:http";
 import { buildChart } from "./chart.js";
-import { buildBaziChart } from "../mingxian-pages-app/src/engine/index.js";
+import { buildBaziChart } from "../studio-pages-app/src/engine/index.js";
 
 const PORT = Number(process.env.PORT || 4318);
 const HOST = process.env.HOST || "127.0.0.1";

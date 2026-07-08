@@ -1,11 +1,11 @@
 # astro-node-api-render
 
-这是占星 Node API 和 `mingxian-pages-app` Pages 前端的部署仓库。
+这是占星 Node API 和 `studio-pages-app` Pages 前端的部署仓库。
 
 ## 目录
 
 - 根目录：Render 上运行的 Node API
-- `mingxian-pages-app/`：Cloudflare Pages 静态站点和 Functions
+- `studio-pages-app/`：Cloudflare Pages 静态站点和 Functions
 
 ## Render API 需要的文件
 
@@ -40,7 +40,7 @@ HOST=127.0.0.1 PORT=4318 npm start
 
 ## Cloudflare Pages 部署
 
-`mingxian-pages-app/` 目录用于 Pages。
+`studio-pages-app/` 目录用于 Pages。
 
 至少确认这些配置：
 
