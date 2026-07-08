@@ -78,7 +78,18 @@ export async function onRequestGet(context) {
         bazi: Array.isArray(bazi) ? bazi.slice(0, 6) : [],
         astrology: Array.isArray(astro) ? astro.slice(0, 6) : [],
       },
-      inbox: Array.isArray(inbox) ? inbox.slice(0, 6) : [],
+      inbox: Array.isArray(inbox)
+        ? inbox.slice(0, 6).map((item) => ({
+            id: item.id,
+            title: item.title || "",
+            body: item.body || "",
+            type: item.type || "system",
+            typeLabel: item.typeLabel || "系统通知",
+            createdAt: item.createdAt || null,
+            readAt: item.readAt || null,
+            sender: item.sender || "工作室后台",
+          }))
+        : [],
     });
   } catch (error) {
     return json({ ok: false, error: error instanceof Error ? error.message : "读取用户详情失败。" }, 400);

@@ -165,18 +165,30 @@
             <strong>${user.displayName || user.fullName || user.email}</strong>
             <p>${user.email}</p>
             <p class="member-record-meta">${user.city || "城市未填"} · ${user.notes || "无备注"}</p>
+            <div class="studio-button-row">
+              <button class="studio-link-button studio-link-button-ghost" type="button" data-fill-user-email="${user.email}">把这个用户带入发信</button>
+            </div>
           </article>
           <article class="member-record-card">
             <strong>最近四柱</strong>
-            ${bazi.length ? bazi.map((item) => `<p>${item.name || "未命名"} · ${item.archetype || item.structure || "已排盘"}</p>`).join("") : '<p class="member-record-empty">暂无四柱留档。</p>'}
+            ${bazi.length ? bazi.map((item) => `<p>${item.name || "未命名"} · ${item.archetype || item.structure || "已排盘"} · ${item.locationDisplay || item.city || "城市未填"}</p>`).join("") : '<p class="member-record-empty">暂无四柱留档。</p>'}
           </article>
           <article class="member-record-card">
             <strong>最近占星</strong>
-            ${astro.length ? astro.map((item) => `<p>${item.name || "未命名"} · ${item.date || item.birthDate || "已排盘"}</p>`).join("") : '<p class="member-record-empty">暂无占星留档。</p>'}
+            ${astro.length ? astro.map((item) => `<p>${item.name || "未命名"} · ${item.date || item.birthDate || "已排盘"} · ${item.city || "城市未填"}</p>`).join("") : '<p class="member-record-empty">暂无占星留档。</p>'}
           </article>
           <article class="member-record-card">
             <strong>最近消息</strong>
-            ${inbox.length ? inbox.map((item) => `<p>${item.title || "未命名消息"} · ${item.readAt ? "已读" : "未读"}</p>`).join("") : '<p class="member-record-empty">暂无站内消息。</p>'}
+            ${inbox.length ? inbox.map((item) => `
+              <div class="admin-inline-message">
+                <div class="message-head">
+                  <strong>${item.title || "未命名消息"}</strong>
+                  <span class="message-state">${item.readAt ? "已读" : "未读"}</span>
+                </div>
+                <p class="message-type-chip">${item.typeLabel || "系统通知"}</p>
+                <p>${item.body || ""}</p>
+              </div>
+            `).join("") : '<p class="member-record-empty">暂无站内消息。</p>'}
           </article>
         `;
       };
@@ -236,6 +248,14 @@
         loadUserDetail(email).catch((error) => {
           note.textContent = error instanceof Error ? error.message : "读取用户详情失败。";
         });
+      });
+
+      detailHost?.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-fill-user-email]");
+        if (!button) return;
+        const email = button.getAttribute("data-fill-user-email") || "";
+        const emailInput = form?.querySelector('[name="email"]');
+        if (emailInput) emailInput.value = email;
       });
 
       templateHost?.addEventListener("click", (event) => {

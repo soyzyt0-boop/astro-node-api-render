@@ -5091,6 +5091,16 @@ body:has(.astro-panel) .astro-reading-guide p {
   font-size: 0.72rem;
 }
 
+.admin-inline-message {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(21, 21, 21, 0.08);
+}
+
+.admin-inline-message:first-of-type {
+  margin-top: 8px;
+}
+
 .nav-badge {
   display: inline-flex;
   align-items: center;
