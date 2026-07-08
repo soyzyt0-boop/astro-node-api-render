@@ -5053,9 +5053,46 @@ body:has(.astro-panel) .astro-reading-guide p {
   line-height: 1.58;
 }
 
+.member-record-card.is-unread {
+  border-color: rgba(21, 21, 21, 0.18);
+  background: rgba(255, 251, 244, 0.92);
+}
+
 .member-record-empty {
   margin: 0;
   color: #66665f;
+}
+
+.member-record-meta {
+  font-size: 0.82rem;
+  color: #757169;
+}
+
+.message-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.message-state {
+  font-size: 0.78rem;
+  color: #6b655d;
+}
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #151515;
+  color: #fff;
+  font-size: 0.66rem;
+  line-height: 1;
 }
 
 .jewelry-feature-grid,

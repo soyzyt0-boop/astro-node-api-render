@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>赵羽彤工作室 · 站内消息</title>
+  <meta name="theme-color" content="#f6f6f3">
+  <link rel="manifest" href="../../manifest.webmanifest?v=20260708c">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../icon.svg">
+  <link rel="stylesheet" href="../../style.css?v=20260708c">
+</head>
+<body>
+  <main class="app-shell studio-shell">
+    <header class="hero studio-hero">
+      <div class="hero-head">
+        <p class="eyebrow">INBOX</p>
+        <div class="hero-mark">ZHAO YUTONG STUDIO</div>
+      </div>
+      <nav class="subsite-nav" aria-label="站点导航">
+        <a class="subsite-link" href="/">首页</a>
+        <a class="subsite-link" href="/reading/">排盘</a>
+        <a class="subsite-link" href="/jewelry/">饰品</a>
+        <a class="subsite-link" href="/art/">艺术</a>
+        <a class="subsite-link" href="/account/dashboard/">我的资料</a>
+        <a class="subsite-link is-active" href="/account/inbox/">站内消息</a>
+      </nav>
+      <h1>站内消息</h1>
+      <p class="hero-copy">这里收工作室发给当前账户的站内消息。</p>
+    </header>
+
+    <section class="panel studio-panel">
+      <div class="panel-head"><h2>收件箱</h2></div>
+      <div class="studio-button-row">
+        <button class="studio-link-button" id="mark-read-button" type="button">全部标记已读</button>
+      </div>
+      <div id="inbox-list" class="member-record-list"></div>
+      <p class="mini-meaning" id="inbox-note"></p>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const inboxList = document.getElementById("inbox-list");
+      const inboxNote = document.getElementById("inbox-note");
+      const markReadButton = document.getElementById("mark-read-button");
+      let currentMessages = [];
+
+      const readJson = async (response, fallback) => {
+        const raw = await response.text();
+        if (!raw) throw new Error(fallback);
+        try {
+          return JSON.parse(raw);
+        } catch {
+          throw new Error(fallback);
+        }
+      };
+
+      const renderMessages = (messages) => {
+        currentMessages = Array.isArray(messages) ? messages : [];
+        if (!currentMessages.length) {
+          inboxList.innerHTML = '<p class="member-record-empty">还没有站内消息。</p>';
+          return;
+        }
+        inboxList.innerHTML = currentMessages.map((item) => `
+          <article class="member-record-card${item.readAt ? "" : " is-unread"}">
+            <div class="message-head">
+              <strong>${item.title || "未命名消息"}</strong>
+              <span class="message-state">${item.readAt ? "已读" : "未读"}</span>
+            </div>
+            <p>${item.body || ""}</p>
+            <p class="member-record-meta">${item.sender || "工作室"} · ${new Date(Number(item.createdAt || Date.now())).toLocaleString("zh-CN")}</p>
+          </article>
+        `).join("");
+      };
+
+      const loadInbox = async () => {
+        const response = await fetch("/api/member/messages", { credentials: "same-origin", cache: "no-store" });
+        const data = await readJson(response, "读取消息失败。");
+        if (!response.ok || !data.ok) {
+          window.location.href = "/account/";
+          return;
+        }
+        renderMessages(data.messages || []);
+      };
+
+      markReadButton?.addEventListener("click", async () => {
+        const unreadIds = currentMessages.filter((item) => !item.readAt).map((item) => item.id);
+        if (!unreadIds.length) {
+          inboxNote.textContent = "没有未读消息。";
+          return;
+        }
+        try {
+          const response = await fetch("/api/member/messages", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: unreadIds }),
+          });
+          const data = await readJson(response, "更新消息失败。");
+          if (!response.ok || !data.ok) throw new Error(data.error || "更新消息失败。");
+          renderMessages(data.messages || []);
+          inboxNote.textContent = "已全部标记已读。";
+        } catch (error) {
+          inboxNote.textContent = error instanceof Error ? error.message : "更新消息失败。";
+        }
+      });
+
+      loadInbox().catch(() => {
+        window.location.href = "/account/";
+      });
+    })();
+  </script>
+</body>
+</html>

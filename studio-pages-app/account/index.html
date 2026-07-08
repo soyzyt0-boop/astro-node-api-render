@@ -49,9 +49,6 @@
               </div>
             </label>
             <label class="field"><span>昵称</span><input name="displayName" type="text" placeholder="前台显示名"></label>
-            <label class="mini-choice"><input name="onsiteOptIn" type="checkbox"><span>接收站内消息</span></label>
-            <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收站内饰品上新与推荐</span></label>
-            <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收站内私人订制建议</span></label>
             <div class="studio-button-row">
               <button class="studio-link-button" type="submit">注册并登录</button>
             </div>
@@ -135,11 +132,6 @@
           email: form.get("email"),
           password,
           displayName: form.get("displayName"),
-          marketing: {
-            onsiteOptIn: form.get("onsiteOptIn") === "on",
-            jewelryOptIn: form.get("jewelryOptIn") === "on",
-            customOptIn: form.get("customOptIn") === "on",
-          },
         };
         try {
           const response = await fetch("/api/auth/register", {
