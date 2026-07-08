@@ -40,9 +40,9 @@
             <label class="field"><span>常住城市</span><input name="city" type="text"></label>
             <label class="field"><span>生日</span><input name="birthDate" type="date"></label>
             <label class="field"><span>备注</span><textarea name="notes" rows="3"></textarea></label>
-            <label class="mini-choice"><input name="emailOptIn" type="checkbox"><span>接收工作室邮件</span></label>
-            <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收饰品推荐</span></label>
-            <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收私人订制建议</span></label>
+            <label class="mini-choice"><input name="onsiteOptIn" type="checkbox"><span>接收站内消息</span></label>
+            <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收站内饰品推荐</span></label>
+            <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收站内私人订制建议</span></label>
             <div class="studio-button-row">
               <button class="studio-link-button" type="submit">保存资料</button>
             </div>
@@ -86,7 +86,7 @@
         city: profileForm?.querySelector('[name="city"]'),
         birthDate: profileForm?.querySelector('[name="birthDate"]'),
         notes: profileForm?.querySelector('[name="notes"]'),
-        emailOptIn: profileForm?.querySelector('[name="emailOptIn"]'),
+        onsiteOptIn: profileForm?.querySelector('[name="onsiteOptIn"]'),
         jewelryOptIn: profileForm?.querySelector('[name="jewelryOptIn"]'),
         customOptIn: profileForm?.querySelector('[name="customOptIn"]'),
       };
@@ -130,7 +130,7 @@
         if (fields.city) fields.city.value = profile.city || "";
         if (fields.birthDate) fields.birthDate.value = profile.birthDate || "";
         if (fields.notes) fields.notes.value = profile.notes || "";
-        if (fields.emailOptIn) fields.emailOptIn.checked = Boolean(profile.marketing?.emailOptIn);
+        if (fields.onsiteOptIn) fields.onsiteOptIn.checked = Boolean(profile.marketing?.onsiteOptIn);
         if (fields.jewelryOptIn) fields.jewelryOptIn.checked = Boolean(profile.marketing?.jewelryOptIn);
         if (fields.customOptIn) fields.customOptIn.checked = Boolean(profile.marketing?.customOptIn);
       };
@@ -159,7 +159,7 @@
               birthDate: fields.birthDate?.value || "",
               notes: fields.notes?.value || "",
               marketing: {
-                emailOptIn: Boolean(fields.emailOptIn?.checked),
+                onsiteOptIn: Boolean(fields.onsiteOptIn?.checked),
                 jewelryOptIn: Boolean(fields.jewelryOptIn?.checked),
                 customOptIn: Boolean(fields.customOptIn?.checked),
               },

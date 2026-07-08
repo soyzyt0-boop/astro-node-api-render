@@ -160,7 +160,7 @@ function publicUser(user) {
     birthDate: user.birthDate || "",
     notes: user.notes || "",
     marketing: {
-      emailOptIn: Boolean(user.marketing?.emailOptIn),
+      onsiteOptIn: Boolean(user.marketing?.onsiteOptIn),
       jewelryOptIn: Boolean(user.marketing?.jewelryOptIn),
       customOptIn: Boolean(user.marketing?.customOptIn),
     },
@@ -194,7 +194,7 @@ async function createUser(env, payload) {
     birthDate: normalizeText(payload?.birthDate, 20),
     notes: normalizeText(payload?.notes, 500),
     marketing: {
-      emailOptIn: parseBoolean(payload?.marketing?.emailOptIn),
+      onsiteOptIn: parseBoolean(payload?.marketing?.onsiteOptIn),
       jewelryOptIn: parseBoolean(payload?.marketing?.jewelryOptIn),
       customOptIn: parseBoolean(payload?.marketing?.customOptIn),
     },
@@ -273,7 +273,7 @@ async function updateUser(env, userId, updates) {
     birthDate: normalizeText(updates?.birthDate ?? existing.birthDate, 20),
     notes: normalizeText(updates?.notes ?? existing.notes, 500),
     marketing: {
-      emailOptIn: parseBoolean(updates?.marketing?.emailOptIn ?? existing.marketing?.emailOptIn),
+      onsiteOptIn: parseBoolean(updates?.marketing?.onsiteOptIn ?? existing.marketing?.onsiteOptIn),
       jewelryOptIn: parseBoolean(updates?.marketing?.jewelryOptIn ?? existing.marketing?.jewelryOptIn),
       customOptIn: parseBoolean(updates?.marketing?.customOptIn ?? existing.marketing?.customOptIn),
     },

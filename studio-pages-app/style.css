@@ -4987,17 +4987,37 @@ body:has(.astro-panel) .astro-reading-guide p {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.password-row-inline {
+  position: relative;
+  display: block;
+}
+
+.password-row-inline input {
+  padding-right: 52px;
+}
+
 .birthday-row {
   grid-template-columns: minmax(0, 1fr);
 }
 
 .password-toggle {
-  min-width: 44px;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
   border: 1px solid rgba(21, 21, 21, 0.12);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.82);
   color: #151515;
   position: relative;
+}
+
+.password-row-inline .password-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
 }
 
 .password-toggle::before {

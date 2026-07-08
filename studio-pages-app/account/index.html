@@ -36,27 +36,22 @@
             <label class="field"><span>邮箱</span><input name="email" type="email" required></label>
             <label class="field password-field">
               <span>密码</span>
-              <div class="password-row">
+              <div class="password-row password-row-inline">
                 <input name="password" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6位数字" required>
                 <button class="password-toggle" type="button" data-toggle-password="password"></button>
               </div>
             </label>
             <label class="field password-field">
               <span>验证密码</span>
-              <div class="password-row">
+              <div class="password-row password-row-inline">
                 <input name="confirmPassword" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="再次输入6位数字" required>
                 <button class="password-toggle" type="button" data-toggle-password="confirmPassword"></button>
               </div>
             </label>
             <label class="field"><span>昵称</span><input name="displayName" type="text" placeholder="前台显示名"></label>
-            <div class="field">
-              <span>生日</span>
-              <div class="birthday-row">
-                <input name="birthDay" type="text" inputmode="numeric" maxlength="2" placeholder="日">
-              </div>
-            </div>
-            <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收饰品上新与推荐</span></label>
-            <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收私人订制建议</span></label>
+            <label class="mini-choice"><input name="onsiteOptIn" type="checkbox"><span>接收站内消息</span></label>
+            <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收站内饰品上新与推荐</span></label>
+            <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收站内私人订制建议</span></label>
             <div class="studio-button-row">
               <button class="studio-link-button" type="submit">注册并登录</button>
             </div>
@@ -70,20 +65,16 @@
             <label class="field"><span>邮箱</span><input name="email" type="email" required></label>
             <label class="field password-field">
               <span>密码</span>
-              <div class="password-row">
+              <div class="password-row password-row-inline">
                 <input name="loginPassword" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" placeholder="6位数字" required>
                 <button class="password-toggle" type="button" data-toggle-login-password="loginPassword"></button>
               </div>
             </label>
             <div class="studio-button-row">
               <button class="studio-link-button" type="submit">登录</button>
-              <button class="studio-link-button studio-link-button-ghost" id="logout-button" type="button">退出</button>
             </div>
           </form>
           <p class="mini-meaning" id="login-note"></p>
-          <div class="studio-button-row">
-            <a class="studio-link-button" href="/account/dashboard/">登录</a>
-          </div>
         </article>
       </div>
     </section>
@@ -93,7 +84,6 @@
     (() => {
       const registerForm = document.getElementById("register-form");
       const loginForm = document.getElementById("login-form");
-      const logoutButton = document.getElementById("logout-button");
       const registerNote = document.getElementById("register-note");
       const loginNote = document.getElementById("login-note");
       const passwordToggles = Array.from(document.querySelectorAll("[data-toggle-password]"));
@@ -107,19 +97,6 @@
         } catch {
           throw new Error(fallback);
         }
-      };
-
-      const toDateString = (day) => {
-        const dd = String(day || "").trim();
-        if (!dd) return "";
-        if (!/^\d{1,2}$/.test(dd)) {
-          throw new Error("生日请填写日。");
-        }
-        const dayNumber = Number(dd);
-        if (dayNumber < 1 || dayNumber > 31) {
-          throw new Error("生日日期不对。");
-        }
-        return `0000-00-${String(dayNumber).padStart(2, "0")}`;
       };
 
       passwordToggles.forEach((button) => {
@@ -158,8 +135,8 @@
           email: form.get("email"),
           password,
           displayName: form.get("displayName"),
-          birthDate: toDateString(form.get("birthDay")),
           marketing: {
+            onsiteOptIn: form.get("onsiteOptIn") === "on",
             jewelryOptIn: form.get("jewelryOptIn") === "on",
             customOptIn: form.get("customOptIn") === "on",
           },
@@ -199,15 +176,6 @@
         } catch (error) {
           if (loginNote) loginNote.textContent = error instanceof Error ? error.message : "登录失败。";
         }
-      });
-
-      logoutButton?.addEventListener("click", async () => {
-        try {
-          await fetch("/api/auth/logout", {
-            method: "POST",
-            credentials: "same-origin",
-          });
-        } catch {}
       });
     })();
   </script>
