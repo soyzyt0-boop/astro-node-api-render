@@ -40,6 +40,11 @@
       </div>
 
       <div class="auth-card">
+        <div class="panel-head"><h2>用户面板</h2></div>
+        <div id="admin-user-detail" class="member-record-list"></div>
+      </div>
+
+      <div class="auth-card">
         <div class="panel-head"><h2>消息模板</h2></div>
         <div class="member-record-list" id="admin-message-templates"></div>
       </div>
@@ -78,6 +83,7 @@
       const resultsHost = document.getElementById("admin-user-results");
       const historyHost = document.getElementById("admin-message-history");
       const templateHost = document.getElementById("admin-message-templates");
+      const detailHost = document.getElementById("admin-user-detail");
       const messageTemplates = [
         {
           type: "system",
@@ -144,6 +150,37 @@
         `).join("");
       };
 
+      const renderUserDetail = (payload) => {
+        if (!detailHost) return;
+        if (!payload?.user) {
+          detailHost.innerHTML = '<p class="member-record-empty">先搜索并选择一个用户。</p>';
+          return;
+        }
+        const user = payload.user;
+        const bazi = Array.isArray(payload.readings?.bazi) ? payload.readings.bazi : [];
+        const astro = Array.isArray(payload.readings?.astrology) ? payload.readings.astrology : [];
+        const inbox = Array.isArray(payload.inbox) ? payload.inbox : [];
+        detailHost.innerHTML = `
+          <article class="member-record-card">
+            <strong>${user.displayName || user.fullName || user.email}</strong>
+            <p>${user.email}</p>
+            <p class="member-record-meta">${user.city || "城市未填"} · ${user.notes || "无备注"}</p>
+          </article>
+          <article class="member-record-card">
+            <strong>最近四柱</strong>
+            ${bazi.length ? bazi.map((item) => `<p>${item.name || "未命名"} · ${item.archetype || item.structure || "已排盘"}</p>`).join("") : '<p class="member-record-empty">暂无四柱留档。</p>'}
+          </article>
+          <article class="member-record-card">
+            <strong>最近占星</strong>
+            ${astro.length ? astro.map((item) => `<p>${item.name || "未命名"} · ${item.date || item.birthDate || "已排盘"}</p>`).join("") : '<p class="member-record-empty">暂无占星留档。</p>'}
+          </article>
+          <article class="member-record-card">
+            <strong>最近消息</strong>
+            ${inbox.length ? inbox.map((item) => `<p>${item.title || "未命名消息"} · ${item.readAt ? "已读" : "未读"}</p>`).join("") : '<p class="member-record-empty">暂无站内消息。</p>'}
+          </article>
+        `;
+      };
+
       const renderTemplates = () => {
         if (!templateHost) return;
         templateHost.innerHTML = messageTemplates.map((item, index) => `
@@ -171,6 +208,16 @@
         renderHistory(data.recent || []);
       };
 
+      const loadUserDetail = async (email) => {
+        const response = await fetch(`/api/admin/user-detail?email=${encodeURIComponent(email)}`, {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+        const data = await readJson(response, "读取用户详情失败。");
+        if (!response.ok || !data.ok) throw new Error(data.error || "读取用户详情失败。");
+        renderUserDetail(data);
+      };
+
       searchButton?.addEventListener("click", async () => {
         note.textContent = "";
         try {
@@ -186,6 +233,9 @@
         const email = button.getAttribute("data-pick-email") || "";
         const emailInput = form?.querySelector('[name="email"]');
         if (emailInput) emailInput.value = email;
+        loadUserDetail(email).catch((error) => {
+          note.textContent = error instanceof Error ? error.message : "读取用户详情失败。";
+        });
       });
 
       templateHost?.addEventListener("click", (event) => {
@@ -232,6 +282,7 @@
         note.textContent = error instanceof Error ? error.message : "读取后台数据失败。";
       });
       renderTemplates();
+      renderUserDetail(null);
     })();
   </script>
 </body>
