@@ -414,6 +414,7 @@
       const RECORDS_KEY = "mingxian_astrology_records_v1";
       const state = {
         records: [],
+        isAuthenticated: false,
         cityResolveToken: 0,
         transitResolveToken: 0,
         detailExpanded: false,
@@ -438,6 +439,25 @@
         cityMeta: null,
         advancedMetaItems: null,
       };
+
+      const authReady = fetch("/api/me", {
+        credentials: "same-origin",
+        cache: "no-store",
+      })
+        .then((response) => response.json().catch(() => ({ ok: false, user: null })))
+        .then((data) => {
+          state.isAuthenticated = Boolean(data?.user?.email);
+          if (!state.isAuthenticated) {
+            try {
+              localStorage.removeItem(RECORDS_KEY);
+            } catch {}
+          }
+          return state.isAuthenticated;
+        })
+        .catch(() => {
+          state.isAuthenticated = false;
+          return false;
+        });
 
       function setDetailLabel(text = "参数") {
         if (detailLabel) detailLabel.textContent = text;
@@ -510,6 +530,7 @@
       async function fetchStore(scope) {
         const response = await fetch(`${storeApi}?scope=${encodeURIComponent(scope)}`, {
           method: "GET",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
         });
         const data = await readJsonSafely(response, "云端读取失败。");
@@ -522,6 +543,7 @@
       async function pushStore(scope, value) {
         const response = await fetch(`${storeApi}?scope=${encodeURIComponent(scope)}`, {
           method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ value }),
         });
@@ -535,6 +557,7 @@
       async function deleteStore(scope) {
         const response = await fetch(`${storeApi}?scope=${encodeURIComponent(scope)}`, {
           method: "DELETE",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
         });
         const data = await readJsonSafely(response, "云端删除失败。");
@@ -587,6 +610,12 @@
       }
 
       async function loadRecords() {
+        await authReady;
+        if (!state.isAuthenticated) {
+          state.records = [];
+          renderRecords();
+          return;
+        }
         try {
           const value = await fetchStore("astrology_records");
           state.records = Array.isArray(value) ? value : [];
@@ -598,6 +627,13 @@
       }
 
       async function persistRecords(records) {
+        await authReady;
+        if (!state.isAuthenticated) {
+          state.records = [];
+          renderRecords();
+          setDetailLabel("未登录时不自动保存档案 · 参数");
+          return;
+        }
         state.records = records;
         localSave(RECORDS_KEY, records);
         try {
@@ -609,6 +645,11 @@
 
       function renderRecords() {
         if (!profileList) return;
+        if (!state.isAuthenticated) {
+          profileList.innerHTML = '<div class="astro-empty">未登录时可以排盘，但不会自动保存记录。</div>';
+          renderSynastryPickerMenus();
+          return;
+        }
         if (!state.records.length) {
           profileList.innerHTML = '<div class="astro-empty">还没有。</div>';
           renderSynastryPickerMenus();
@@ -1174,6 +1215,7 @@
       }
 
       function archiveCurrentProfile() {
+        if (!state.isAuthenticated) return;
         const name = readValue("astro-name");
         const city = readValue("astro-city");
         const date = readValue("astro-date");
@@ -2002,6 +2044,14 @@
         });
 
         if (metaSummary) {
+          if (!state.isAuthenticated) {
+            metaSummary.innerHTML = metaSummaryHtml([
+              { label: "状态", value: "体验模式" },
+              { label: "可见内容", value: "星盘与参数" },
+              { label: "运势分析", value: "登录后显示" },
+              { label: "自动留档", value: "登录后开启" },
+            ]);
+          } else {
           const houseSystem = String(payload?.houseSystem || houseSystemInput?.value || "P").trim() === "P" ? "Placidus" : "Whole Sign";
           const timezoneOffset = String(payload?.timezone || readValue("astro-tz") || "").trim() || "-";
           const timezoneName = state.cityMeta?.timezoneName || "未返回 IANA 时区";
@@ -2023,6 +2073,7 @@
           metaSummary.innerHTML = detailTheme === "default"
             ? metaSummaryHtml([...baseMetaItems, ...extraMetaItems])
             : advancedMetaSummaryHtml(detailTheme, baseMetaItems, extraMetaItems);
+          }
         }
 
         if (planetsTable) {

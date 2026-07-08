@@ -119,6 +119,8 @@ const finalVerdict = document.querySelector("#final-verdict");
 const DEFAULT_AI_PROVIDER = "site";
 const DEFAULT_AI_ENDPOINT = "/api/ask";
 const DEFAULT_AI_MODEL = "@cf/ibm-granite/granite-4.0-h-micro";
+let authStatePromise = null;
+let authStateSnapshot = { authenticated: false, resolved: false };
 const chartState = {
   time: { selectedYear: 2026, previewYear: null, aspectKey: "overall", lastRenderedYear: null, lastRenderedRangeKey: null },
   question: { selectedYear: 2026, previewYear: null, aspectKey: "overall" },
@@ -278,9 +280,39 @@ const PERSONAL_DECADE_PROFILE = [
 let quickBirthCloudReady = false;
 let quickBirthCloudSyncPromise = null;
 
+function getAuthState() {
+  if (!authStatePromise) {
+    authStatePromise = fetch("/api/me", {
+      credentials: "same-origin",
+      cache: "no-store",
+    })
+      .then((response) => response.json().catch(() => ({ ok: false, user: null })))
+      .then((data) => {
+        authStateSnapshot = {
+          authenticated: Boolean(data?.user?.email),
+          resolved: true,
+        };
+        return authStateSnapshot;
+      })
+      .catch(() => {
+        authStateSnapshot = {
+          authenticated: false,
+          resolved: true,
+        };
+        return authStateSnapshot;
+      });
+  }
+  return authStatePromise;
+}
+
+function isAuthenticatedSync() {
+  return Boolean(authStateSnapshot.authenticated);
+}
+
 function readCloudStore(scope) {
   return fetch(`${STORE_API}?scope=${encodeURIComponent(scope)}`, {
     method: "GET",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
     },
@@ -296,6 +328,7 @@ function readCloudStore(scope) {
 function writeCloudStore(scope, value) {
   return fetch(`${STORE_API}?scope=${encodeURIComponent(scope)}`, {
     method: "POST",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
     },
@@ -1542,6 +1575,7 @@ function simplifyQuickBirthStructure(value = "") {
 }
 
 function saveCurrentQuickBirthRecordFromEngine(view, chart) {
+  if (!isAuthenticatedSync()) return;
   const history = normalizeQuickBirthHistory(getQuickBirthHistory());
   const record = {
     name: view.name || "此人",
@@ -1754,6 +1788,7 @@ async function autoResolveQuickBirthCityIfReady() {
 }
 
 function renderQuickBirthEngineResult(view, chart) {
+  const loggedIn = isAuthenticatedSync();
   const annualScores = (chart?.annualScores || []).map((item) => ({
     year: item.year,
     age: item.age,
@@ -1779,13 +1814,18 @@ function renderQuickBirthEngineResult(view, chart) {
   chartState.quickBirth.previewYear = null;
   const chartTitle = view.city ? `${view.name} · ${view.city} · 八字作用线` : `${view.name} · 八字作用线`;
   renderQuickBirthChart(annualScores, chartTitle, chartState.quickBirth.selectedYear, chartState.quickBirth.previewYear);
-  renderQuickBirthStages(buildBaziQuickStages(chart, chart?.annualScores || []));
-  renderProfileGrid(quickBirthCoreProfile, buildQuickBirthBaseProfile(chart));
-  renderQuickBirthDayunStages(chart?.dayunStages || []);
-  renderQuickBirthTags(quickBirthSurfaceTags, chart?.usefulGods || []);
-  renderQuickBirthTags(quickBirthCoreTags, rawTags);
+  renderQuickBirthStages(loggedIn ? buildBaziQuickStages(chart, chart?.annualScores || []) : [
+    { label: "体验模式", text: "未登录时只显示基础盘面和四柱学术信息。" },
+    { label: "登录后", text: "登录后显示命线、运势解释与阶段判断。" },
+  ]);
+  renderProfileGrid(quickBirthCoreProfile, loggedIn ? buildQuickBirthBaseProfile(chart) : []);
+  renderQuickBirthDayunStages(loggedIn ? (chart?.dayunStages || []) : []);
+  renderQuickBirthTags(quickBirthSurfaceTags, loggedIn ? (chart?.usefulGods || []) : []);
+  renderQuickBirthTags(quickBirthCoreTags, loggedIn ? rawTags : [chart?.dayMaster ? `${chart.dayMaster}日主` : "", pillarText].filter(Boolean));
   if (quickBirthTitle) quickBirthTitle.textContent = `${view.name} · ${view.dateString}${view.time ? ` ${view.time}` : ""} · 八字排盘`;
-  if (quickBirthSummary) quickBirthSummary.textContent = buildBaziSummary(chart, chart?.annualScores || [], view.name);
+  if (quickBirthSummary) quickBirthSummary.textContent = loggedIn
+    ? buildBaziSummary(chart, chart?.annualScores || [], view.name)
+    : "当前为未登录体验模式：只显示四柱与基础盘面，不显示命线及运势解释。";
   if (quickBirthLocation) {
     const meta = chart?.locationMeta || {};
     const locationParts = [
@@ -1798,18 +1838,18 @@ function renderQuickBirthEngineResult(view, chart) {
     quickBirthLocation.textContent = locationParts.join(" · ");
   }
   if (quickBirthNote) quickBirthNote.textContent = [
-    "这张图只看不同年份是更顺、偏压、缓起还是成形，不直接代替整个人生结论。",
-    "已写入案主资料库。",
+    loggedIn ? "这张图只看不同年份是更顺、偏压、缓起还是成形，不直接代替整个人生结论。" : "未登录时不会自动保存，刷新后需要重新输入。",
+    loggedIn ? "已写入案主资料库。" : "注册 / 登录后才会自动留档并显示解释层。",
     view.cityResolveWarning || "",
   ].filter(Boolean).join(" · ");
   if (quickBirthArchetype) quickBirthArchetype.textContent = pillarText;
-  if (quickBirthDepth) quickBirthDepth.textContent = dayMasterText;
-  if (quickBirthPattern) quickBirthPattern.textContent = strengthText;
-  if (quickBirthLevel) quickBirthLevel.textContent = patternText;
-  if (quickBirthVerdict) quickBirthVerdict.textContent = usefulText;
-  if (quickBirthSoulTask) quickBirthSoulTask.textContent = unfavorableText;
-  if (quickBirthPurpose) quickBirthPurpose.textContent = yunText;
-  saveCurrentQuickBirthRecordFromEngine(view, chart);
+  if (quickBirthDepth) quickBirthDepth.textContent = loggedIn ? dayMasterText : "登录后显示。";
+  if (quickBirthPattern) quickBirthPattern.textContent = loggedIn ? strengthText : "登录后显示。";
+  if (quickBirthLevel) quickBirthLevel.textContent = loggedIn ? patternText : "登录后显示。";
+  if (quickBirthVerdict) quickBirthVerdict.textContent = loggedIn ? usefulText : "登录后显示。";
+  if (quickBirthSoulTask) quickBirthSoulTask.textContent = loggedIn ? unfavorableText : "登录后显示。";
+  if (quickBirthPurpose) quickBirthPurpose.textContent = loggedIn ? yunText : "登录后显示。";
+  if (loggedIn) saveCurrentQuickBirthRecordFromEngine(view, chart);
 }
 
 function buildQuickBirthBaseProfile(chart) {
@@ -2479,6 +2519,17 @@ function resetQuickBirthProfile() {
   chartState.quickBirth.title = "";
 }
 
+getAuthState().then((state) => {
+  if (state.authenticated) return;
+  try {
+    const current = loadState();
+    delete current[QUICK_BIRTH_HISTORY_KEY];
+    delete current[QUICK_BIRTH_DELETED_KEY];
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+  } catch {}
+  renderQuickBirthHistory();
+});
+
 function isStandaloneMode() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
@@ -2592,10 +2643,12 @@ function saveAiChatHistory(history) {
 }
 
 function getQuickBirthHistory() {
+  if (authStateSnapshot.resolved && !authStateSnapshot.authenticated) return [];
   return loadState()[QUICK_BIRTH_HISTORY_KEY] || [];
 }
 
 function saveQuickBirthHistory(history) {
+  if (!isAuthenticatedSync()) return;
   const nextHistory = history.slice(0, 24);
   saveState({ [QUICK_BIRTH_HISTORY_KEY]: nextHistory });
   writeCloudStore(BAZI_QUICK_HISTORY_SCOPE, nextHistory)

@@ -339,9 +339,9 @@
         if (typeof window.renderQuickBirthHistory === "function") window.renderQuickBirthHistory();
         try {
           const [historyRes, sharedRes, deletedRes] = await Promise.all([
-            fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
-            fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
-            fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+            fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, { cache: "no-store", credentials: "same-origin" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+            fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, { cache: "no-store", credentials: "same-origin" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+            fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, { cache: "no-store", credentials: "same-origin" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
           ]);
           const history = Array.isArray(historyRes?.value) ? historyRes.value : [];
           const shared = Array.isArray(sharedRes?.value) ? sharedRes.value : [];
@@ -349,16 +349,19 @@
           const deletedRecordKey = recordKey(removed);
           await fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, {
             method: "POST",
+            credentials: "same-origin",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ value: history.filter((item) => recordKey(item) !== deletedRecordKey) }),
           }).catch(() => {});
           await fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, {
             method: "POST",
+            credentials: "same-origin",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ value: shared.filter((item) => recordKey(item) !== deletedRecordKey) }),
           }).catch(() => {});
           await fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, {
             method: "POST",
+            credentials: "same-origin",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ value: Array.from(new Set([...deletedCloud, deletedRecordKey])).slice(-400) }),
           }).catch(() => {});
@@ -374,9 +377,9 @@
       };
 
       const fetchAndHydrate = () => Promise.all([
-        fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
-        fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
-        fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+        fetch(`${storeApi}?scope=${encodeURIComponent("bazi_quick_history")}`, { cache: "no-store", credentials: "same-origin" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+        fetch(`${storeApi}?scope=${encodeURIComponent("shared_profiles")}`, { cache: "no-store", credentials: "same-origin" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
+        fetch(`${storeApi}?scope=${encodeURIComponent(deletedScope)}`, { cache: "no-store", credentials: "same-origin" }).then((r) => r.json()).catch(() => ({ ok: false, value: [] })),
       ]).then(([historyRes, sharedRes, deletedRes]) => {
         const history = Array.isArray(historyRes?.value) ? historyRes.value : [];
         const shared = Array.isArray(sharedRes?.value) ? sharedRes.value.filter((item) => item?.birthDate) : [];

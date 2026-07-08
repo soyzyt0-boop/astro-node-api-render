@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>赵羽彤工作室 · 我的资料</title>
+  <meta name="theme-color" content="#f6f6f3">
+  <link rel="manifest" href="../../manifest.webmanifest?v=20260708b">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../icon.svg">
+  <link rel="stylesheet" href="../../style.css?v=20260708b">
+</head>
+<body>
+  <main class="app-shell studio-shell">
+    <header class="hero studio-hero">
+      <div class="hero-head">
+        <p class="eyebrow">MEMBER AREA</p>
+        <div class="hero-mark">ZHAO YUTONG STUDIO</div>
+      </div>
+      <nav class="subsite-nav" aria-label="站点导航">
+        <a class="subsite-link" href="/">首页</a>
+        <a class="subsite-link" href="/reading/">排盘</a>
+        <a class="subsite-link" href="/jewelry/">饰品</a>
+        <a class="subsite-link" href="/art/">艺术</a>
+        <a class="subsite-link is-active" href="/account/dashboard/">我的资料</a>
+      </nav>
+      <h1>我的资料 / 我的排盘记录</h1>
+      <p class="hero-copy">这里显示当前账户名下的资料、四柱留档和占星留档。</p>
+    </header>
+
+    <section class="panel studio-panel">
+      <div class="auth-grid auth-grid-single">
+        <article class="auth-card">
+          <div class="panel-head"><h2>基本资料</h2></div>
+          <form id="profile-form" class="auth-form">
+            <label class="field"><span>显示名</span><input name="displayName" type="text"></label>
+            <label class="field"><span>姓名</span><input name="fullName" type="text"></label>
+            <label class="field"><span>邮箱</span><input name="email" type="email" disabled></label>
+            <label class="field"><span>电话</span><input name="phone" type="text"></label>
+            <label class="field"><span>常住城市</span><input name="city" type="text"></label>
+            <label class="field"><span>生日</span><input name="birthDate" type="date"></label>
+            <label class="field"><span>备注</span><textarea name="notes" rows="3"></textarea></label>
+            <label class="mini-choice"><input name="emailOptIn" type="checkbox"><span>接收工作室邮件</span></label>
+            <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收饰品推荐</span></label>
+            <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收私人订制建议</span></label>
+            <div class="studio-button-row">
+              <button class="studio-link-button" type="submit">保存资料</button>
+            </div>
+          </form>
+          <p class="mini-meaning" id="profile-note"></p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel studio-panel">
+      <div class="panel-head"><h2>我的排盘记录</h2></div>
+      <div class="member-reading-grid">
+        <article class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">四柱留档</p>
+            <div id="member-bazi-list" class="member-record-list"></div>
+          </div>
+        </article>
+        <article class="result-card">
+          <div class="result-block compact">
+            <p class="block-label">占星留档</p>
+            <div id="member-astro-list" class="member-record-list"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const profileForm = document.getElementById("profile-form");
+      const profileNote = document.getElementById("profile-note");
+      const baziList = document.getElementById("member-bazi-list");
+      const astroList = document.getElementById("member-astro-list");
+
+      const fields = {
+        displayName: profileForm?.querySelector('[name="displayName"]'),
+        fullName: profileForm?.querySelector('[name="fullName"]'),
+        email: profileForm?.querySelector('[name="email"]'),
+        phone: profileForm?.querySelector('[name="phone"]'),
+        city: profileForm?.querySelector('[name="city"]'),
+        birthDate: profileForm?.querySelector('[name="birthDate"]'),
+        notes: profileForm?.querySelector('[name="notes"]'),
+        emailOptIn: profileForm?.querySelector('[name="emailOptIn"]'),
+        jewelryOptIn: profileForm?.querySelector('[name="jewelryOptIn"]'),
+        customOptIn: profileForm?.querySelector('[name="customOptIn"]'),
+      };
+
+      const readJson = async (response, fallback) => {
+        const raw = await response.text();
+        if (!raw) throw new Error(fallback);
+        try {
+          return JSON.parse(raw);
+        } catch {
+          throw new Error(fallback);
+        }
+      };
+
+      const renderList = (host, items, type) => {
+        if (!host) return;
+        if (!Array.isArray(items) || !items.length) {
+          host.innerHTML = '<p class="member-record-empty">还没有保存记录。</p>';
+          return;
+        }
+        host.innerHTML = items.map((item) => {
+          if (type === "bazi") {
+            return `<article class="member-record-card"><strong>${item.name || "未命名"}</strong><p>${item.locationDisplay || item.city || "城市未填"} · ${item.year || ""}-${item.month || ""}-${item.day || ""}</p><p>${item.archetype || item.structure || "排盘完成后会显示结构摘要"}</p></article>`;
+          }
+          return `<article class="member-record-card"><strong>${item.name || "未命名"}</strong><p>${item.city || item.locationDisplay || "城市未填"} · ${item.date || item.birthDate || ""}</p><p>${item.summary || item.label || "已保存占星记录"}</p></article>`;
+        }).join("");
+      };
+
+      const loadProfile = async () => {
+        const response = await fetch("/api/member/profile", { credentials: "same-origin", cache: "no-store" });
+        const data = await readJson(response, "读取资料失败。");
+        if (!response.ok || !data.ok || !data.profile) {
+          window.location.href = "/account/";
+          return;
+        }
+        const profile = data.profile;
+        if (fields.displayName) fields.displayName.value = profile.displayName || "";
+        if (fields.fullName) fields.fullName.value = profile.fullName || "";
+        if (fields.email) fields.email.value = profile.email || "";
+        if (fields.phone) fields.phone.value = profile.phone || "";
+        if (fields.city) fields.city.value = profile.city || "";
+        if (fields.birthDate) fields.birthDate.value = profile.birthDate || "";
+        if (fields.notes) fields.notes.value = profile.notes || "";
+        if (fields.emailOptIn) fields.emailOptIn.checked = Boolean(profile.marketing?.emailOptIn);
+        if (fields.jewelryOptIn) fields.jewelryOptIn.checked = Boolean(profile.marketing?.jewelryOptIn);
+        if (fields.customOptIn) fields.customOptIn.checked = Boolean(profile.marketing?.customOptIn);
+      };
+
+      const loadReadings = async () => {
+        const response = await fetch("/api/member/readings", { credentials: "same-origin", cache: "no-store" });
+        const data = await readJson(response, "读取记录失败。");
+        if (!response.ok || !data.ok) return;
+        renderList(baziList, data.readings?.bazi_quick_history || [], "bazi");
+        renderList(astroList, data.readings?.astrology_records || [], "astro");
+      };
+
+      profileForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        profileNote.textContent = "正在保存。";
+        try {
+          const response = await fetch("/api/member/profile", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              displayName: fields.displayName?.value || "",
+              fullName: fields.fullName?.value || "",
+              phone: fields.phone?.value || "",
+              city: fields.city?.value || "",
+              birthDate: fields.birthDate?.value || "",
+              notes: fields.notes?.value || "",
+              marketing: {
+                emailOptIn: Boolean(fields.emailOptIn?.checked),
+                jewelryOptIn: Boolean(fields.jewelryOptIn?.checked),
+                customOptIn: Boolean(fields.customOptIn?.checked),
+              },
+            }),
+          });
+          const data = await readJson(response, "保存失败。");
+          if (!response.ok || !data.ok) throw new Error(data.error || "保存失败。");
+          profileNote.textContent = "资料已保存。";
+        } catch (error) {
+          profileNote.textContent = error instanceof Error ? error.message : "保存失败。";
+        }
+      });
+
+      loadProfile().catch(() => {
+        window.location.href = "/account/";
+      });
+      loadReadings().catch(() => {});
+    })();
+  </script>
+</body>
+</html>

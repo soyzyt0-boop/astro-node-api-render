@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>赵羽彤工作室 · 账户</title>
+  <meta name="theme-color" content="#f6f6f3">
+  <link rel="manifest" href="../manifest.webmanifest?v=20260708b">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../icon.svg">
+  <link rel="stylesheet" href="../style.css?v=20260708b">
+</head>
+<body>
+  <main class="app-shell studio-shell">
+    <header class="hero studio-hero">
+      <div class="hero-head">
+        <p class="eyebrow">ACCOUNT</p>
+        <div class="hero-mark">ZHAO YUTONG STUDIO</div>
+      </div>
+      <nav class="subsite-nav" aria-label="站点导航">
+        <a class="subsite-link" href="/">首页</a>
+        <a class="subsite-link" href="/reading/">排盘</a>
+        <a class="subsite-link" href="/jewelry/">饰品</a>
+        <a class="subsite-link" href="/art/">艺术</a>
+        <a class="subsite-link is-active" href="/account/">账户</a>
+      </nav>
+      <h1>账户</h1>
+      <p class="hero-copy">注册后，排盘资料、个人档案和后续留档只归当前账号自己可见。</p>
+    </header>
+
+    <section class="panel studio-panel auth-shell">
+      <div class="auth-grid">
+        <article class="auth-card">
+          <div class="panel-head"><h2>注册</h2></div>
+          <form id="register-form" class="auth-form">
+            <label class="field"><span>邮箱</span><input name="email" type="email" required></label>
+            <label class="field"><span>密码</span><input name="password" type="password" minlength="8" required></label>
+            <label class="field"><span>显示名</span><input name="displayName" type="text" placeholder="前台显示名"></label>
+            <label class="field"><span>姓名</span><input name="fullName" type="text" placeholder="可填真实姓名"></label>
+            <label class="field"><span>电话</span><input name="phone" type="text"></label>
+            <label class="field"><span>常住城市</span><input name="city" type="text"></label>
+            <label class="field"><span>生日</span><input name="birthDate" type="date"></label>
+            <label class="field"><span>备注</span><textarea name="notes" rows="3" placeholder="例如想关注定制饰品或长期命理档案"></textarea></label>
+            <label class="mini-choice"><input name="emailOptIn" type="checkbox"><span>接收工作室邮件</span></label>
+            <label class="mini-choice"><input name="jewelryOptIn" type="checkbox"><span>接收饰品上新与推荐</span></label>
+            <label class="mini-choice"><input name="customOptIn" type="checkbox"><span>接收私人订制建议</span></label>
+            <div class="studio-button-row">
+              <button class="studio-link-button" type="submit">注册并进入账户</button>
+            </div>
+          </form>
+          <p class="mini-meaning" id="register-note"></p>
+        </article>
+
+        <article class="auth-card">
+          <div class="panel-head"><h2>登录</h2></div>
+          <form id="login-form" class="auth-form">
+            <label class="field"><span>邮箱</span><input name="email" type="email" required></label>
+            <label class="field"><span>密码</span><input name="password" type="password" required></label>
+            <div class="studio-button-row">
+              <button class="studio-link-button" type="submit">登录</button>
+              <button class="studio-link-button studio-link-button-ghost" id="logout-button" type="button">退出</button>
+            </div>
+          </form>
+          <div class="result-card auth-status-card">
+            <div class="result-block compact">
+              <p class="block-label">当前状态</p>
+              <p id="account-status">正在读取账户状态。</p>
+            </div>
+          </div>
+          <div class="studio-button-row">
+            <a class="studio-link-button" href="/account/dashboard/">进入我的资料</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const registerForm = document.getElementById("register-form");
+      const loginForm = document.getElementById("login-form");
+      const logoutButton = document.getElementById("logout-button");
+      const registerNote = document.getElementById("register-note");
+      const accountStatus = document.getElementById("account-status");
+
+      const setStatus = (text) => {
+        if (accountStatus) accountStatus.textContent = text;
+      };
+
+      const readJson = async (response, fallback) => {
+        const raw = await response.text();
+        if (!raw) throw new Error(fallback);
+        try {
+          return JSON.parse(raw);
+        } catch {
+          throw new Error(fallback);
+        }
+      };
+
+      const refreshMe = async () => {
+        try {
+          const response = await fetch("/api/me", { credentials: "same-origin", cache: "no-store" });
+          const data = await readJson(response, "账户读取失败。");
+          if (data?.user?.email) {
+            setStatus(`已登录：${data.user.displayName || data.user.fullName || data.user.email}`);
+          } else {
+            setStatus("未登录。");
+          }
+        } catch {
+          setStatus("未登录。");
+        }
+      };
+
+      registerForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        registerNote.textContent = "正在注册。";
+        const form = new FormData(registerForm);
+        const payload = {
+          email: form.get("email"),
+          password: form.get("password"),
+          displayName: form.get("displayName"),
+          fullName: form.get("fullName"),
+          phone: form.get("phone"),
+          city: form.get("city"),
+          birthDate: form.get("birthDate"),
+          notes: form.get("notes"),
+          marketing: {
+            emailOptIn: form.get("emailOptIn") === "on",
+            jewelryOptIn: form.get("jewelryOptIn") === "on",
+            customOptIn: form.get("customOptIn") === "on",
+          },
+        };
+        try {
+          const response = await fetch("/api/auth/register", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await readJson(response, "注册失败。");
+          if (!response.ok || !data.ok) throw new Error(data.error || "注册失败。");
+          registerNote.textContent = "注册成功，正在进入账户页。";
+          window.location.href = "/account/dashboard/";
+        } catch (error) {
+          registerNote.textContent = error instanceof Error ? error.message : "注册失败。";
+        }
+      });
+
+      loginForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        setStatus("正在登录。");
+        const form = new FormData(loginForm);
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: form.get("email"),
+              password: form.get("password"),
+            }),
+          });
+          const data = await readJson(response, "登录失败。");
+          if (!response.ok || !data.ok) throw new Error(data.error || "登录失败。");
+          window.location.href = "/account/dashboard/";
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : "登录失败。");
+        }
+      });
+
+      logoutButton?.addEventListener("click", async () => {
+        try {
+          await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "same-origin",
+          });
+        } catch {}
+        setStatus("已退出。");
+      });
+
+      refreshMe();
+    })();
+  </script>
+</body>
+</html>
