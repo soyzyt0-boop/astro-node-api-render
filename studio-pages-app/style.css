@@ -4945,6 +4945,16 @@ body:has(.astro-panel) .astro-reading-guide p {
   color: #807b72;
 }
 
+.jewelry-preview-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  background: #efece6;
+}
+
 .shop-preview-card h3,
 .jewelry-feature-card h3 {
   margin: 8px 0 8px;
